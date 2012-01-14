@@ -3,13 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <fragment
-        android:id="@+id/fragment_grocerylist"
-        android:layout_width="0px"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:name="com.tyhollan.grocerylist.grocery.GroceryListFragment" />
-
     <FrameLayout
         android:id="@+id/frame_groceryitems"
         android:layout_width="0px"
