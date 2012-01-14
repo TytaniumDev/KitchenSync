@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/home_root"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <fragment android:name="com.tyhollan.grocerylist.DashboardFragment"
+    <fragment android:name="com.tyhollan.grocerylist.home.DashboardFragment"
         android:id="@+id/fragment_dashboard"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
