@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <fragment android:name="com.tyhollan.grocerylist.home.DashboardFragment"
+    <fragment android:name="com.tyhollan.grocerylist.view.home.DashboardFragment"
         android:id="@+id/fragment_dashboard"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
