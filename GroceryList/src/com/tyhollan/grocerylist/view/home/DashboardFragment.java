@@ -1,6 +1,7 @@
 package com.tyhollan.grocerylist.view.home;
 
 import com.tyhollan.grocerylist.R;
+import com.tyhollan.grocerylist.model.GoogleDocsAdapter;
 import com.tyhollan.grocerylist.view.grocery.GroceryActivity;
 
 import android.support.v4.app.Fragment;
@@ -24,7 +25,7 @@ public class DashboardFragment extends Fragment
                @Override
                public void onClick(View v)
                {
-                  startActivity(new Intent(getActivity(), GroceryActivity.class));
+                  startActivity(new Intent(getActivity(), GoogleDocsAdapter.class));
                }
             });
       

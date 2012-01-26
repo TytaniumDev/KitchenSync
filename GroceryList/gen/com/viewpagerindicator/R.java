@@ -696,6 +696,7 @@ containing a value of this type.
         public static final int abs__tab_icon=0x7f050018;
         public static final int abs__textButton=0x7f05001e;
         public static final int abs__up=0x7f050015;
+        public static final int button1=0x7f050029;
         public static final int fragment_dashboard=0x7f050026;
         public static final int frame_groceryitems=0x7f050024;
         public static final int grocery_list_launcher=0x7f050027;
@@ -739,7 +740,8 @@ containing a value of this type.
         public static final int activity_home=0x7f03000c;
         public static final int fragment_dashboard=0x7f03000d;
         public static final int fragment_groceryitems=0x7f03000e;
-        public static final int vpi__tab=0x7f03000f;
+        public static final int main=0x7f03000f;
+        public static final int vpi__tab=0x7f030010;
     }
     public static final class string {
         public static final int abs__tab_under_ab_tag=0x7f090000;
