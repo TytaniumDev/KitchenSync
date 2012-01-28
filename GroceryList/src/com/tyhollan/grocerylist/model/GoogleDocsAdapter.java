@@ -1,4 +1,5 @@
 package com.tyhollan.grocerylist.model;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +20,49 @@ import android.widget.Button;
 import foo.joeledstrom.spreadsheets.Spreadsheet;
 import foo.joeledstrom.spreadsheets.SpreadsheetsService;
 import foo.joeledstrom.spreadsheets.SpreadsheetsService.FeedIterator;
+import foo.joeledstrom.spreadsheets.SpreadsheetsService.SpreadsheetsException;
 import foo.joeledstrom.spreadsheets.SpreadsheetsService.TokenSupplier;
 import foo.joeledstrom.spreadsheets.Worksheet;
 import foo.joeledstrom.spreadsheets.WorksheetRow;
 
 public class GoogleDocsAdapter extends Activity {
+   private static final String GROCERY_LIST_DOC_NAME = "GroceryListAppData";
+   
+   private TokenSupplier supplier = new TokenSupplier() {
+      @Override
+      public void invalidateToken(String token) {
+          AccountManager.get(GoogleDocsAdapter.this).invalidateAuthToken("com.google", token);
+      }
+      @Override
+      public String getToken(String authTokenType) {
+          try {
+              return AccountManager.get(GoogleDocsAdapter.this).blockingGetAuthToken(account, authTokenType, true);
+          } catch (Exception e) {
+              throw new RuntimeException(e);
+          }
+      }
+   };
+   
+   public GroceryList getGroceryList()
+   {
+      GroceryList list = new GroceryList();
+      
+      SpreadsheetsService service = new SpreadsheetsService(getString(R.string.app_name), supplier);
+      try
+      {
+         FeedIterator<Spreadsheet> spreadsheetFeed = service.getSpreadsheets(GROCERY_LIST_DOC_NAME, true);
+         Spreadsheet data = spreadsheetFeed.getNextEntry();
+         
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+      return list;
+   }
+   
+   
+   
     private Button button1;
     private Account account;
 
@@ -102,27 +141,31 @@ public class GoogleDocsAdapter extends Activity {
                 // get all spreadsheets
                 
                 List<Spreadsheet> spreadsheets = spreadsheetFeed.getEntries(); // reads and parses the whole stream
+                for(int i = 0; i < spreadsheets.size(); i++)
+                {
+                   Log.i(tag, ""+ spreadsheets.get(i).getTitle());
+                }
                 Spreadsheet firstSpreadsheet = spreadsheets.get(0);
 
                 
-                Worksheet sheet = firstSpreadsheet.addWorksheet("Test sheet 1", Arrays.asList(new String[] {"col", "date", "content", "whatever"}));
+//                Worksheet sheet = firstSpreadsheet.addWorksheet("Test sheet 1", Arrays.asList(new String[] {"col", "date", "content", "whatever"}));
                 
                 
-                sheet.addRow(new HashMap<String, String>() {{
-                    put("col", "A VALUE");
-                    put("content", "testing !");
-                }});
-                
-                WorksheetRow row = sheet.addRow(new HashMap<String, String>() {{
-                    put("col", "another value");
-                    put("date", "43636544");
-                }});
-                
-                row.setValue("content", "changed this row!");
-                
+//                sheet.addRow(new HashMap<String, String>() {{
+//                    put("col", "A VALUE");
+//                    put("content", "testing !");
+//                }});
+//                
+//                WorksheetRow row = sheet.addRow(new HashMap<String, String>() {{
+//                    put("col", "another value");
+//                    put("date", "43636544");
+//                }});
+//                
+//                row.setValue("content", "changed this row!");
+//                
                 // commitChanges() returns false, if it couldnt safely change the row
                 // (someone else changed the row before we commited)
-                row.commitChanges();
+//                row.commitChanges();
                 
                 
                
