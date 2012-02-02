@@ -27,4 +27,20 @@ public class GroceryList
    {
       this.groceryList = groceryList;
    }
+   
+   public void addGroceryItem(GroceryItem item)
+   {
+      this.groceryList.add(item);
+   }
+   
+   @Override
+   public String toString()
+   {
+      String result = "";
+      for(GroceryItem item : groceryList)
+      {
+         result = result.concat(item.toString()).concat("\n");
+      }
+      return result;
+   }
 }

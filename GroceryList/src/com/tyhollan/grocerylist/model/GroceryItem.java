@@ -3,15 +3,15 @@ package com.tyhollan.grocerylist.model;
 public class GroceryItem
 {
    String  itemName;
-   Integer amount;
+   String amount;
    String  store;
    String  group;   // Change to an enum?
 
-   public GroceryItem(String itemName, Integer amount, String store,
+   public GroceryItem(String itemName, String amount, String store,
          String group)
    {
       this.itemName = (itemName == null) ? "" : itemName;
-      this.amount = (amount == null) ? 0 : amount;
+      this.amount = (amount == null) ? "" : amount;
       this.store = (store == null) ? "" : store;
       this.group = (group == null) ? "" : group;
    }
@@ -36,7 +36,7 @@ public class GroceryItem
    /**
     * @return the amount
     */
-   public Integer getAmount()
+   public String getAmount()
    {
       return amount;
    }
@@ -45,7 +45,7 @@ public class GroceryItem
     * @param amount
     *           the amount to set
     */
-   public void setAmount(Integer amount)
+   public void setAmount(String amount)
    {
       this.amount = amount;
    }
@@ -82,5 +82,11 @@ public class GroceryItem
    public void setGroup(String group)
    {
       this.group = group;
+   }
+   
+   @Override
+   public String toString()
+   {
+      return itemName + " " + amount + " " + store + " " + group;
    }
 }

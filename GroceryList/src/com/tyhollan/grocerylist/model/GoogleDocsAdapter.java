@@ -1,11 +1,4 @@
 package com.tyhollan.grocerylist.model;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
-import com.tyhollan.grocerylist.R;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -17,16 +10,21 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
+
+import com.tyhollan.grocerylist.R;
+
 import foo.joeledstrom.spreadsheets.Spreadsheet;
 import foo.joeledstrom.spreadsheets.SpreadsheetsService;
 import foo.joeledstrom.spreadsheets.SpreadsheetsService.FeedIterator;
-import foo.joeledstrom.spreadsheets.SpreadsheetsService.SpreadsheetsException;
 import foo.joeledstrom.spreadsheets.SpreadsheetsService.TokenSupplier;
 import foo.joeledstrom.spreadsheets.Worksheet;
 import foo.joeledstrom.spreadsheets.WorksheetRow;
 
 public class GoogleDocsAdapter extends Activity {
    private static final String GROCERY_LIST_DOC_NAME = "GroceryListAppData";
+   
+   private static TextView mTextView;
    
    private TokenSupplier supplier = new TokenSupplier() {
       @Override
@@ -51,8 +49,17 @@ public class GoogleDocsAdapter extends Activity {
       try
       {
          FeedIterator<Spreadsheet> spreadsheetFeed = service.getSpreadsheets(GROCERY_LIST_DOC_NAME, true);
-         Spreadsheet data = spreadsheetFeed.getNextEntry();
-         
+         Spreadsheet spreadsheet = spreadsheetFeed.getNextEntry();
+         FeedIterator<Worksheet> worksheetFeed = spreadsheet.getWorksheets();
+         Worksheet worksheet = worksheetFeed.getNextEntry();
+         FeedIterator<WorksheetRow> rows = worksheet.getRows();
+         for(WorksheetRow row : rows.getEntries())
+         {
+            Log.i(tag, "Column names: " + row.getColumnNames().toString());
+            Log.i(tag, "Item name: " + row.getValue("itemname"));
+            //TODO: Change to String constants
+            list.addGroceryItem(new GroceryItem(row.getValue("itemname"), row.getValue("amount"), row.getValue("store"), row.getValue("group")));
+         }
       }
       catch (Exception e)
       {
@@ -60,8 +67,6 @@ public class GoogleDocsAdapter extends Activity {
       }
       return list;
    }
-   
-   
    
     private Button button1;
     private Account account;
@@ -75,6 +80,7 @@ public class GoogleDocsAdapter extends Activity {
         setContentView(R.layout.main);
 
         button1 = (Button)findViewById(R.id.button1);
+        mTextView = (TextView) findViewById(R.id.textview);
 
         button1.setOnClickListener(new OnClickListener() {
 
@@ -130,24 +136,24 @@ public class GoogleDocsAdapter extends Activity {
             };
 
 
-            SpreadsheetsService service = new SpreadsheetsService("company-app-v2", supplier);
+//            SpreadsheetsService service = new SpreadsheetsService("company-app-v2", supplier);
 
 
             
 
             try {
-                service.createSpreadsheet("new spreadsheet 1", true);
-                FeedIterator<Spreadsheet> spreadsheetFeed = service.getSpreadsheets();
-                // get all spreadsheets
-                
-                List<Spreadsheet> spreadsheets = spreadsheetFeed.getEntries(); // reads and parses the whole stream
-                for(int i = 0; i < spreadsheets.size(); i++)
-                {
-                   Log.i(tag, ""+ spreadsheets.get(i).getTitle());
-                }
-                Spreadsheet firstSpreadsheet = spreadsheets.get(0);
-
-                
+//                service.createSpreadsheet("new spreadsheet 1", true);
+//                FeedIterator<Spreadsheet> spreadsheetFeed = service.getSpreadsheets();
+//                // get all spreadsheets
+//                
+//                List<Spreadsheet> spreadsheets = spreadsheetFeed.getEntries(); // reads and parses the whole stream
+//                for(int i = 0; i < spreadsheets.size(); i++)
+//                {
+//                   Log.i(tag, ""+ spreadsheets.get(i).getTitle());
+//                }
+//                Spreadsheet firstSpreadsheet = spreadsheets.get(0);
+//
+//                
 //                Worksheet sheet = firstSpreadsheet.addWorksheet("Test sheet 1", Arrays.asList(new String[] {"col", "date", "content", "whatever"}));
                 
                 
@@ -170,7 +176,7 @@ public class GoogleDocsAdapter extends Activity {
                 
                
                 
-                
+                getGroceryList();
                 Log.e(tag, "DONE");
             } catch (Exception e) {
                 throw new RuntimeException(e);
