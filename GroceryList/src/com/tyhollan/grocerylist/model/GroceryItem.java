@@ -2,18 +2,44 @@ package com.tyhollan.grocerylist.model;
 
 public class GroceryItem
 {
-   String  itemName;
-   String amount;
-   String  store;
-   String  group;   // Change to an enum?
+   private long    id;
+   private String itemName;
+   private String amount;
+   private String store;
+   private String group;   // Change to an enum?
 
-   public GroceryItem(String itemName, String amount, String store,
-         String group)
+   public GroceryItem(long id, String itemName, String amount, String store, String group)
    {
+      this.id = id;
       this.itemName = (itemName == null) ? "" : itemName;
       this.amount = (amount == null) ? "" : amount;
       this.store = (store == null) ? "" : store;
       this.group = (group == null) ? "" : group;
+   }
+   
+   public GroceryItem(String itemName, String amount, String store, String group)
+   {
+      this.id = -1;
+      this.itemName = (itemName == null) ? "" : itemName;
+      this.amount = (amount == null) ? "" : amount;
+      this.store = (store == null) ? "" : store;
+      this.group = (group == null) ? "" : group;
+   }
+
+   /**
+    * @return the id
+    */
+   public long getId()
+   {
+      return id;
+   }
+
+   /**
+    * @param id the id to set
+    */
+   public void setId(long id)
+   {
+      this.id = id;
    }
 
    /**
@@ -83,7 +109,7 @@ public class GroceryItem
    {
       this.group = group;
    }
-   
+
    @Override
    public String toString()
    {
