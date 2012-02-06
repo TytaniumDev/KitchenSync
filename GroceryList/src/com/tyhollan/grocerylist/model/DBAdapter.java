@@ -20,7 +20,7 @@ public class DBAdapter
    public static final String  KEY_ITEMNAME     = "itemname";
    public static final String  KEY_AMOUNT       = "amount";
    public static final String  KEY_STORE        = "store";
-   public static final String  KEY_GROUP        = "group";
+   public static final String  KEY_CATEGORY        = "category";
 
    private static final String TAG              = "DBAdapter";
    private DatabaseHelper      mDbHelper;
@@ -42,7 +42,7 @@ public class DBAdapter
                                                       + " text not null, "
                                                       + KEY_STORE
                                                       + " text not null, "
-                                                      + KEY_GROUP
+                                                      + KEY_CATEGORY
                                                       + " text not null);";
 
    private static final int    DATABASE_VERSION = 1;
@@ -121,7 +121,7 @@ public class DBAdapter
       initialValues.put(KEY_ITEMNAME, item.getItemName());
       initialValues.put(KEY_AMOUNT, item.getAmount());
       initialValues.put(KEY_STORE, item.getStore());
-      initialValues.put(KEY_GROUP, item.getGroup());
+      initialValues.put(KEY_CATEGORY, item.getGroup());
       return mDb.insert(GROCERY_TABLE, null, initialValues);
    }
 
@@ -132,7 +132,7 @@ public class DBAdapter
       initialValues.put(KEY_ITEMNAME, item.getItemName());
       initialValues.put(KEY_AMOUNT, item.getAmount());
       initialValues.put(KEY_STORE, item.getStore());
-      initialValues.put(KEY_GROUP, item.getGroup());
+      initialValues.put(KEY_CATEGORY, item.getGroup());
       String[] whereArgs =
       { Double.toString(item.getId()) };
       return mDb.update(GROCERY_TABLE, initialValues, KEY_ID + "=?", whereArgs);
@@ -149,6 +149,11 @@ public class DBAdapter
    {
       return mDb.delete(GROCERY_TABLE, KEY_ID + "=" + item.getId(), null) > 0;
    }
+   
+   public void deleteAll()   {
+      mDb.execSQL("drop table " + GROCERY_TABLE + ";");
+      mDb.execSQL(GROCERY_CREATE);
+   }
 
    /**
     * Return an ArrayList of all notes in the database
@@ -163,7 +168,7 @@ public class DBAdapter
       int itemname = noteCursor.getColumnIndexOrThrow(KEY_ITEMNAME);
       int amount = noteCursor.getColumnIndexOrThrow(KEY_AMOUNT);
       int store = noteCursor.getColumnIndexOrThrow(KEY_STORE);
-      int group = noteCursor.getColumnIndexOrThrow(KEY_GROUP);
+      int group = noteCursor.getColumnIndexOrThrow(KEY_CATEGORY);
 
       ArrayList<GroceryItem> groceryItems = new ArrayList<GroceryItem>();
       if (noteCursor.moveToFirst())
@@ -177,5 +182,16 @@ public class DBAdapter
       }
       noteCursor.close();
       return groceryItems;
+   }
+
+   public Cursor getGroceryCursor()
+   {
+      return mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
+   }
+   
+   public static String[] getFields()
+   {
+      String[] fields = { KEY_ITEMNAME, KEY_AMOUNT, KEY_STORE, KEY_CATEGORY };
+      return fields;
    }
 }

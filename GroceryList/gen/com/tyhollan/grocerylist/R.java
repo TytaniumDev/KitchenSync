@@ -430,22 +430,22 @@ containing a value of this type.
         public static final int abs__textButton=0x7f050019;
         public static final int abs__up=0x7f050010;
         public static final int button1=0x7f050025;
-        public static final int fragment_dashboard=0x7f050021;
-        public static final int frame_groceryitems=0x7f05001f;
-        public static final int grocery_list_launcher=0x7f050022;
+        public static final int fragment_dashboard=0x7f05001d;
+        public static final int groceryRowAmount=0x7f050022;
+        public static final int groceryRowItemName=0x7f050021;
+        public static final int groceryRowStore=0x7f050023;
+        public static final int grocery_list_launcher=0x7f05001f;
         public static final int homeAsUp=0x7f050006;
-        public static final int home_root=0x7f050020;
-        public static final int indicator=0x7f05001d;
+        public static final int home_root=0x7f05001e;
         public static final int listMode=0x7f050002;
         public static final int normal=0x7f050001;
-        public static final int recipe_book_launcher=0x7f050023;
+        public static final int recipe_book_launcher=0x7f050020;
         public static final int showCustom=0x7f050008;
         public static final int showHome=0x7f050005;
         public static final int showTitle=0x7f050007;
         public static final int tabMode=0x7f050003;
         public static final int textview=0x7f050024;
         public static final int useLogo=0x7f050004;
-        public static final int viewpager=0x7f05001e;
         public static final int wrap_content=0x7f050000;
     }
     public static final class integer {
@@ -467,7 +467,8 @@ containing a value of this type.
         public static final int activity_home=0x7f03000c;
         public static final int fragment_dashboard=0x7f03000d;
         public static final int fragment_groceryitems=0x7f03000e;
-        public static final int main=0x7f03000f;
+        public static final int grocery_list_row=0x7f03000f;
+        public static final int main=0x7f030010;
     }
     public static final class string {
         public static final int abs__tab_under_ab_tag=0x7f090000;

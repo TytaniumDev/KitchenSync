@@ -2,16 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
-    <com.viewpagerindicator.TitlePageIndicator
-        android:id="@+id/indicator"
+    
+    <fragment android:name="com.tyhollan.grocerylist.view.grocery.GroceryListFragment"
+        android:id="@+id/fragment_dashboard"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
+        android:layout_height="fill_parent" />
 
 </LinearLayout>
