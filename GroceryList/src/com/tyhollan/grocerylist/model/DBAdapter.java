@@ -6,8 +6,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract.Data;
 import android.util.Log;
@@ -20,32 +22,26 @@ public class DBAdapter
    public static final String  KEY_ITEMNAME     = "itemname";
    public static final String  KEY_AMOUNT       = "amount";
    public static final String  KEY_STORE        = "store";
-   public static final String  KEY_CATEGORY        = "category";
+   public static final String  KEY_CATEGORY     = "category";
 
    private static final String TAG              = "DBAdapter";
    private DatabaseHelper      mDbHelper;
    private SQLiteDatabase      mDb;
+   private GoogleDocsAdapter   mDocsAdapter;
 
    /**
     * Database creation sql statement
     */
    private static final String DATABASE_NAME    = "data";
    private static final String GROCERY_TABLE    = "grocerylist";
-   private static final String GROCERY_CREATE   = "create table "
-                                                      + GROCERY_TABLE + " ("
-                                                      + KEY_ID
-                                                      + " integer primary key "
-                                                      + "autoincrement, "
-                                                      + KEY_ITEMNAME
-                                                      + " text not null, "
-                                                      + KEY_AMOUNT
-                                                      + " text not null, "
-                                                      + KEY_STORE
-                                                      + " text not null, "
-                                                      + KEY_CATEGORY
-                                                      + " text not null);";
+   private static final String GROCERY_CREATE   = "create table " + GROCERY_TABLE + " (" + KEY_ID
+                                                      + " integer primary key " + "autoincrement, " + KEY_ITEMNAME
+                                                      + " text not null, " + KEY_AMOUNT + " text not null, "
+                                                      + KEY_STORE + " text not null, " + KEY_CATEGORY
+                                                      + " text not null, " + "UNIQUE " + " (" + KEY_ITEMNAME + " )"
+                                                      + ");";
 
-   private static final int    DATABASE_VERSION = 1;
+   private static final int    DATABASE_VERSION = 2;
 
    private final Context       mCtx;
 
@@ -68,8 +64,8 @@ public class DBAdapter
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
       {
          // TODO: Make this alter tables instead of drop everything
-         Log.i(TAG, "Upgrading database from version " + oldVersion + " to "
-               + newVersion + ", which will destroy all data");
+         Log.i(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
+               + ", which will destroy all data");
          Log.i(TAG, "DB version is: " + db.getVersion());
          db.execSQL("drop table " + GROCERY_TABLE + ";");
          db.execSQL(GROCERY_CREATE);
@@ -111,31 +107,59 @@ public class DBAdapter
       mDbHelper.close();
    }
 
+   public void sync()
+   {
+      sync(null);
+   }
+
+   public void sync(final Cursor cursor)
+   {
+      if(isGDocsSyncingEnabled())
+      {
+         new SyncGroceryList().execute(cursor);
+      }
+   }
+   
+   private class SyncGroceryList extends AsyncTask<Cursor, Void, Void>
+   {
+      Cursor cursor;
+      @Override
+      protected Void doInBackground(Cursor... params)
+      {
+         mDocsAdapter = new GoogleDocsAdapter(mCtx);
+         cursor = params[0];
+         deleteAll();
+         GroceryList list = mDocsAdapter.getGroceryList();
+         for (GroceryItem item : list.getGroceryList())
+         {
+            saveGroceryItem(item);
+         }
+         return null;
+      }
+      
+      @Override
+      protected void onPostExecute(Void result)
+      {
+         cursor.requery();
+      }
+   }
+
    /**
     * Add a grocery item to the database
     */
-   public long addGroceryItem(GroceryItem item)
+   public long saveGroceryItem(GroceryItem item)
    {
-      Log.i(TAG, "In DatabaseHelper.addGroceryItem");
+      if(isGDocsSyncingEnabled())
+      {
+         //mDocsAdapter.saveGroceryItem(item);
+      }
+      Log.i(TAG, "In DatabaseHelper.saveGroceryItem");
       ContentValues initialValues = new ContentValues();
       initialValues.put(KEY_ITEMNAME, item.getItemName());
       initialValues.put(KEY_AMOUNT, item.getAmount());
       initialValues.put(KEY_STORE, item.getStore());
-      initialValues.put(KEY_CATEGORY, item.getGroup());
-      return mDb.insert(GROCERY_TABLE, null, initialValues);
-   }
-
-   public long editGroceryItem(GroceryItem item)
-   {
-      Log.i(TAG, "In DatabaseHelper.editGroceryItem");
-      ContentValues initialValues = new ContentValues();
-      initialValues.put(KEY_ITEMNAME, item.getItemName());
-      initialValues.put(KEY_AMOUNT, item.getAmount());
-      initialValues.put(KEY_STORE, item.getStore());
-      initialValues.put(KEY_CATEGORY, item.getGroup());
-      String[] whereArgs =
-      { Double.toString(item.getId()) };
-      return mDb.update(GROCERY_TABLE, initialValues, KEY_ID + "=?", whereArgs);
+      initialValues.put(KEY_CATEGORY, item.getCategory());
+      return mDb.replace(GROCERY_TABLE, null, initialValues);
    }
 
    /**
@@ -147,10 +171,15 @@ public class DBAdapter
     */
    public boolean deleteGroceryItem(GroceryItem item)
    {
+      if(isGDocsSyncingEnabled())
+      {
+         mDocsAdapter.deleteGroceryItem(item);
+      }
       return mDb.delete(GROCERY_TABLE, KEY_ID + "=" + item.getId(), null) > 0;
    }
-   
-   public void deleteAll()   {
+
+   public void deleteAll()
+   {
       mDb.execSQL("drop table " + GROCERY_TABLE + ";");
       mDb.execSQL(GROCERY_CREATE);
    }
@@ -163,7 +192,6 @@ public class DBAdapter
    public ArrayList<GroceryItem> fetchAllGroceryItems()
    {
       Cursor noteCursor = mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
-
       int id = noteCursor.getColumnIndexOrThrow(KEY_ID);
       int itemname = noteCursor.getColumnIndexOrThrow(KEY_ITEMNAME);
       int amount = noteCursor.getColumnIndexOrThrow(KEY_AMOUNT);
@@ -175,9 +203,8 @@ public class DBAdapter
       {
          do
          {
-            groceryItems.add(new GroceryItem(noteCursor.getLong(id), noteCursor
-                  .getString(itemname), noteCursor.getString(amount),
-                  noteCursor.getString(store), noteCursor.getString(group)));
+            groceryItems.add(new GroceryItem(noteCursor.getLong(id), noteCursor.getString(itemname), noteCursor
+                  .getString(amount), noteCursor.getString(store), noteCursor.getString(group)));
          } while (noteCursor.moveToNext());
       }
       noteCursor.close();
@@ -188,10 +215,17 @@ public class DBAdapter
    {
       return mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
    }
-   
+
    public static String[] getFields()
    {
-      String[] fields = { KEY_ITEMNAME, KEY_AMOUNT, KEY_STORE, KEY_CATEGORY };
+      String[] fields =
+      { KEY_ITEMNAME, KEY_AMOUNT, KEY_STORE, KEY_CATEGORY };
       return fields;
+   }
+   
+   private boolean isGDocsSyncingEnabled()
+   {
+      //TODO: Actually see if it is enabled
+      return true;
    }
 }

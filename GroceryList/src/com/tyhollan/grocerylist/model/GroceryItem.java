@@ -6,24 +6,24 @@ public class GroceryItem
    private String itemName;
    private String amount;
    private String store;
-   private String group;   // Change to an enum?
+   private String category;
 
-   public GroceryItem(long id, String itemName, String amount, String store, String group)
+   public GroceryItem(long id, String itemName, String amount, String store, String category)
    {
       this.id = id;
       this.itemName = (itemName == null) ? "" : itemName;
       this.amount = (amount == null) ? "" : amount;
       this.store = (store == null) ? "" : store;
-      this.group = (group == null) ? "" : group;
+      this.category = (category == null) ? "" : category;
    }
    
-   public GroceryItem(String itemName, String amount, String store, String group)
+   public GroceryItem(String itemName, String amount, String store, String category)
    {
       this.id = -1;
       this.itemName = (itemName == null) ? "" : itemName;
       this.amount = (amount == null) ? "" : amount;
       this.store = (store == null) ? "" : store;
-      this.group = (group == null) ? "" : group;
+      this.category = (category == null) ? "" : category;
    }
 
    /**
@@ -96,23 +96,23 @@ public class GroceryItem
    /**
     * @return the group
     */
-   public String getGroup()
+   public String getCategory()
    {
-      return group;
+      return category;
    }
 
    /**
     * @param group
     *           the group to set
     */
-   public void setGroup(String group)
+   public void setCategory(String category)
    {
-      this.group = group;
+      this.category = category;
    }
 
    @Override
    public String toString()
    {
-      return itemName + " " + amount + " " + store + " " + group;
+      return itemName + " " + amount + " " + store + " " + category;
    }
 }

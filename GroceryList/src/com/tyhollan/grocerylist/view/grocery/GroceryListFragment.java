@@ -20,7 +20,6 @@ import com.tyhollan.grocerylist.view.home.HomeActivity;
 public class GroceryListFragment extends ListFragment
 {
    private DBAdapter         mDBAdapter;
-   private GoogleDocsAdapter mDocsAdapter;
    private Cursor            mDBCursor;
    private boolean           mDualPane;
    private int               mCurCheckPosition = 0;
@@ -34,12 +33,11 @@ public class GroceryListFragment extends ListFragment
       mDBAdapter = new DBAdapter(getActivity());
       mDBAdapter.open();
       // Get data
-      mDocsAdapter = new GoogleDocsAdapter();
       mDBCursor = mDBAdapter.getGroceryCursor();
       setListAdapter(new SimpleCursorAdapter(getActivity(), R.layout.grocery_list_row, mDBCursor,
             DBAdapter.getFields(), new int[]
             { R.id.groceryRowItemName, R.id.groceryRowAmount, R.id.groceryRowStore }));
-      new SyncGroceryList().execute();
+      mDBAdapter.sync(mDBCursor);
       // Check to see if we have a frame in which to embed the items
       // fragment directly in the containing UI.
       // View itemsframe = getActivity().findViewById(R.id.frame_groceryitems);
@@ -59,27 +57,6 @@ public class GroceryListFragment extends ListFragment
       // // Make sure our UI is in the correct state.
       // showGroceryItems(mCurCheckPosition);
       // }
-   }
-
-   private class SyncGroceryList extends AsyncTask<Void, Void, Void>
-   {
-      @Override
-      protected Void doInBackground(Void... params)
-      {
-         mDBAdapter.deleteAll();
-         GroceryList list = mDocsAdapter.getGroceryList(getActivity());
-         for (GroceryItem item : list.getGroceryList())
-         {
-            mDBAdapter.addGroceryItem(item);
-         }
-         return null;
-      }
-
-      @Override
-      protected void onPostExecute(Void result)
-      {
-         mDBCursor.requery();
-      }
    }
 
    @Override

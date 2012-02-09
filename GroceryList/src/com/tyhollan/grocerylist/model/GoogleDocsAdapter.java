@@ -1,9 +1,10 @@
 package com.tyhollan.grocerylist.model;
 
-import android.accounts.Account;
+import java.net.URL;
+import java.util.HashMap;
+
 import android.content.Context;
 import android.util.Log;
-import android.widget.Button;
 
 import com.tyhollan.grocerylist.R;
 
@@ -11,33 +12,50 @@ import foo.joeledstrom.spreadsheets.Spreadsheet;
 import foo.joeledstrom.spreadsheets.SpreadsheetsService;
 import foo.joeledstrom.spreadsheets.SpreadsheetsService.FeedIterator;
 import foo.joeledstrom.spreadsheets.Worksheet;
+import foo.joeledstrom.spreadsheets.Worksheet.ListEntry;
+import foo.joeledstrom.spreadsheets.Worksheet.ListFeed;
 import foo.joeledstrom.spreadsheets.WorksheetRow;
 
 public class GoogleDocsAdapter
 {
    private static final String GROCERY_LIST_DOC_NAME = "GroceryListAppData";
+   private static final String tag = "SpreadsheetTestActivity";
+   
+   private Worksheet mWorksheet;
+   private Context mCtx;
 
-   public GroceryList getGroceryList(Context context)
+   public GoogleDocsAdapter(Context context)
    {
-      GroceryList list = new GroceryList();
-      SpreadsheetsService service = new SpreadsheetsService(context.getString(R.string.app_name),
-            ((AppNameApplication) context.getApplicationContext()).getAuthTokenSupplier());
+      mCtx = context;
+      SpreadsheetsService service = new SpreadsheetsService(mCtx.getString(R.string.app_name),
+            ((AppNameApplication) mCtx.getApplicationContext()).getAuthTokenSupplier());
       try
       {
          FeedIterator<Spreadsheet> spreadsheetFeed = service.getSpreadsheets(GROCERY_LIST_DOC_NAME, true);
          Spreadsheet spreadsheet = spreadsheetFeed.getNextEntry();
          FeedIterator<Worksheet> worksheetFeed = spreadsheet.getWorksheets();
-         Worksheet worksheet = worksheetFeed.getNextEntry();
-         FeedIterator<WorksheetRow> rows = worksheet.getRows();
+         mWorksheet = worksheetFeed.getNextEntry();
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+   }
+   
+   public GroceryList getGroceryList()
+   {
+      GroceryList list = new GroceryList();
+      try
+      {
+         FeedIterator<WorksheetRow> rows = mWorksheet.getRows();
          for (WorksheetRow row : rows.getEntries())
          {
             Log.i(tag, "Column names: " + row.getColumnNames().toString());
-            Log.i(tag, "Item name: " + row.getValue("itemname"));
+            Log.i(tag, "Item name: " + row.getValue(DBAdapter.KEY_ITEMNAME));
             // TODO: Change to String constants
-            GroceryItem item = new GroceryItem(row.getValue("itemname"), row.getValue("amount"), row.getValue("store"),
-                  row.getValue("category"));
+            GroceryItem item = new GroceryItem(row.getValue(DBAdapter.KEY_ITEMNAME), row.getValue(DBAdapter.KEY_AMOUNT), row.getValue(DBAdapter.KEY_STORE),
+                  row.getValue(DBAdapter.KEY_CATEGORY));
             list.addGroceryItem(item);
-
          }
       }
       catch (Exception e)
@@ -47,11 +65,27 @@ public class GoogleDocsAdapter
       return list;
    }
 
-   private Button              button1;
-   private Account             account;
-
-   private static final String tag = "SpreadsheetTestActivity";
-
+   public void saveGroceryItem(final GroceryItem item)
+   {
+      try
+      {
+         mWorksheet.addRow(new HashMap<String, String>() {{
+            put(DBAdapter.KEY_ITEMNAME, item.getItemName());
+            put(DBAdapter.KEY_AMOUNT, item.getAmount());
+            put(DBAdapter.KEY_STORE, item.getStore());
+            put(DBAdapter.KEY_CATEGORY, item.getCategory());
+         }});
+      }
+      catch (Exception e)
+      {
+         e.printStackTrace();
+      }
+   }
+   
+   public void deleteGroceryItem(GroceryItem item)
+   {
+      
+   }
    // /** Called when the activity is first created. */
    // @Override
    // public void onCreate(Bundle savedInstanceState) {
