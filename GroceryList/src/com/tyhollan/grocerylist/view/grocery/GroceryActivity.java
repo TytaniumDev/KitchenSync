@@ -3,6 +3,7 @@ package com.tyhollan.grocerylist.view.grocery;
 import android.os.Bundle;
 
 import com.tyhollan.grocerylist.R;
+import com.tyhollan.grocerylist.model.AppNameApplication;
 import com.tyhollan.grocerylist.view.BaseFragmentActivity;
 
 public class GroceryActivity extends BaseFragmentActivity

@@ -4,11 +4,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry exported="true" kind="lib" path="lib/guava-r09.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/httpclient-4.0.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/httpcore-4.0.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/google-api-client-googleapis-1.4.1-beta.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/google-api-client-1.4.1-beta.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/google-api-client-extensions-android2-1.4.1-beta.jar"/>
+	<classpathentry kind="lib" path="lib/gss_lib_2.2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

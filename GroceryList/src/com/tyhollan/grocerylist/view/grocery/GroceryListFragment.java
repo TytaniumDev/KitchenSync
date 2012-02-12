@@ -1,43 +1,38 @@
 package com.tyhollan.grocerylist.view.grocery;
 
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.tyhollan.grocerylist.R;
-import com.tyhollan.grocerylist.model.DBAdapter;
-import com.tyhollan.grocerylist.model.GoogleDocsAdapter;
+import com.tyhollan.grocerylist.model.AppNameApplication;
 import com.tyhollan.grocerylist.model.GroceryItem;
-import com.tyhollan.grocerylist.model.GroceryList;
-import com.tyhollan.grocerylist.view.home.HomeActivity;
+import com.tyhollan.grocerylist.model.GroceryListModel;
 
 public class GroceryListFragment extends ListFragment
 {
-   private DBAdapter         mDBAdapter;
-   private Cursor            mDBCursor;
-   private boolean           mDualPane;
-   private int               mCurCheckPosition = 0;
+   private boolean   mDualPane;
+   private int       mCurCheckPosition = 0;
+   private static ArrayAdapter<GroceryItem> mGroceryListAdapter;
+   private GroceryListModel mGroceryListModel;
 
    @Override
    public void onActivityCreated(Bundle savedState)
    {
       super.onActivityCreated(savedState);
+      mGroceryListModel = ((AppNameApplication) getActivity().getApplicationContext()).getGroceryListModel();
 
-      // Hook up to database
-      mDBAdapter = new DBAdapter(getActivity());
-      mDBAdapter.open();
-      // Get data
-      mDBCursor = mDBAdapter.getGroceryCursor();
-      setListAdapter(new SimpleCursorAdapter(getActivity(), R.layout.grocery_list_row, mDBCursor,
-            DBAdapter.getFields(), new int[]
-            { R.id.groceryRowItemName, R.id.groceryRowAmount, R.id.groceryRowStore }));
-      mDBAdapter.sync(mDBCursor);
+      mGroceryListAdapter = getGroceryListAdapter();
+      this.setListAdapter(mGroceryListAdapter);
+      mGroceryListModel.syncGroceryListData(getActivity());
+
       // Check to see if we have a frame in which to embed the items
       // fragment directly in the containing UI.
       // View itemsframe = getActivity().findViewById(R.id.frame_groceryitems);
@@ -59,11 +54,52 @@ public class GroceryListFragment extends ListFragment
       // }
    }
 
-   @Override
-   public void onDestroy()
+   private ArrayAdapter<GroceryItem> getGroceryListAdapter()
    {
-      mDBAdapter.close();
-      super.onDestroy();
+      return new ArrayAdapter<GroceryItem>(getActivity(), R.layout.grocery_list_row, mGroceryListModel.getGroceryListArray())
+      {
+         @Override
+         public View getView(final int position, View convertView, ViewGroup parent)
+         {
+            View row;
+            if (null == convertView)
+            {
+               LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(
+                     Context.LAYOUT_INFLATER_SERVICE);
+               row = inflater.inflate(R.layout.grocery_list_row, null);
+            }
+            else
+            {
+               row = convertView;
+            }
+            //Item Name
+            TextView itemNameView = (TextView) row.findViewById(R.id.groceryRowItemName);
+            itemNameView.setText(getItem(position).getItemName());
+            
+            //Amount
+            TextView amountView = (TextView) row.findViewById(R.id.groceryRowAmount);
+            amountView.setText(getItem(position).getAmount());
+            
+            //Delete Button
+            ImageButton deleteButton = (ImageButton) row.findViewById(R.id.groceryRowDeleteButton);
+            deleteButton.setOnClickListener(new OnClickListener()
+            {
+               @Override
+               public void onClick(View v)
+               {
+                  mGroceryListModel.deleteGroceryItem(getItem(position));
+                  updateListView();
+               }
+            });
+            
+            return row;
+         }
+      };
+   }
+   
+   public static void updateListView()
+   {
+      mGroceryListAdapter.notifyDataSetChanged();
    }
 
    @Override

@@ -4,5 +4,5 @@
     <string name="app_name">App Name Placeholder</string>
     <string name="grocery_list">Grocery List</string>
     <string name="recipe_book">Recipe Book</string>
-    
+    <string name="deleteButtonDescription">Deletes this grocery item</string>
 </resources>

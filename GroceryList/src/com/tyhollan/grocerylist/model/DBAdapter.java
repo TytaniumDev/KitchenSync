@@ -27,7 +27,6 @@ public class DBAdapter
    private static final String TAG              = "DBAdapter";
    private DatabaseHelper      mDbHelper;
    private SQLiteDatabase      mDb;
-   private GoogleDocsAdapter   mDocsAdapter;
 
    /**
     * Database creation sql statement
@@ -107,52 +106,11 @@ public class DBAdapter
       mDbHelper.close();
    }
 
-   public void sync()
-   {
-      sync(null);
-   }
-
-   public void sync(final Cursor cursor)
-   {
-      if(isGDocsSyncingEnabled())
-      {
-         new SyncGroceryList().execute(cursor);
-      }
-   }
-   
-   private class SyncGroceryList extends AsyncTask<Cursor, Void, Void>
-   {
-      Cursor cursor;
-      @Override
-      protected Void doInBackground(Cursor... params)
-      {
-         mDocsAdapter = new GoogleDocsAdapter(mCtx);
-         cursor = params[0];
-         deleteAll();
-         GroceryList list = mDocsAdapter.getGroceryList();
-         for (GroceryItem item : list.getGroceryList())
-         {
-            saveGroceryItem(item);
-         }
-         return null;
-      }
-      
-      @Override
-      protected void onPostExecute(Void result)
-      {
-         cursor.requery();
-      }
-   }
-
    /**
     * Add a grocery item to the database
     */
    public long saveGroceryItem(GroceryItem item)
    {
-      if(isGDocsSyncingEnabled())
-      {
-         //mDocsAdapter.saveGroceryItem(item);
-      }
       Log.i(TAG, "In DatabaseHelper.saveGroceryItem");
       ContentValues initialValues = new ContentValues();
       initialValues.put(KEY_ITEMNAME, item.getItemName());
@@ -171,10 +129,6 @@ public class DBAdapter
     */
    public boolean deleteGroceryItem(GroceryItem item)
    {
-      if(isGDocsSyncingEnabled())
-      {
-         mDocsAdapter.deleteGroceryItem(item);
-      }
       return mDb.delete(GROCERY_TABLE, KEY_ID + "=" + item.getId(), null) > 0;
    }
 
@@ -189,7 +143,7 @@ public class DBAdapter
     * 
     * @return ArrayList<Note> All Notes in the database
     */
-   public ArrayList<GroceryItem> fetchAllGroceryItems()
+   public ArrayList<GroceryItem> getGroceryList()
    {
       Cursor noteCursor = mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
       int id = noteCursor.getColumnIndexOrThrow(KEY_ID);
@@ -198,17 +152,17 @@ public class DBAdapter
       int store = noteCursor.getColumnIndexOrThrow(KEY_STORE);
       int group = noteCursor.getColumnIndexOrThrow(KEY_CATEGORY);
 
-      ArrayList<GroceryItem> groceryItems = new ArrayList<GroceryItem>();
+      ArrayList<GroceryItem> list = new ArrayList<GroceryItem>();
       if (noteCursor.moveToFirst())
       {
          do
          {
-            groceryItems.add(new GroceryItem(noteCursor.getLong(id), noteCursor.getString(itemname), noteCursor
+            list.add(new GroceryItem(noteCursor.getLong(id), noteCursor.getString(itemname), noteCursor
                   .getString(amount), noteCursor.getString(store), noteCursor.getString(group)));
          } while (noteCursor.moveToNext());
       }
       noteCursor.close();
-      return groceryItems;
+      return list;
    }
 
    public Cursor getGroceryCursor()
@@ -221,11 +175,5 @@ public class DBAdapter
       String[] fields =
       { KEY_ITEMNAME, KEY_AMOUNT, KEY_STORE, KEY_CATEGORY };
       return fields;
-   }
-   
-   private boolean isGDocsSyncingEnabled()
-   {
-      //TODO: Actually see if it is enabled
-      return true;
    }
 }

@@ -405,8 +405,9 @@ containing a value of this type.
         public static final int abs__tab_unselected_pressed_focused_holo=0x7f020027;
         public static final int abs__tab_unselected_pressed_holo=0x7f020028;
         public static final int app_icon=0x7f020029;
-        public static final int grocery_list_icon=0x7f02002a;
-        public static final int recipe_book_icon=0x7f02002b;
+        public static final int delete_icon=0x7f02002a;
+        public static final int grocery_list_icon=0x7f02002b;
+        public static final int recipe_book_icon=0x7f02002c;
     }
     public static final class id {
         public static final int abs__action_bar=0x7f05001b;
@@ -432,8 +433,8 @@ containing a value of this type.
         public static final int button1=0x7f050025;
         public static final int fragment_dashboard=0x7f05001d;
         public static final int groceryRowAmount=0x7f050022;
+        public static final int groceryRowDeleteButton=0x7f050023;
         public static final int groceryRowItemName=0x7f050021;
-        public static final int groceryRowStore=0x7f050023;
         public static final int grocery_list_launcher=0x7f05001f;
         public static final int homeAsUp=0x7f050006;
         public static final int home_root=0x7f05001e;
@@ -473,6 +474,7 @@ containing a value of this type.
     public static final class string {
         public static final int abs__tab_under_ab_tag=0x7f090000;
         public static final int app_name=0x7f090001;
+        public static final int deleteButtonDescription=0x7f090004;
         public static final int grocery_list=0x7f090002;
         public static final int recipe_book=0x7f090003;
     }

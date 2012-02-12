@@ -9,18 +9,25 @@
         android:layout_width = "wrap_content"
         android:layout_height = "wrap_content"
         android:layout_alignParentLeft="true"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingLeft="5dp"
         />
     <TextView 
         android:id = "@+id/groceryRowAmount"
         android:layout_width = "wrap_content"
         android:layout_height = "wrap_content"
-        android:layout_toRightOf="@+id/groceryRowItemName"
-        android:paddingLeft="10dp"
+        android:layout_below="@+id/groceryRowItemName"
+        android:paddingLeft="5dp"
         />
-    <TextView 
-        android:id = "@+id/groceryRowStore"
-        android:layout_width = "wrap_content"
-        android:layout_height = "wrap_content"
+    
+    <ImageButton
+        android:id="@+id/groceryRowDeleteButton"
+        android:src="@drawable/delete_icon"
+        android:contentDescription="@string/deleteButtonDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:paddingRight="5dp" 
         />
 </RelativeLayout>

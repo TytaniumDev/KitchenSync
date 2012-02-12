@@ -25,6 +25,15 @@ public class GroceryItem
       this.store = (store == null) ? "" : store;
       this.category = (category == null) ? "" : category;
    }
+   
+   public GroceryItem()
+   {
+      this.id = -1;
+      this.itemName = "";
+      this.amount = "";
+      this.store = "";
+      this.category = "";
+   }
 
    /**
     * @return the id
@@ -114,5 +123,27 @@ public class GroceryItem
    public String toString()
    {
       return itemName + " " + amount + " " + store + " " + category;
+   }
+   
+   @Override
+   public boolean equals(Object o)
+   {
+      if(o == null)
+      {
+         return false;
+      }
+      if(o == this)
+      {
+         return true;
+      }
+      if(o.getClass() != getClass())
+      {
+         return false;
+      }
+      if(((GroceryItem)o).getItemName().equals(this.itemName))
+      {
+         return true;
+      }
+      return false;
    }
 }
