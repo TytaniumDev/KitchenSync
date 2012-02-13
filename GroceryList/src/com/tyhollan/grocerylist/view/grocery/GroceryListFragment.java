@@ -3,7 +3,11 @@ package com.tyhollan.grocerylist.view.grocery;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.view.Menu;
+import android.support.v4.view.MenuItem;
+import android.support.v4.view.MenuItem.OnMenuItemClickListener;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -16,6 +20,7 @@ import com.tyhollan.grocerylist.model.AppNameApplication;
 import com.tyhollan.grocerylist.model.GroceryItem;
 import com.tyhollan.grocerylist.model.GroceryListModel;
 
+
 public class GroceryListFragment extends ListFragment
 {
    private boolean                   mDualPane;
@@ -27,6 +32,7 @@ public class GroceryListFragment extends ListFragment
    public void onActivityCreated(Bundle savedState)
    {
       super.onActivityCreated(savedState);
+      setHasOptionsMenu(true);
       mGroceryListModel = ((AppNameApplication) getActivity().getApplicationContext()).getGroceryListModel();
 
       mGroceryListAdapter = getGroceryListAdapter();
@@ -34,6 +40,7 @@ public class GroceryListFragment extends ListFragment
       mGroceryListModel.setGroceryListAdapter(mGroceryListAdapter);
       mGroceryListModel.setGroceryListActivity(getActivity());
       mGroceryListModel.syncGroceryListData(getActivity());
+      
 
       // Check to see if we have a frame in which to embed the items
       // fragment directly in the containing UI.
@@ -157,4 +164,20 @@ public class GroceryListFragment extends ListFragment
    // startActivity(intent);
    // }
    // }
+
+   @Override
+   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+   {
+      inflater.inflate(R.menu.grocery_list_menu, menu);
+      final MenuItem refresh = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
+      refresh.setOnMenuItemClickListener(new OnMenuItemClickListener()
+      {
+         public boolean onMenuItemClick(MenuItem item)
+         {
+            mGroceryListModel.syncGroceryListData(getActivity());
+            return false;
+         }
+      });
+      super.onCreateOptionsMenu(menu, inflater);
+   }
 }

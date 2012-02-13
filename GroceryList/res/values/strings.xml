@@ -5,4 +5,6 @@
     <string name="grocery_list">Grocery List</string>
     <string name="recipe_book">Recipe Book</string>
     <string name="deleteButtonDescription">Deletes this grocery item</string>
+    <string name="refresh">Refresh</string>
+    
 </resources>
