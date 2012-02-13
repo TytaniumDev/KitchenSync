@@ -7,14 +7,18 @@ public class GroceryItem
    private String amount;
    private String store;
    private String category;
+   //Used to store Google Docs row location
+   private String rowIndex;
 
-   public GroceryItem(long id, String itemName, String amount, String store, String category)
+   //Constructor used in the DBAdapter
+   public GroceryItem(long id, String itemName, String amount, String store, String category, String rowIndex)
    {
       this.id = id;
       this.itemName = (itemName == null) ? "" : itemName;
       this.amount = (amount == null) ? "" : amount;
       this.store = (store == null) ? "" : store;
       this.category = (category == null) ? "" : category;
+      this.rowIndex = (rowIndex == null) ? "" : rowIndex;
    }
    
    public GroceryItem(String itemName, String amount, String store, String category)
@@ -117,6 +121,22 @@ public class GroceryItem
    public void setCategory(String category)
    {
       this.category = category;
+   }
+
+   /**
+    * @return the rowIndex
+    */
+   public String getRowIndex()
+   {
+      return rowIndex;
+   }
+
+   /**
+    * @param rowIndex the rowIndex to set
+    */
+   public void setRowIndex(String rowIndex)
+   {
+      this.rowIndex = rowIndex;
    }
 
    @Override

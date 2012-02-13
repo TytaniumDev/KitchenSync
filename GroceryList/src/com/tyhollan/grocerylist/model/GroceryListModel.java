@@ -6,23 +6,25 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import com.tyhollan.grocerylist.view.grocery.GroceryListFragment;
+import android.widget.ArrayAdapter;
 
 /**
- * The Model for the GroceryList part of the app.
- * Synchronizes all data addition, editing, and deletion.
+ * The Model for the GroceryList part of the app. Synchronizes all data
+ * addition, editing, and deletion.
+ * 
  * @author Tyler Holland
- *
+ * 
  */
 public class GroceryListModel
 {
-   private static final String tag = "GroceryList";
-   private ArrayList<GroceryItem> groceryList;
-   private GoogleDocsAdapter gdocAdapter;
-   private DBAdapter dbAdapter;
-   private boolean currentlySyncing = false;
-   
+   private static final String       tag              = "GroceryList";
+   private ArrayList<GroceryItem>    groceryList;
+   private GoogleDocsAdapter         gdocAdapter;
+   private DBAdapter                 dbAdapter;
+   private boolean                   currentlySyncing = false;
+   private ArrayAdapter<GroceryItem> mGroceryListAdapter;
+   private Activity mGroceryListActivity;
+
    public GroceryListModel(Context context)
    {
       groceryList = new ArrayList<GroceryItem>();
@@ -30,7 +32,7 @@ public class GroceryListModel
       dbAdapter.open();
       initialDataPull();
    }
-   
+
    private void initialDataPull()
    {
       groceryList = dbAdapter.getGroceryList();
@@ -43,107 +45,139 @@ public class GroceryListModel
    {
       return groceryList;
    }
-   
+
    public void saveGroceryItem(GroceryItem item)
    {
       Log.i(tag, "Saving " + item.getItemName());
-      if(groceryList.contains(item))
+      if (groceryList.contains(item))
       {
          this.groceryList.set(groceryList.indexOf(item), item);
+         if (isGDocSyncEnabled() && gdocAdapter != null)
+         {
+            gdocAdapter.editGroceryItem(item);
+         }
       }
       else
       {
          this.groceryList.add(item);
+         if (isGDocSyncEnabled() && gdocAdapter != null)
+         {
+            gdocAdapter.addGroceryItem(item);
+         }
       }
       dbAdapter.saveGroceryItem(item);
-      if(isGDocSyncEnabled() && gdocAdapter != null)
-      {
-         gdocAdapter.saveGroceryItem(item);
-      }
    }
-   
+
    public void deleteGroceryItem(GroceryItem item)
    {
       Log.i(tag, "Deleting " + item.getItemName());
       this.groceryList.remove(item);
       dbAdapter.deleteGroceryItem(item);
-      if(isGDocSyncEnabled() && gdocAdapter != null)
+      if (isGDocSyncEnabled() && gdocAdapter != null)
       {
          gdocAdapter.deleteGroceryItem(item);
       }
+      updateGroceryListView();
    }
-   
+
    public void syncGroceryListData(Activity activity)
    {
-      if(!currentlySyncing)
+      if (!currentlySyncing)
       {
          currentlySyncing = true;
          new DataSyncTask().execute(activity);
       }
    }
-   
+
    private class DataSyncTask extends AsyncTask<Activity, Void, Void>
    {
       Activity activity;
+
       @Override
       protected Void doInBackground(Activity... params)
       {
          activity = params[0];
          AndroidAuthenticator auth = new AndroidAuthenticator(activity);
          Log.i(tag, "Got auth");
-         if(gdocAdapter == null)
+         if (gdocAdapter == null)
          {
             gdocAdapter = new GoogleDocsAdapter(auth);
          }
          Log.i(tag, "Got gdoc adapter");
-         //Check to see if we get data from GDocs + have internet
-         //TODO
-         //Delete DB
+         // Check to see if we get data from GDocs + have internet
+         // TODO
+         // Pull data from GDocs into DB
+         ArrayList<GroceryItem> tempList = gdocAdapter.getGroceryList();
+         Log.i(tag, "Got new grocerylist from gdocs");
+         // Delete DB
          dbAdapter.deleteAll();
          Log.i(tag, "deleted db");
-         //Pull data from GDocs into DB
-         for(GroceryItem item : gdocAdapter.getGroceryList())
+         // Save data into empty database
+         for (GroceryItem item : tempList)
          {
             Log.i(tag, "Saving a grocery item");
             dbAdapter.saveGroceryItem(item);
          }
          Log.i(tag, "All items saved");
-         //Recreate GroceryList with new DB data
+         // Recreate GroceryList with new DB data
          groceryList = dbAdapter.getGroceryList();
          Log.i(tag, "Grocery list done updating");
          return null;
       }
-      
+
       @Override
       protected void onPostExecute(Void result)
       {
          Log.i(tag, "On post execute");
          super.onPostExecute(result);
-         //Notify data set changed
-         GroceryListFragment.updateListView();
+         // Notify data set changed
+         updateGroceryListView();
          currentlySyncing = false;
       }
    }
    
+   private void updateGroceryListView()
+   {
+      mGroceryListActivity.runOnUiThread(new Runnable()
+      {
+         public void run()
+         {
+            mGroceryListAdapter.clear();
+            mGroceryListAdapter.addAll(groceryList);
+            mGroceryListAdapter.notifyDataSetChanged();
+         }
+      });
+   }
+
    @Override
    public String toString()
    {
       String result = "";
-      for(GroceryItem item : groceryList)
+      for (GroceryItem item : groceryList)
       {
          result = result.concat(item.toString()).concat("\n");
       }
       return result;
    }
-   
+
    public void closeDBConnection()
    {
       dbAdapter.close();
    }
+
+   public void setGroceryListAdapter(ArrayAdapter<GroceryItem> groceryListAdapter)
+   {
+      this.mGroceryListAdapter = groceryListAdapter;
+   }
    
+   public void setGroceryListActivity(Activity activity)
+   {
+      this.mGroceryListActivity = activity;
+   }
+
    private boolean isGDocSyncEnabled()
    {
-      //TODO: Actually make this work
+      // TODO: Actually make this work
       return true;
    }
 }

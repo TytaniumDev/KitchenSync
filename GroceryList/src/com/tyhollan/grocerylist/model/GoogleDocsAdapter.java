@@ -3,6 +3,7 @@ package com.tyhollan.grocerylist.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.pras.SpreadSheet;
@@ -10,8 +11,7 @@ import com.pras.SpreadSheetFactory;
 import com.pras.WorkSheet;
 import com.pras.WorkSheetCell;
 import com.pras.WorkSheetRow;
-import com.pras.conn.HttpConHandler;
-import com.pras.table.Record;
+import com.tyhollan.grocerylist.view.grocery.GroceryListFragment;
 
 public class GoogleDocsAdapter
 {
@@ -56,38 +56,73 @@ public class GoogleDocsAdapter
       {
          ArrayList<WorkSheetCell> cells = row.getCells();
          Log.i(tag, "got cells");
-         list.add(makeGroceryItemFromCells(cells));
+         GroceryItem temp = makeGroceryItemFromCells(cells);
+         temp.setRowIndex(row.getRowIndex());
+         list.add(temp);
       }
 
       return list;
    }
 
-   public void saveGroceryItem(final GroceryItem item)
+   public void addGroceryItem(final GroceryItem item)
    {
-      worksheet.addRecord(spreadsheetKey, convertGroceryItemToRecords(item));
+      new AddRowTask().execute(item);
+   }
+   
+   private class AddRowTask extends AsyncTask<GroceryItem, Void, Void> 
+   {
+      @Override
+      protected Void doInBackground(GroceryItem... arg0)
+      {
+         worksheet.addListRow(convertGroceryItemToRecords(arg0[0]));
+         return null;
+      }
+   }
+   
+   public void editGroceryItem(final GroceryItem item)
+   {
+      new EditRowTask().execute(item);
+   }
+   
+   private class EditRowTask extends AsyncTask<GroceryItem, Void, Void> 
+   {
+      @Override
+      protected Void doInBackground(GroceryItem... arg0)
+      {
+         WorkSheetRow row = new WorkSheetRow();
+         row.setRowIndex(arg0[0].getRowIndex());
+         worksheet.updateListRow(spreadsheetKey, row, convertGroceryItemToRecords(arg0[0]));
+         return null;
+      }
    }
 
    public void deleteGroceryItem(GroceryItem item)
    {
-      for(WorkSheetRow row : worksheet.getData(false))
+      new DeleteRowTask().execute(item);
+   }
+   
+   private class DeleteRowTask extends AsyncTask<GroceryItem, Void, Void> 
+   {
+      @Override
+      protected Void doInBackground(GroceryItem... arg0)
       {
-         for(WorkSheetCell cell : row.getCells())
-         {
-            if(cell.getName() == DBAdapter.KEY_ITEMNAME)
-            {
-               if(cell.getValue().equals(item.getItemName()))
-               {
-                  worksheet.deleteListRow(spreadsheetKey, row);
-                  return;
-               }
-            }
-            else
-            {
-               break;
-            }
-         }
+         WorkSheetRow row = new WorkSheetRow();
+         row.setRowIndex(arg0[0].getRowIndex());
+         worksheet.deleteListRow(spreadsheetKey, row);
+         return null;
       }
-      worksheet.deleteListRow(spreadsheetKey, null);
+      
+//      @Override
+//      protected void onPostExecute(Void result)
+//      {
+//         new Thread(new Runnable()
+//         {
+//            public void run()
+//            {
+//               GroceryListFragment.updateListView();
+//            }
+//         }).start();
+//      }
    }
 
    private HashMap<String, String> convertGroceryItemToRecords(GroceryItem item)

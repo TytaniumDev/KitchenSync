@@ -23,6 +23,7 @@ public class DBAdapter
    public static final String  KEY_AMOUNT       = "amount";
    public static final String  KEY_STORE        = "store";
    public static final String  KEY_CATEGORY     = "category";
+   public static final String  KEY_ROWINDEX     = "rowindex";
 
    private static final String TAG              = "DBAdapter";
    private DatabaseHelper      mDbHelper;
@@ -37,10 +38,10 @@ public class DBAdapter
                                                       + " integer primary key " + "autoincrement, " + KEY_ITEMNAME
                                                       + " text not null, " + KEY_AMOUNT + " text not null, "
                                                       + KEY_STORE + " text not null, " + KEY_CATEGORY
-                                                      + " text not null, " + "UNIQUE " + " (" + KEY_ITEMNAME + " )"
-                                                      + ");";
+                                                      + " text not null, " + KEY_ROWINDEX + " text not null, "
+                                                      + "UNIQUE " + " (" + KEY_ITEMNAME + " )" + ");";
 
-   private static final int    DATABASE_VERSION = 2;
+   private static final int    DATABASE_VERSION = 3;
 
    private final Context       mCtx;
 
@@ -117,6 +118,7 @@ public class DBAdapter
       initialValues.put(KEY_AMOUNT, item.getAmount());
       initialValues.put(KEY_STORE, item.getStore());
       initialValues.put(KEY_CATEGORY, item.getCategory());
+      initialValues.put(KEY_ROWINDEX, item.getRowIndex());
       return mDb.replace(GROCERY_TABLE, null, initialValues);
    }
 
@@ -151,6 +153,7 @@ public class DBAdapter
       int amount = noteCursor.getColumnIndexOrThrow(KEY_AMOUNT);
       int store = noteCursor.getColumnIndexOrThrow(KEY_STORE);
       int group = noteCursor.getColumnIndexOrThrow(KEY_CATEGORY);
+      int rowindex = noteCursor.getColumnIndexOrThrow(KEY_ROWINDEX);
 
       ArrayList<GroceryItem> list = new ArrayList<GroceryItem>();
       if (noteCursor.moveToFirst())
@@ -158,7 +161,7 @@ public class DBAdapter
          do
          {
             list.add(new GroceryItem(noteCursor.getLong(id), noteCursor.getString(itemname), noteCursor
-                  .getString(amount), noteCursor.getString(store), noteCursor.getString(group)));
+                  .getString(amount), noteCursor.getString(store), noteCursor.getString(group), noteCursor.getString(rowindex)));
          } while (noteCursor.moveToNext());
       }
       noteCursor.close();
@@ -173,7 +176,7 @@ public class DBAdapter
    public static String[] getFields()
    {
       String[] fields =
-      { KEY_ITEMNAME, KEY_AMOUNT, KEY_STORE, KEY_CATEGORY };
+      { KEY_ITEMNAME, KEY_AMOUNT, KEY_STORE, KEY_CATEGORY, KEY_ROWINDEX };
       return fields;
    }
 }

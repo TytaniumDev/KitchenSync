@@ -18,10 +18,10 @@ import com.tyhollan.grocerylist.model.GroceryListModel;
 
 public class GroceryListFragment extends ListFragment
 {
-   private boolean   mDualPane;
-   private int       mCurCheckPosition = 0;
-   private static ArrayAdapter<GroceryItem> mGroceryListAdapter;
-   private GroceryListModel mGroceryListModel;
+   private boolean                   mDualPane;
+   private int                       mCurCheckPosition = 0;
+   private ArrayAdapter<GroceryItem> mGroceryListAdapter;
+   private GroceryListModel          mGroceryListModel;
 
    @Override
    public void onActivityCreated(Bundle savedState)
@@ -31,6 +31,8 @@ public class GroceryListFragment extends ListFragment
 
       mGroceryListAdapter = getGroceryListAdapter();
       this.setListAdapter(mGroceryListAdapter);
+      mGroceryListModel.setGroceryListAdapter(mGroceryListAdapter);
+      mGroceryListModel.setGroceryListActivity(getActivity());
       mGroceryListModel.syncGroceryListData(getActivity());
 
       // Check to see if we have a frame in which to embed the items
@@ -56,7 +58,8 @@ public class GroceryListFragment extends ListFragment
 
    private ArrayAdapter<GroceryItem> getGroceryListAdapter()
    {
-      return new ArrayAdapter<GroceryItem>(getActivity(), R.layout.grocery_list_row, mGroceryListModel.getGroceryListArray())
+      return new ArrayAdapter<GroceryItem>(getActivity(), R.layout.grocery_list_row,
+            mGroceryListModel.getGroceryListArray())
       {
          @Override
          public View getView(final int position, View convertView, ViewGroup parent)
@@ -72,15 +75,15 @@ public class GroceryListFragment extends ListFragment
             {
                row = convertView;
             }
-            //Item Name
+            // Item Name
             TextView itemNameView = (TextView) row.findViewById(R.id.groceryRowItemName);
             itemNameView.setText(getItem(position).getItemName());
-            
-            //Amount
+
+            // Amount
             TextView amountView = (TextView) row.findViewById(R.id.groceryRowAmount);
             amountView.setText(getItem(position).getAmount());
-            
-            //Delete Button
+
+            // Delete Button
             ImageButton deleteButton = (ImageButton) row.findViewById(R.id.groceryRowDeleteButton);
             deleteButton.setOnClickListener(new OnClickListener()
             {
@@ -88,18 +91,12 @@ public class GroceryListFragment extends ListFragment
                public void onClick(View v)
                {
                   mGroceryListModel.deleteGroceryItem(getItem(position));
-                  updateListView();
                }
             });
-            
+
             return row;
          }
       };
-   }
-   
-   public static void updateListView()
-   {
-      mGroceryListAdapter.notifyDataSetChanged();
    }
 
    @Override
@@ -108,6 +105,7 @@ public class GroceryListFragment extends ListFragment
       super.onSaveInstanceState(outState);
       outState.putInt("curChoice", mCurCheckPosition);
    }
+
    //
    // @Override
    // public void onListItemClick(ListView l, View v, int pos, long id)
