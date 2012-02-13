@@ -1,0 +1,2 @@
+# Ignore keystore, it's private info
+testingKeystore

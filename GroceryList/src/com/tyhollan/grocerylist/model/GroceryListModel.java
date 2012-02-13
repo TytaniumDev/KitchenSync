@@ -29,13 +29,14 @@ public class GroceryListModel
    {
       groceryList = new ArrayList<GroceryItem>();
       dbAdapter = new DBAdapter(context);
-      dbAdapter.open();
       initialDataPull();
    }
 
    private void initialDataPull()
    {
+      dbAdapter.open();
       groceryList = dbAdapter.getGroceryList();
+      dbAdapter.close();
    }
 
    /**
@@ -65,14 +66,18 @@ public class GroceryListModel
             gdocAdapter.addGroceryItem(item);
          }
       }
+      dbAdapter.open();
       dbAdapter.saveGroceryItem(item);
+      dbAdapter.close();
    }
 
    public void deleteGroceryItem(GroceryItem item)
    {
       Log.i(tag, "Deleting " + item.getItemName());
       this.groceryList.remove(item);
+      dbAdapter.open();
       dbAdapter.deleteGroceryItem(item);
+      dbAdapter.close();
       if (isGDocSyncEnabled() && gdocAdapter != null)
       {
          gdocAdapter.deleteGroceryItem(item);
@@ -96,6 +101,7 @@ public class GroceryListModel
       @Override
       protected Void doInBackground(Activity... params)
       {
+         dbAdapter.open();
          activity = params[0];
          AndroidAuthenticator auth = new AndroidAuthenticator(activity);
          Log.i(tag, "Got auth");
@@ -122,6 +128,7 @@ public class GroceryListModel
          // Recreate GroceryList with new DB data
          groceryList = dbAdapter.getGroceryList();
          Log.i(tag, "Grocery list done updating");
+         dbAdapter.close();
          return null;
       }
 
@@ -158,11 +165,6 @@ public class GroceryListModel
          result = result.concat(item.toString()).concat("\n");
       }
       return result;
-   }
-
-   public void closeDBConnection()
-   {
-      dbAdapter.close();
    }
 
    public void setGroceryListAdapter(ArrayAdapter<GroceryItem> groceryListAdapter)

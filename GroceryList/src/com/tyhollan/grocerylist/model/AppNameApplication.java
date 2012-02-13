@@ -16,11 +16,6 @@ public class AppNameApplication extends Application
       mGroceryList = new GroceryListModel(getApplicationContext());
    }
    
-   public void onDestroy()
-   {
-      mGroceryList.closeDBConnection();
-   }
-   
    public GroceryListModel getGroceryListModel()
    {
       return mGroceryList;

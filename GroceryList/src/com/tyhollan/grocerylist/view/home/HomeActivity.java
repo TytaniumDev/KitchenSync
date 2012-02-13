@@ -14,11 +14,4 @@ public class HomeActivity extends FragmentActivity
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_home);
    }
-   
-   @Override
-   public void onDestroy()
-   {
-      ((AppNameApplication) getApplicationContext()).onDestroy();
-      super.onDestroy();
-   }
 }

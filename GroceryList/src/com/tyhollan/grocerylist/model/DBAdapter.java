@@ -172,11 +172,4 @@ public class DBAdapter
    {
       return mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
    }
-
-   public static String[] getFields()
-   {
-      String[] fields =
-      { KEY_ITEMNAME, KEY_AMOUNT, KEY_STORE, KEY_CATEGORY, KEY_ROWINDEX };
-      return fields;
-   }
 }

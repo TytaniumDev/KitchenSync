@@ -15,11 +15,13 @@ import com.tyhollan.grocerylist.view.grocery.GroceryListFragment;
 
 public class GoogleDocsAdapter
 {
-   private static final String GROCERY_LIST_DOC_NAME = "GroceryListAppData";
-   private static final String tag                   = "SpreadsheetTestActivity";
+   private static final String   GROCERY_LIST_DOC_NAME = "GroceryListAppData";
+   private static final String   tag                   = "SpreadsheetTestActivity";
+   private static final String[] columns               =
+                                                       { "Item Name", "Amount", "Store", "Category" };
 
-   private WorkSheet           worksheet;
-   private String              spreadsheetKey;
+   private WorkSheet             worksheet;
+   private String                spreadsheetKey;
 
    public GoogleDocsAdapter(AndroidAuthenticator auth)
    {
@@ -31,7 +33,9 @@ public class GoogleDocsAdapter
       if (ssList == null || ssList.size() == 0)
       {
          Log.e(tag, "SpreadSheet " + GROCERY_LIST_DOC_NAME + " does not exist");
-         // TODO: Create spreadsheet
+         // Create spreadsheet
+         ssf.createSpreadSheet(GROCERY_LIST_DOC_NAME);
+         ssList = ssf.getSpreadSheet(GROCERY_LIST_DOC_NAME, true);
       }
       SpreadSheet ss = ssList.get(0);
       Log.i(tag, "Got ss");
@@ -40,7 +44,9 @@ public class GoogleDocsAdapter
       if (wsList == null || wsList.size() == 0)
       {
          Log.e(tag, "WorkSheet does not exist");
-         // TODO: Create worksheet
+         // Create worksheet
+         ss.addWorkSheet(GROCERY_LIST_DOC_NAME, columns);
+         wsList = ss.getAllWorkSheets();
       }
       worksheet = wsList.get(0);
       Log.i(tag, "Got worksheet: " + worksheet.getTitle());
@@ -68,8 +74,8 @@ public class GoogleDocsAdapter
    {
       new AddRowTask().execute(item);
    }
-   
-   private class AddRowTask extends AsyncTask<GroceryItem, Void, Void> 
+
+   private class AddRowTask extends AsyncTask<GroceryItem, Void, Void>
    {
       @Override
       protected Void doInBackground(GroceryItem... arg0)
@@ -78,13 +84,13 @@ public class GoogleDocsAdapter
          return null;
       }
    }
-   
+
    public void editGroceryItem(final GroceryItem item)
    {
       new EditRowTask().execute(item);
    }
-   
-   private class EditRowTask extends AsyncTask<GroceryItem, Void, Void> 
+
+   private class EditRowTask extends AsyncTask<GroceryItem, Void, Void>
    {
       @Override
       protected Void doInBackground(GroceryItem... arg0)
@@ -100,8 +106,8 @@ public class GoogleDocsAdapter
    {
       new DeleteRowTask().execute(item);
    }
-   
-   private class DeleteRowTask extends AsyncTask<GroceryItem, Void, Void> 
+
+   private class DeleteRowTask extends AsyncTask<GroceryItem, Void, Void>
    {
       @Override
       protected Void doInBackground(GroceryItem... arg0)
@@ -111,18 +117,18 @@ public class GoogleDocsAdapter
          worksheet.deleteListRow(spreadsheetKey, row);
          return null;
       }
-      
-//      @Override
-//      protected void onPostExecute(Void result)
-//      {
-//         new Thread(new Runnable()
-//         {
-//            public void run()
-//            {
-//               GroceryListFragment.updateListView();
-//            }
-//         }).start();
-//      }
+
+      // @Override
+      // protected void onPostExecute(Void result)
+      // {
+      // new Thread(new Runnable()
+      // {
+      // public void run()
+      // {
+      // GroceryListFragment.updateListView();
+      // }
+      // }).start();
+      // }
    }
 
    private HashMap<String, String> convertGroceryItemToRecords(GroceryItem item)
