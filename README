@@ -1,0 +1,19 @@
+Currently in development stages, so bugs could be very common. Please let me know if you run into any, the more detail you can provide about what you were doing when the bug happened, the better!
+
+On first use:
+1) When you first start the app and go to the Grocery List, a new Google Document will be created for you called GroceryListAppData. This is a hard-coded name that the app looks for, so do not change it.
+2) Enter whatever data you like in the rows below the column names. Be careful: the app will stop pulling data as soon as it sees an empty row, so make sure to not leave any spaces.
+
+How I am using it (so the most tested use case):
+1) Enter grocery list in the google doc from your computer
+2) Go to grocery store, open app on your phone
+3) Delete items as you add them to your grocery cart
+4) Done grocery shopping!
+
+Things that don't work yet:
+-Recipe List
+-Adding grocery items from the phone
+-Actual icons
+-Turning off gdoc sync
+-Unique tablet UI
+-Animations and some ActionBar stuff in Android 4.0
