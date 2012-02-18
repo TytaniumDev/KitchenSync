@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">App Name Placeholder</string>
+    <string name="app_name">Kitchen Sync</string>
     <string name="grocery_list">Grocery List</string>
     <string name="recipe_book">Recipe Book</string>
-    <string name="deleteButtonDescription">Deletes this grocery item</string>
     <string name="refresh">Refresh</string>
+    <string name="add_item">Add Item</string>
     <string name="grocery_list_view_list_tab_name">Grocery List</string>
     <string name="grocery_list_view_crossed_off_tab_name">Crossed Off</string>
-    
+    <!-- Descriptions -->
+    <string name="crossedOffButtonDescription">Deletes this grocery item</string>
+    <string name="editButtonDescription">Edit this grocery item</string>
 </resources>

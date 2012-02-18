@@ -3,11 +3,7 @@ package com.tyhollan.grocerylist.view.grocery;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.support.v4.view.Menu;
-import android.support.v4.view.MenuItem;
-import android.support.v4.view.MenuItem.OnMenuItemClickListener;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -15,10 +11,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.tyhollan.grocerylist.R;
 import com.tyhollan.grocerylist.model.AppNameApplication;
 import com.tyhollan.grocerylist.model.GroceryItem;
 import com.tyhollan.grocerylist.model.GroceryListModel;
+
 
 
 public class GroceryListFragment extends ListFragment
@@ -91,7 +92,7 @@ public class GroceryListFragment extends ListFragment
             amountView.setText(getItem(position).getAmount());
 
             // Delete Button
-            ImageButton deleteButton = (ImageButton) row.findViewById(R.id.groceryRowDeleteButton);
+            ImageButton deleteButton = (ImageButton) row.findViewById(R.id.groceryRowCrossedOffButton);
             deleteButton.setOnClickListener(new OnClickListener()
             {
                @Override

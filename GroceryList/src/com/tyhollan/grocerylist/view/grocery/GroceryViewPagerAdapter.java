@@ -16,6 +16,8 @@ import android.widget.TextView;
 import com.tyhollan.grocerylist.R;
 import com.viewpagerindicator.TitleProvider;
 
+
+
 public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements TitleProvider
 {
    private static final String TAG = "GroceryViewPagerAdapter";

@@ -150,7 +150,10 @@ public class GroceryListModel
          public void run()
          {
             mGroceryListAdapter.clear();
-            mGroceryListAdapter.addAll(groceryList);
+            for(GroceryItem item : groceryList)
+            {
+               mGroceryListAdapter.add(item);
+            }
             mGroceryListAdapter.notifyDataSetChanged();
          }
       });
