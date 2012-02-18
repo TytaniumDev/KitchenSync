@@ -10,7 +10,7 @@ How I am using it (so the most tested use case):
 3) Delete items as you add them to your grocery cart
 4) Done grocery shopping!
 
-<<<<<<< HEAD
+
 Since all of the icons are just defaults right now, here is what they do:
 	Home Screen:
 		Only the top button works. It's just a button to go to the grocery list view.
@@ -19,8 +19,6 @@ Since all of the icons are just defaults right now, here is what they do:
 		The buttons on the right of all of the grocery items deletes that item (from the phone and from Google Docs!).
 
 
-=======
->>>>>>> fb60acd912b17b7eac0c295516c0b14ce3f70ff6
 Things that don't work yet:
 -Recipe List
 -Adding grocery items from the phone
