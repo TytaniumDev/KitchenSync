@@ -24,6 +24,7 @@ public class DBAdapter
    public static final String  KEY_STORE        = "store";
    public static final String  KEY_CATEGORY     = "category";
    public static final String  KEY_ROWINDEX     = "rowindex";
+   public static final String  KEY_CROSSEDOFF   = "crossedoff";
 
    private static final String TAG              = "DBAdapter";
    private DatabaseHelper      mDbHelper;
@@ -39,9 +40,10 @@ public class DBAdapter
                                                       + " text not null, " + KEY_AMOUNT + " text not null, "
                                                       + KEY_STORE + " text not null, " + KEY_CATEGORY
                                                       + " text not null, " + KEY_ROWINDEX + " text not null, "
-                                                      + "UNIQUE " + " (" + KEY_ITEMNAME + " )" + ");";
+                                                      + KEY_CROSSEDOFF + " integer not null, " + "UNIQUE " + " ("
+                                                      + KEY_ITEMNAME + " )" + ");";
 
-   private static final int    DATABASE_VERSION = 3;
+   private static final int    DATABASE_VERSION = 4;
 
    private final Context       mCtx;
 
@@ -118,7 +120,7 @@ public class DBAdapter
       initialValues.put(KEY_AMOUNT, item.getAmount());
       initialValues.put(KEY_STORE, item.getStore());
       initialValues.put(KEY_CATEGORY, item.getCategory());
-      if(item.getRowIndex() != null)
+      if (item.getRowIndex() != null)
       {
          initialValues.put(KEY_ROWINDEX, item.getRowIndex());
       }
@@ -126,6 +128,7 @@ public class DBAdapter
       {
          initialValues.put(KEY_ROWINDEX, "");
       }
+      initialValues.put(KEY_CROSSEDOFF, item.isCrossedOff());
       return mDb.replace(GROCERY_TABLE, null, initialValues);
    }
 
@@ -161,6 +164,7 @@ public class DBAdapter
       int store = noteCursor.getColumnIndexOrThrow(KEY_STORE);
       int group = noteCursor.getColumnIndexOrThrow(KEY_CATEGORY);
       int rowindex = noteCursor.getColumnIndexOrThrow(KEY_ROWINDEX);
+      int crossedoff = noteCursor.getColumnIndexOrThrow(KEY_CROSSEDOFF);
 
       ArrayList<GroceryItem> list = new ArrayList<GroceryItem>();
       if (noteCursor.moveToFirst())
@@ -168,7 +172,8 @@ public class DBAdapter
          do
          {
             list.add(new GroceryItem(noteCursor.getLong(id), noteCursor.getString(itemname), noteCursor
-                  .getString(amount), noteCursor.getString(store), noteCursor.getString(group), noteCursor.getString(rowindex)));
+                  .getString(amount), noteCursor.getString(store), noteCursor.getString(group), noteCursor
+                  .getString(rowindex), noteCursor.getInt(crossedoff)>0));
          } while (noteCursor.moveToNext());
       }
       noteCursor.close();

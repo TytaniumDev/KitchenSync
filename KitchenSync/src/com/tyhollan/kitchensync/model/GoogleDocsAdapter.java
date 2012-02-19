@@ -122,18 +122,6 @@ public class GoogleDocsAdapter
          worksheet.deleteListRow(spreadsheetKey, row);
          return null;
       }
-
-      // @Override
-      // protected void onPostExecute(Void result)
-      // {
-      // new Thread(new Runnable()
-      // {
-      // public void run()
-      // {
-      // GroceryListFragment.updateListView();
-      // }
-      // }).start();
-      // }
    }
 
    private HashMap<String, String> convertGroceryItemToRecords(GroceryItem item)

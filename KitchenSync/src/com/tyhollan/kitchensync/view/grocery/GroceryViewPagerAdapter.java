@@ -59,6 +59,8 @@ public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements Tit
             return new GroceryAddItemFragment();
          case 1:
             return new GroceryListFragment();
+         case 2:
+            return new CrossedOffListFragment();
          default:
             return new NYIFragment();
       }

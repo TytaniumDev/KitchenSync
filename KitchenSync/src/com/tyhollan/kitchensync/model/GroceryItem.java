@@ -9,9 +9,11 @@ public class GroceryItem
    private String category;
    //Used to store Google Docs row location
    private String rowIndex;
+   //Used to see if in crossed off view
+   private boolean crossedOff;
 
    //Constructor used in the DBAdapter
-   public GroceryItem(long id, String itemName, String amount, String store, String category, String rowIndex)
+   public GroceryItem(long id, String itemName, String amount, String store, String category, String rowIndex, boolean crossedOff)
    {
       this.id = id;
       this.itemName = (itemName == null) ? "" : itemName;
@@ -19,6 +21,7 @@ public class GroceryItem
       this.store = (store == null) ? "" : store;
       this.category = (category == null) ? "" : category;
       this.rowIndex = (rowIndex == null) ? "" : rowIndex;
+      this.crossedOff = crossedOff;
    }
    
    public GroceryItem(String itemName, String amount, String store, String category)
@@ -28,6 +31,7 @@ public class GroceryItem
       this.amount = (amount == null) ? "" : amount;
       this.store = (store == null) ? "" : store;
       this.category = (category == null) ? "" : category;
+      this.crossedOff = false;
    }
    
    public GroceryItem()
@@ -137,6 +141,22 @@ public class GroceryItem
    public void setRowIndex(String rowIndex)
    {
       this.rowIndex = rowIndex;
+   }
+
+   /**
+    * @return the crossedOff
+    */
+   public boolean isCrossedOff()
+   {
+      return crossedOff;
+   }
+
+   /**
+    * @param crossedOff the crossedOff to set
+    */
+   public void setCrossedOff(boolean crossedOff)
+   {
+      this.crossedOff = crossedOff;
    }
 
    @Override
