@@ -55,6 +55,8 @@ public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements Tit
       Log.i(TAG, "Position: " + position);
       switch (position)
       {
+         case 0:
+            return new GroceryAddItemFragment();
          case 1:
             return new GroceryListFragment();
          default:
@@ -62,7 +64,7 @@ public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements Tit
       }
    }
 
-   private class NYIFragment extends Fragment
+   public static class NYIFragment extends Fragment
    {
       @Override
       public void onCreate(Bundle savedInstanceState)

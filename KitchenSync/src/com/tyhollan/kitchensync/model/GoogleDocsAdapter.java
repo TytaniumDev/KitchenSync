@@ -81,13 +81,12 @@ public class GoogleDocsAdapter
       new AddRowTask().execute(item);
    }
 
-   private class AddRowTask extends AsyncTask<GroceryItem, Void, Void>
+   private class AddRowTask extends AsyncTask<GroceryItem, Void, WorkSheetRow>
    {
       @Override
-      protected Void doInBackground(GroceryItem... arg0)
+      protected WorkSheetRow doInBackground(GroceryItem... arg0)
       {
-         worksheet.addListRow(convertGroceryItemToRecords(arg0[0]));
-         return null;
+         return worksheet.addListRow(convertGroceryItemToRecords(arg0[0]));
       }
    }
 

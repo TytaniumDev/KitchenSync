@@ -4,7 +4,6 @@
     <string name="grocery_list">Grocery List</string>
     <string name="recipe_book">Recipe Book</string>
     <string name="refresh">Refresh</string>
-    <string name="add_item">Add Item</string>
     <!-- Tab names -->
     <string name="grocery_list_view_list_tab_name">Grocery List</string>
     <string name="grocery_list_view_crossed_off_tab_name">Crossed Off</string>
@@ -12,4 +11,11 @@
     <!-- Descriptions -->
     <string name="crossedOffButtonDescription">Deletes this grocery item</string>
     <string name="editButtonDescription">Edit this grocery item</string>
+    <!-- Text in Layouts -->
+    <string name="grocery_add_item">Add Item</string>
+    <string name="grocery_item_name">Item Name</string>
+    <string name="grocery_amount">Amount</string>
+    <string name="grocery_store">Store</string>
+    <string name="grocery_category">Category</string>
+    <string name="grocery_add_to_list">Add To List</string>
 </resources>

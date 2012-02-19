@@ -118,7 +118,14 @@ public class DBAdapter
       initialValues.put(KEY_AMOUNT, item.getAmount());
       initialValues.put(KEY_STORE, item.getStore());
       initialValues.put(KEY_CATEGORY, item.getCategory());
-      initialValues.put(KEY_ROWINDEX, item.getRowIndex());
+      if(item.getRowIndex() != null)
+      {
+         initialValues.put(KEY_ROWINDEX, item.getRowIndex());
+      }
+      else
+      {
+         initialValues.put(KEY_ROWINDEX, "");
+      }
       return mDb.replace(GROCERY_TABLE, null, initialValues);
    }
 

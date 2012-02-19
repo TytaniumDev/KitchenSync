@@ -9,5 +9,5 @@
         android:id="@+id/grocery_list_menu_add_item"
         android:icon="@drawable/ic_action_add_item"
         android:showAsAction="always"
-        android:title="@string/add_item"/>
+        android:title="@string/grocery_add_item"/>
 </menu>

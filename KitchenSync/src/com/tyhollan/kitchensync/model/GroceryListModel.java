@@ -68,6 +68,7 @@ public class GroceryListModel
       dbAdapter.open();
       dbAdapter.saveGroceryItem(item);
       dbAdapter.close();
+      updateGroceryListView();
    }
 
    public void deleteGroceryItem(GroceryItem item)
