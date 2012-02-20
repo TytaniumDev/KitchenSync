@@ -155,28 +155,45 @@ public class DBAdapter
     * 
     * @return ArrayList<Note> All Notes in the database
     */
+   public ArrayList<GroceryItem> getFullList()
+   {
+      Cursor cursor = mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
+      return makeListFromCursor(cursor);
+   }
+   
    public ArrayList<GroceryItem> getGroceryList()
    {
-      Cursor noteCursor = mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
-      int id = noteCursor.getColumnIndexOrThrow(KEY_ID);
-      int itemname = noteCursor.getColumnIndexOrThrow(KEY_ITEMNAME);
-      int amount = noteCursor.getColumnIndexOrThrow(KEY_AMOUNT);
-      int store = noteCursor.getColumnIndexOrThrow(KEY_STORE);
-      int group = noteCursor.getColumnIndexOrThrow(KEY_CATEGORY);
-      int rowindex = noteCursor.getColumnIndexOrThrow(KEY_ROWINDEX);
-      int crossedoff = noteCursor.getColumnIndexOrThrow(KEY_CROSSEDOFF);
-
+      Cursor cursor = mDb.query(GROCERY_TABLE, null, KEY_CROSSEDOFF + "=0", null, null, null, null);
+      return makeListFromCursor(cursor);
+   }
+   
+   public ArrayList<GroceryItem> getCrossedOffList()
+   {
+      Cursor cursor = mDb.query(GROCERY_TABLE, null, KEY_CROSSEDOFF + "=1", null, null, null, null);
+      return makeListFromCursor(cursor);
+   }
+   
+   private ArrayList<GroceryItem> makeListFromCursor(Cursor cursor)
+   {
+      int id = cursor.getColumnIndexOrThrow(KEY_ID);
+      int itemname = cursor.getColumnIndexOrThrow(KEY_ITEMNAME);
+      int amount = cursor.getColumnIndexOrThrow(KEY_AMOUNT);
+      int store = cursor.getColumnIndexOrThrow(KEY_STORE);
+      int group = cursor.getColumnIndexOrThrow(KEY_CATEGORY);
+      int rowindex = cursor.getColumnIndexOrThrow(KEY_ROWINDEX);
+      int crossedoff = cursor.getColumnIndexOrThrow(KEY_CROSSEDOFF);
+      
       ArrayList<GroceryItem> list = new ArrayList<GroceryItem>();
-      if (noteCursor.moveToFirst())
+      if (cursor.moveToFirst())
       {
          do
          {
-            list.add(new GroceryItem(noteCursor.getLong(id), noteCursor.getString(itemname), noteCursor
-                  .getString(amount), noteCursor.getString(store), noteCursor.getString(group), noteCursor
-                  .getString(rowindex), noteCursor.getInt(crossedoff)>0));
-         } while (noteCursor.moveToNext());
+            list.add(new GroceryItem(cursor.getLong(id), cursor.getString(itemname), cursor
+                  .getString(amount), cursor.getString(store), cursor.getString(group), cursor
+                  .getString(rowindex), cursor.getInt(crossedoff)>0));
+         } while (cursor.moveToNext());
       }
-      noteCursor.close();
+      cursor.close();
       return list;
    }
 

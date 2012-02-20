@@ -39,17 +39,8 @@ public class GroceryListModel
    private void initialDataPull()
    {
       dbAdapter.open();
-      for (GroceryItem item : dbAdapter.getGroceryList())
-      {
-         if (item.isCrossedOff())
-         {
-            crossedOffList.add(item);
-         }
-         else
-         {
-            groceryList.add(item);
-         }
-      }
+      groceryList = dbAdapter.getGroceryList();
+      crossedOffList = dbAdapter.getCrossedOffList();
       dbAdapter.close();
    }
 
@@ -79,6 +70,16 @@ public class GroceryListModel
             gdocAdapter.editGroceryItem(item);
          }
       }
+      else if (crossedOffList.contains(item))
+      {
+         item.setCrossedOff(false);
+         groceryList.add(item);
+         crossedOffList.remove(item);
+         if (isGDocSyncEnabled() && gdocAdapter != null)
+         {
+            gdocAdapter.editGroceryItem(item);
+         }
+      }
       else
       {
          groceryList.add(item);
@@ -98,15 +99,11 @@ public class GroceryListModel
       groceryList.remove(item);
       item.setCrossedOff(true);
       crossedOffList.add(item);
-      Log.i(tag, "Size of crossedOffList pre: " + crossedOffList.size());
       dbAdapter.open();
       dbAdapter.saveGroceryItem(item);
       dbAdapter.close();
-      Log.i(tag, "Size of crossedOffList post: " + crossedOffList.size());
       updateGroceryListView();
-      Log.i(tag, "Size of crossedOffList postpost: " + crossedOffList.size());
       updateCrossedOffListView();
-      Log.i(tag, "Size of crossedOffList postpostpost: " + crossedOffList.size());
    }
 
    public void deleteGroceryItem(GroceryItem item)
@@ -151,20 +148,51 @@ public class GroceryListModel
          // Check to see if we get data from GDocs + have internet
          // TODO
          // Pull data from GDocs into DB
-         ArrayList<GroceryItem> tempList = gdocAdapter.getGroceryList();
+         ArrayList<GroceryItem> tempGDocsList = gdocAdapter.getGroceryList();
          Log.i(tag, "Got new grocerylist from gdocs");
-         // Delete DB
-         dbAdapter.deleteAll();
-         Log.i(tag, "deleted db");
-         // Save data into empty database
-         Log.i(tag, "Saving grocery items");
-         for (GroceryItem item : tempList)
+         // If in DB, overwrite it, if not delete from DB
+         Log.i(tag, "Syncing grocery items with database");
+         ArrayList<GroceryItem> tempSQLList = dbAdapter.getFullList();
+         //Remove items that aren't in GDocs
+         for(GroceryItem item: tempSQLList)
          {
-            dbAdapter.saveGroceryItem(item);
+            Log.i(tag, "in removing from SQL");
+            if(!tempGDocsList.contains(item))
+            {
+               //GDocs doesn't have item, delete from DB
+               dbAdapter.deleteGroceryItem(item);
+            }
+         }
+         //Add items from GDocs
+         for (GroceryItem item : tempGDocsList)
+         {
+            Log.i(tag, "in saving to SQL");
+            if(tempSQLList.contains(item))
+            {
+               Log.i(tag, "Does contain");
+               //Already has item, check to see if fields are the same
+               GroceryItem dbItem = tempSQLList.get(tempSQLList.indexOf(item));
+               if(!dbItem.fullEquals(item))
+               {
+                  Log.i(tag, item.getItemName() + " does not full equal");
+                  //Fields aren't the same, reset crossed-off-ness
+                  item.setCrossedOff(false);
+                  dbAdapter.saveGroceryItem(item);
+               }
+               //Otherwise do nothing, all fields are the same
+            }
+            else
+            {
+               Log.i(tag, "Does not contain");
+               Log.i(tag, item.getItemName() + " not contained in SQL");
+               //Doesn't have item, save to DB
+               dbAdapter.saveGroceryItem(item);
+            }
          }
          Log.i(tag, "All items saved");
          // Recreate GroceryList with new DB data
          groceryList = dbAdapter.getGroceryList();
+         crossedOffList = dbAdapter.getCrossedOffList();
          Log.i(tag, "Grocery list done updating");
          dbAdapter.close();
          return null;
@@ -177,6 +205,7 @@ public class GroceryListModel
          super.onPostExecute(result);
          // Notify data set changed
          updateGroceryListView();
+         updateCrossedOffListView();
          currentlySyncing = false;
       }
    }
@@ -203,12 +232,11 @@ public class GroceryListModel
       {
          public void run()
          {
-//            mCrossedOffListAdapter.clear();
-//            for (GroceryItem item : crossedOffList)
-//            {
-//               Log.i(tag, "Crossing off: " + item.getItemName());
-//               mCrossedOffListAdapter.add(item);
-//            }
+            mCrossedOffListAdapter.clear();
+            for (GroceryItem item : crossedOffList)
+            {
+               mCrossedOffListAdapter.add(item);
+            }
             mCrossedOffListAdapter.notifyDataSetChanged();
          }
       });

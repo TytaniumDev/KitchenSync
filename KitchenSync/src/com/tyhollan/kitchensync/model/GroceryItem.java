@@ -186,4 +186,29 @@ public class GroceryItem
       }
       return false;
    }
+   
+   public boolean fullEquals(GroceryItem item)
+   {
+      if(!this.itemName.equals(item.getItemName()))
+      {
+         return false;
+      }
+      else if(!this.amount.equals(item.getAmount()))
+      {
+         return false;
+      }
+      else if(!this.store.equals(item.getStore()))
+      {
+         return false;
+      }
+      else if(!this.category.equals(item.getCategory()))
+      {
+         return false;
+      }
+      else if(!this.rowIndex.equals(item.getRowIndex()))
+      {
+         return false;
+      }
+      return true;
+   }
 }
