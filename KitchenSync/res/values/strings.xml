@@ -6,7 +6,6 @@
     <string name="refresh">Refresh</string>
     <!-- Tab names -->
     <string name="grocery_list_view_list_tab_name">Grocery List</string>
-    <string name="grocery_list_view_crossed_off_tab_name">Crossed Off</string>
     <string name="grocery_list_view_add_item_tab_name">Add Item</string>
     <!-- Descriptions -->
     <string name="crossedOffButtonDescription">Deletes this grocery item</string>

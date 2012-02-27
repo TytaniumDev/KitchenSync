@@ -9,11 +9,13 @@ package com.viewpagerindicator;
 
 public final class R {
     public static final class anim {
-        public static final int slide_to_bottom_enter=0x7f040000;
-        public static final int slide_to_bottom_exit=0x7f040001;
-        public static final int slide_to_right=0x7f040002;
-        public static final int slide_to_top_enter=0x7f040003;
-        public static final int slide_to_top_exit=0x7f040004;
+        public static final int flip_enter=0x7f040000;
+        public static final int flip_exit=0x7f040001;
+        public static final int slide_to_bottom_enter=0x7f040002;
+        public static final int slide_to_bottom_exit=0x7f040003;
+        public static final int slide_to_right=0x7f040004;
+        public static final int slide_to_top_enter=0x7f040005;
+        public static final int slide_to_top_exit=0x7f040006;
     }
     public static final class attr {
         /**  Specified if we are forcing an action item overflow menu. 
@@ -1047,13 +1049,12 @@ containing a value of this type.
         public static final int abs__textButton=0x7f050018;
         public static final int abs__title=0x7f05001c;
         public static final int abs__up=0x7f050010;
-        public static final int button1=0x7f050037;
+        public static final int button1=0x7f050036;
         public static final int disableHome=0x7f05000e;
         public static final int fragment_dashboard=0x7f050028;
-        public static final int groceryRowAmount=0x7f050034;
-        public static final int groceryRowCrossedOffButton=0x7f050035;
-        public static final int groceryRowEditButton=0x7f050032;
-        public static final int groceryRowItemName=0x7f050033;
+        public static final int groceryRowAmount=0x7f050033;
+        public static final int groceryRowCrossedOffButton=0x7f050034;
+        public static final int groceryRowItemName=0x7f050032;
         public static final int grocery_add_item_add_button=0x7f05002f;
         public static final int grocery_add_item_amount_field=0x7f05002c;
         public static final int grocery_add_item_category_field=0x7f05002e;
@@ -1062,8 +1063,8 @@ containing a value of this type.
         public static final int grocery_add_item_store_field=0x7f05002d;
         public static final int grocery_add_item_title=0x7f050029;
         public static final int grocery_list_launcher=0x7f050030;
-        public static final int grocery_list_menu_add_item=0x7f050039;
-        public static final int grocery_list_menu_refresh=0x7f050038;
+        public static final int grocery_list_menu_add_item=0x7f050038;
+        public static final int grocery_list_menu_refresh=0x7f050037;
         public static final int grocery_pager=0x7f050026;
         public static final int homeAsUp=0x7f05000b;
         public static final int home_root=0x7f050027;
@@ -1076,7 +1077,7 @@ containing a value of this type.
         public static final int showHome=0x7f05000a;
         public static final int showTitle=0x7f05000c;
         public static final int tabMode=0x7f050008;
-        public static final int textview=0x7f050036;
+        public static final int textview=0x7f050035;
         public static final int triangle=0x7f050003;
         public static final int underline=0x7f050004;
         public static final int useLogo=0x7f050009;
@@ -1131,22 +1132,21 @@ containing a value of this type.
         public static final int app_name=0x7f0b0003;
         /**  Descriptions 
          */
-        public static final int crossedOffButtonDescription=0x7f0b000a;
-        public static final int editButtonDescription=0x7f0b000b;
+        public static final int crossedOffButtonDescription=0x7f0b0009;
+        public static final int editButtonDescription=0x7f0b000a;
         /**  Text in Layouts 
          */
-        public static final int grocery_add_item=0x7f0b000c;
-        public static final int grocery_add_to_list=0x7f0b0011;
-        public static final int grocery_amount=0x7f0b000e;
-        public static final int grocery_category=0x7f0b0010;
-        public static final int grocery_item_name=0x7f0b000d;
+        public static final int grocery_add_item=0x7f0b000b;
+        public static final int grocery_add_to_list=0x7f0b0010;
+        public static final int grocery_amount=0x7f0b000d;
+        public static final int grocery_category=0x7f0b000f;
+        public static final int grocery_item_name=0x7f0b000c;
         public static final int grocery_list=0x7f0b0004;
-        public static final int grocery_list_view_add_item_tab_name=0x7f0b0009;
-        public static final int grocery_list_view_crossed_off_tab_name=0x7f0b0008;
+        public static final int grocery_list_view_add_item_tab_name=0x7f0b0008;
         /**  Tab names 
          */
         public static final int grocery_list_view_list_tab_name=0x7f0b0007;
-        public static final int grocery_store=0x7f0b000f;
+        public static final int grocery_store=0x7f0b000e;
         public static final int recipe_book=0x7f0b0005;
         public static final int refresh=0x7f0b0006;
     }

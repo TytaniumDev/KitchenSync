@@ -33,8 +33,7 @@ public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements Tit
       super(fm);
       this.titles = new String[]
       { context.getResources().getString(R.string.grocery_list_view_add_item_tab_name),
-            context.getResources().getString(R.string.grocery_list_view_list_tab_name),
-            context.getResources().getString(R.string.grocery_list_view_crossed_off_tab_name) };
+            context.getResources().getString(R.string.grocery_list_view_list_tab_name) };
    }
 
    @Override
@@ -59,8 +58,6 @@ public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements Tit
             return new GroceryAddItemFragment();
          case 1:
             return new GroceryListFragment();
-         case 2:
-            return new CrossedOffListFragment();
          default:
             return new NYIFragment();
       }

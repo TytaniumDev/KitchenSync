@@ -15,6 +15,7 @@
         android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="15dp"
         android:layout_below="@+id/grocery_add_item_title" >
         <TableRow>
             <TextView
@@ -80,7 +81,7 @@
         android:id="@+id/grocery_add_item_add_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/grocery_add_item_input_table"
+        android:layout_centerHorizontal="true"
         android:text="@string/grocery_add_to_list" />
 </RelativeLayout>

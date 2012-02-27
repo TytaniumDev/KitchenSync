@@ -104,7 +104,7 @@ public class GroceryListFragment extends ListFragment
                   row.startAnimation(anim);
                   new Handler().postDelayed(new Runnable() {
                      public void run() {
-                        mGroceryListModel.crossOffGroceryitem(getItem(position));
+                        mGroceryListModel.deleteGroceryItem(getItem(position));
                      }
 
                  }, 300);

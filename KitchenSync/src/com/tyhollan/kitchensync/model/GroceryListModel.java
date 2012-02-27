@@ -19,19 +19,15 @@ public class GroceryListModel
 {
    private static final String       tag              = "GroceryList";
    private ArrayList<GroceryItem>    groceryList;
-   private ArrayList<GroceryItem>    crossedOffList;
    private GoogleDocsAdapter         gdocAdapter;
    private DBAdapter                 dbAdapter;
    private boolean                   currentlySyncing = false;
    private ArrayAdapter<GroceryItem> mGroceryListAdapter;
    private Activity                  mGroceryListActivity;
-   private ArrayAdapter<GroceryItem> mCrossedOffListAdapter;
-   private Activity                  mCrossedOffListActivity;
 
    public GroceryListModel(Context context)
    {
       groceryList = new ArrayList<GroceryItem>();
-      crossedOffList = new ArrayList<GroceryItem>();
       dbAdapter = new DBAdapter(context);
       initialDataPull();
    }
@@ -40,7 +36,6 @@ public class GroceryListModel
    {
       dbAdapter.open();
       groceryList = dbAdapter.getGroceryList();
-      crossedOffList = dbAdapter.getCrossedOffList();
       dbAdapter.close();
    }
 
@@ -52,29 +47,11 @@ public class GroceryListModel
       return groceryList;
    }
 
-   /**
-    * @return the crossed off list
-    */
-   public ArrayList<GroceryItem> getCrossedOffListArray()
-   {
-      return crossedOffList;
-   }
-
    public void saveGroceryItem(GroceryItem item)
    {
       if (groceryList.contains(item))
       {
          groceryList.set(groceryList.indexOf(item), item);
-         if (isGDocSyncEnabled() && gdocAdapter != null)
-         {
-            gdocAdapter.editGroceryItem(item);
-         }
-      }
-      else if (crossedOffList.contains(item))
-      {
-         item.setCrossedOff(false);
-         groceryList.add(item);
-         crossedOffList.remove(item);
          if (isGDocSyncEnabled() && gdocAdapter != null)
          {
             gdocAdapter.editGroceryItem(item);
@@ -94,22 +71,10 @@ public class GroceryListModel
       updateGroceryListView();
    }
 
-   public void crossOffGroceryitem(GroceryItem item)
-   {
-      groceryList.remove(item);
-      item.setCrossedOff(true);
-      crossedOffList.add(item);
-      dbAdapter.open();
-      dbAdapter.saveGroceryItem(item);
-      dbAdapter.close();
-      updateGroceryListView();
-      updateCrossedOffListView();
-   }
-
    public void deleteGroceryItem(GroceryItem item)
    {
       Log.i(tag, "Deleting " + item.getItemName());
-      crossedOffList.remove(item);
+      groceryList.remove(item);
       dbAdapter.open();
       dbAdapter.deleteGroceryItem(item);
       dbAdapter.close();
@@ -117,7 +82,7 @@ public class GroceryListModel
       {
          gdocAdapter.deleteGroceryItem(item);
       }
-      updateCrossedOffListView();
+      updateGroceryListView();
    }
 
    public void syncGroceryListData(Activity activity)
@@ -152,47 +117,26 @@ public class GroceryListModel
          Log.i(tag, "Got new grocerylist from gdocs");
          // If in DB, overwrite it, if not delete from DB
          Log.i(tag, "Syncing grocery items with database");
-         ArrayList<GroceryItem> tempSQLList = dbAdapter.getFullList();
-         //Remove items that aren't in GDocs
-         for(GroceryItem item: tempSQLList)
+         ArrayList<GroceryItem> tempSQLList = dbAdapter.getGroceryList();
+         // Remove items that aren't in GDocs
+         for (GroceryItem item : tempSQLList)
          {
             Log.i(tag, "in removing from SQL");
-            if(!tempGDocsList.contains(item))
+            if (!tempGDocsList.contains(item))
             {
-               //GDocs doesn't have item, delete from DB
+               // GDocs doesn't have item, delete from DB
                dbAdapter.deleteGroceryItem(item);
             }
          }
-         //Add items from GDocs
+         // Add items from GDocs
          for (GroceryItem item : tempGDocsList)
          {
             Log.i(tag, "in saving to SQL");
-            if(tempSQLList.contains(item))
-            {
-               Log.i(tag, "Does contain");
-               //Already has item, check to see if fields are the same
-               GroceryItem dbItem = tempSQLList.get(tempSQLList.indexOf(item));
-               if(!dbItem.fullEquals(item))
-               {
-                  Log.i(tag, item.getItemName() + " does not full equal");
-                  //Fields aren't the same, reset crossed-off-ness
-                  item.setCrossedOff(false);
-                  dbAdapter.saveGroceryItem(item);
-               }
-               //Otherwise do nothing, all fields are the same
-            }
-            else
-            {
-               Log.i(tag, "Does not contain");
-               Log.i(tag, item.getItemName() + " not contained in SQL");
-               //Doesn't have item, save to DB
-               dbAdapter.saveGroceryItem(item);
-            }
+            dbAdapter.saveGroceryItem(item);
          }
          Log.i(tag, "All items saved");
          // Recreate GroceryList with new DB data
          groceryList = dbAdapter.getGroceryList();
-         crossedOffList = dbAdapter.getCrossedOffList();
          Log.i(tag, "Grocery list done updating");
          dbAdapter.close();
          return null;
@@ -205,7 +149,6 @@ public class GroceryListModel
          super.onPostExecute(result);
          // Notify data set changed
          updateGroceryListView();
-         updateCrossedOffListView();
          currentlySyncing = false;
       }
    }
@@ -222,22 +165,6 @@ public class GroceryListModel
                mGroceryListAdapter.add(item);
             }
             mGroceryListAdapter.notifyDataSetChanged();
-         }
-      });
-   }
-
-   private void updateCrossedOffListView()
-   {
-      mCrossedOffListActivity.runOnUiThread(new Runnable()
-      {
-         public void run()
-         {
-            mCrossedOffListAdapter.clear();
-            for (GroceryItem item : crossedOffList)
-            {
-               mCrossedOffListAdapter.add(item);
-            }
-            mCrossedOffListAdapter.notifyDataSetChanged();
          }
       });
    }
@@ -261,16 +188,6 @@ public class GroceryListModel
    public void setGroceryListActivity(Activity activity)
    {
       this.mGroceryListActivity = activity;
-   }
-
-   public void setCrossedOffListAdapter(ArrayAdapter<GroceryItem> crossedOffListAdapter)
-   {
-      this.mCrossedOffListAdapter = crossedOffListAdapter;
-   }
-
-   public void setCrossedOffListActivity(Activity activity)
-   {
-      this.mCrossedOffListActivity = activity;
    }
 
    private boolean isGDocSyncEnabled()

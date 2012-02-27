@@ -24,7 +24,6 @@ public class DBAdapter
    public static final String  KEY_STORE        = "store";
    public static final String  KEY_CATEGORY     = "category";
    public static final String  KEY_ROWINDEX     = "rowindex";
-   public static final String  KEY_CROSSEDOFF   = "crossedoff";
 
    private static final String TAG              = "DBAdapter";
    private DatabaseHelper      mDbHelper;
@@ -40,10 +39,9 @@ public class DBAdapter
                                                       + " text not null, " + KEY_AMOUNT + " text not null, "
                                                       + KEY_STORE + " text not null, " + KEY_CATEGORY
                                                       + " text not null, " + KEY_ROWINDEX + " text not null, "
-                                                      + KEY_CROSSEDOFF + " integer not null, " + "UNIQUE " + " ("
-                                                      + KEY_ITEMNAME + " )" + ");";
+                                                      + "UNIQUE " + " (" + KEY_ITEMNAME + " )" + ");";
 
-   private static final int    DATABASE_VERSION = 4;
+   private static final int    DATABASE_VERSION = 5;
 
    private final Context       mCtx;
 
@@ -128,7 +126,6 @@ public class DBAdapter
       {
          initialValues.put(KEY_ROWINDEX, "");
       }
-      initialValues.put(KEY_CROSSEDOFF, item.isCrossedOff());
       return mDb.replace(GROCERY_TABLE, null, initialValues);
    }
 
@@ -155,24 +152,12 @@ public class DBAdapter
     * 
     * @return ArrayList<Note> All Notes in the database
     */
-   public ArrayList<GroceryItem> getFullList()
+   public ArrayList<GroceryItem> getGroceryList()
    {
       Cursor cursor = mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
       return makeListFromCursor(cursor);
    }
-   
-   public ArrayList<GroceryItem> getGroceryList()
-   {
-      Cursor cursor = mDb.query(GROCERY_TABLE, null, KEY_CROSSEDOFF + "=0", null, null, null, null);
-      return makeListFromCursor(cursor);
-   }
-   
-   public ArrayList<GroceryItem> getCrossedOffList()
-   {
-      Cursor cursor = mDb.query(GROCERY_TABLE, null, KEY_CROSSEDOFF + "=1", null, null, null, null);
-      return makeListFromCursor(cursor);
-   }
-   
+
    private ArrayList<GroceryItem> makeListFromCursor(Cursor cursor)
    {
       int id = cursor.getColumnIndexOrThrow(KEY_ID);
@@ -181,16 +166,14 @@ public class DBAdapter
       int store = cursor.getColumnIndexOrThrow(KEY_STORE);
       int group = cursor.getColumnIndexOrThrow(KEY_CATEGORY);
       int rowindex = cursor.getColumnIndexOrThrow(KEY_ROWINDEX);
-      int crossedoff = cursor.getColumnIndexOrThrow(KEY_CROSSEDOFF);
-      
+
       ArrayList<GroceryItem> list = new ArrayList<GroceryItem>();
       if (cursor.moveToFirst())
       {
          do
          {
-            list.add(new GroceryItem(cursor.getLong(id), cursor.getString(itemname), cursor
-                  .getString(amount), cursor.getString(store), cursor.getString(group), cursor
-                  .getString(rowindex), cursor.getInt(crossedoff)>0));
+            list.add(new GroceryItem(cursor.getLong(id), cursor.getString(itemname), cursor.getString(amount), cursor
+                  .getString(store), cursor.getString(group), cursor.getString(rowindex)));
          } while (cursor.moveToNext());
       }
       cursor.close();

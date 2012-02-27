@@ -3,34 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     
-     <ImageButton
-        android:id="@+id/groceryRowEditButton"
-        android:src="@drawable/ic_action_edit"
-        android:contentDescription="@string/editButtonDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:paddingLeft="5dp" 
-        android:background="@android:color/transparent"
-        />
-    
     <TextView 
         android:id = "@+id/groceryRowItemName"
         android:layout_width = "wrap_content"
         android:layout_height = "wrap_content"
-        android:layout_toRightOf="@+id/groceryRowEditButton"
+        android:layout_alignParentLeft="true"
         android:textStyle="bold"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:paddingLeft="5dp"
+        android:paddingLeft="10dp"
         />
     <TextView 
         android:id = "@+id/groceryRowAmount"
         android:layout_width = "wrap_content"
         android:layout_height = "wrap_content"
         android:layout_below="@+id/groceryRowItemName"
-        android:layout_toRightOf="@+id/groceryRowEditButton"
-        android:paddingLeft="5dp"
+        android:layout_alignParentLeft="true"
+        android:paddingLeft="10dp"
         />
     
     <ImageButton
