@@ -9,9 +9,11 @@ package com.viewpagerindicator;
 
 public final class R {
     public static final class anim {
-        public static final int home_enter=0x7f040000;
-        public static final int home_exit=0x7f040001;
+        public static final int slide_to_bottom_enter=0x7f040000;
+        public static final int slide_to_bottom_exit=0x7f040001;
         public static final int slide_to_right=0x7f040002;
+        public static final int slide_to_top_enter=0x7f040003;
+        public static final int slide_to_top_exit=0x7f040004;
     }
     public static final class attr {
         /**  Specified if we are forcing an action item overflow menu. 

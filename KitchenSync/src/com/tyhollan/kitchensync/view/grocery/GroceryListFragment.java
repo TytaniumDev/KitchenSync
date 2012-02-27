@@ -19,9 +19,9 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.tyhollan.kitchensync.R;
-import com.tyhollan.kitchensync.model.KitchenSyncApplication;
 import com.tyhollan.kitchensync.model.GroceryItem;
 import com.tyhollan.kitchensync.model.GroceryListModel;
+import com.tyhollan.kitchensync.model.KitchenSyncApplication;
 
 //TODO: make this implement google analytics stuff
 public class GroceryListFragment extends ListFragment
