@@ -44,6 +44,7 @@ public class GroceryActivity extends AnalyticsActivity
    protected void onCreate(Bundle savedInstanceState)
    {
       getActionBar().setHomeButtonEnabled(true);
+      getActionBar().setIcon(R.drawable.grocery_list_icon);
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_grocerylist);
       // Set the pager with an adapter

@@ -43,6 +43,7 @@ public class RecipeActivity extends AnalyticsActivity
    protected void onCreate(Bundle savedInstanceState)
    {
       getActionBar().setHomeButtonEnabled(true);
+      getActionBar().setIcon(R.drawable.recipe_book_icon);
       super.onCreate(savedInstanceState);
    }
 }

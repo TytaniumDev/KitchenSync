@@ -55,7 +55,7 @@ public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements Tit
       switch (position)
       {
          case 0:
-            return new GroceryAddItemFragment();
+            return new GroceryAddItemWrapperFragment();
          case 1:
             return new GroceryListFragment();
          default:

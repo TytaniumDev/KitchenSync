@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -178,16 +179,17 @@ public class GroceryListFragment extends ListFragment
    @Override
    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
    {
+      Log.i("ListFragment", "Inside listfragment createoptionsmenu");
       inflater.inflate(R.menu.grocery_list_menu, menu);
+      super.onCreateOptionsMenu(menu, inflater);
       final MenuItem refresh = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
       refresh.setOnMenuItemClickListener(new OnMenuItemClickListener()
       {
          public boolean onMenuItemClick(MenuItem item)
          {
             mGroceryListModel.syncGroceryListData(getActivity());
-            return false;
+            return true;
          }
       });
-      super.onCreateOptionsMenu(menu, inflater);
    }
 }

@@ -14,16 +14,15 @@ import android.provider.BaseColumns;
 import android.provider.ContactsContract.Data;
 import android.util.Log;
 
-public class DBAdapter
+public class RecentItemDBAdapter
 {
 
    // Event fields
    public static final String  KEY_ID           = BaseColumns._ID;
-   public static final String  KEY_ITEMNAME     = "itemname";
-   public static final String  KEY_AMOUNT       = "amount";
-   public static final String  KEY_STORE        = "store";
-   public static final String  KEY_CATEGORY     = "category";
-   public static final String  KEY_ROWINDEX     = "rowindex";
+   public static final String  KEY_ITEMNAME     = GroceryListDBAdapter.KEY_ITEMNAME;
+   public static final String  KEY_AMOUNT       = GroceryListDBAdapter.KEY_AMOUNT;
+   public static final String  KEY_STORE        = GroceryListDBAdapter.KEY_STORE;
+   public static final String  KEY_CATEGORY     = GroceryListDBAdapter.KEY_CATEGORY;
 
    private static final String TAG              = "DBAdapter";
    private DatabaseHelper      mDbHelper;
@@ -33,13 +32,12 @@ public class DBAdapter
     * Database creation sql statement
     */
    private static final String DATABASE_NAME    = "data";
-   private static final String GROCERY_TABLE    = "grocerylist";
-   private static final String GROCERY_CREATE   = "create table " + GROCERY_TABLE + " (" + KEY_ID
+   private static final String RECENT_TABLE    = "recentitems";
+   private static final String RECENT_CREATE   = "create table " + RECENT_TABLE + " (" + KEY_ID
                                                       + " integer primary key " + "autoincrement, " + KEY_ITEMNAME
                                                       + " text not null, " + KEY_AMOUNT + " text not null, "
                                                       + KEY_STORE + " text not null, " + KEY_CATEGORY
-                                                      + " text not null, " + KEY_ROWINDEX + " text not null, "
-                                                      + "UNIQUE " + " (" + KEY_ITEMNAME + " )" + ");";
+                                                      + " text not null, " + ");";
 
    private static final int    DATABASE_VERSION = 5;
 
@@ -57,7 +55,7 @@ public class DBAdapter
       public void onCreate(SQLiteDatabase db)
       {
          Log.i(TAG, "In DatabaseHelper.onCreate");
-         db.execSQL(GROCERY_CREATE);
+         db.execSQL(RECENT_CREATE);
       }
 
       @Override
@@ -67,8 +65,8 @@ public class DBAdapter
          Log.i(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
                + ", which will destroy all data");
          Log.i(TAG, "DB version is: " + db.getVersion());
-         db.execSQL("drop table " + GROCERY_TABLE + ";");
-         db.execSQL(GROCERY_CREATE);
+         db.execSQL("drop table " + RECENT_TABLE + ";");
+         db.execSQL(RECENT_CREATE);
       }
    }
 
@@ -78,7 +76,7 @@ public class DBAdapter
     * @param ctx
     *           the Context within which to work
     */
-   public DBAdapter(Context ctx)
+   public RecentItemDBAdapter(Context ctx)
    {
       this.mCtx = ctx;
    }
@@ -93,7 +91,7 @@ public class DBAdapter
     * @throws SQLException
     *            if the database could be neither opened or created
     */
-   public DBAdapter open() throws SQLException
+   public RecentItemDBAdapter open() throws SQLException
    {
       Log.i(TAG, "In DatabaseHelper.open");
       mDbHelper = new DatabaseHelper(mCtx);
@@ -110,7 +108,7 @@ public class DBAdapter
    /**
     * Add a grocery item to the database
     */
-   public long saveGroceryItem(GroceryItem item)
+   public long addGroceryItem(GroceryItem item)
    {
       Log.i(TAG, "In DatabaseHelper.saveGroceryItem");
       ContentValues initialValues = new ContentValues();
@@ -118,15 +116,7 @@ public class DBAdapter
       initialValues.put(KEY_AMOUNT, item.getAmount());
       initialValues.put(KEY_STORE, item.getStore());
       initialValues.put(KEY_CATEGORY, item.getCategory());
-      if (item.getRowIndex() != null)
-      {
-         initialValues.put(KEY_ROWINDEX, item.getRowIndex());
-      }
-      else
-      {
-         initialValues.put(KEY_ROWINDEX, "");
-      }
-      return mDb.replace(GROCERY_TABLE, null, initialValues);
+      return mDb.insert(RECENT_TABLE, null, initialValues);
    }
 
    /**
@@ -138,13 +128,13 @@ public class DBAdapter
     */
    public boolean deleteGroceryItem(GroceryItem item)
    {
-      return mDb.delete(GROCERY_TABLE, KEY_ID + "=" + item.getId(), null) > 0;
+      return mDb.delete(RECENT_TABLE, KEY_ID + "=" + item.getId(), null) > 0;
    }
 
    public void deleteAll()
    {
-      mDb.execSQL("drop table " + GROCERY_TABLE + ";");
-      mDb.execSQL(GROCERY_CREATE);
+      mDb.execSQL("drop table " + RECENT_TABLE + ";");
+      mDb.execSQL(RECENT_CREATE);
    }
 
    /**
@@ -152,28 +142,26 @@ public class DBAdapter
     * 
     * @return ArrayList<Note> All Notes in the database
     */
-   public ArrayList<GroceryItem> getGroceryList()
+   public ArrayList<GroceryItem> getRecentItems()
    {
-      Cursor cursor = mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
+      Cursor cursor = mDb.rawQuery("SELECT * FROM " + RECENT_TABLE, null);
       return makeListFromCursor(cursor);
    }
 
    private ArrayList<GroceryItem> makeListFromCursor(Cursor cursor)
    {
-      int id = cursor.getColumnIndexOrThrow(KEY_ID);
       int itemname = cursor.getColumnIndexOrThrow(KEY_ITEMNAME);
       int amount = cursor.getColumnIndexOrThrow(KEY_AMOUNT);
       int store = cursor.getColumnIndexOrThrow(KEY_STORE);
       int group = cursor.getColumnIndexOrThrow(KEY_CATEGORY);
-      int rowindex = cursor.getColumnIndexOrThrow(KEY_ROWINDEX);
 
       ArrayList<GroceryItem> list = new ArrayList<GroceryItem>();
       if (cursor.moveToFirst())
       {
          do
          {
-            list.add(new GroceryItem(cursor.getLong(id), cursor.getString(itemname), cursor.getString(amount), cursor
-                  .getString(store), cursor.getString(group), cursor.getString(rowindex)));
+            list.add(new GroceryItem(cursor.getString(itemname), cursor.getString(amount), cursor
+                  .getString(store), cursor.getString(group)));
          } while (cursor.moveToNext());
       }
       cursor.close();
@@ -182,6 +170,6 @@ public class DBAdapter
 
    public Cursor getGroceryCursor()
    {
-      return mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
+      return mDb.rawQuery("SELECT * FROM " + RECENT_TABLE, null);
    }
 }
