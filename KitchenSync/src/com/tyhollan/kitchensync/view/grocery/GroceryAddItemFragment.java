@@ -1,6 +1,7 @@
 package com.tyhollan.kitchensync.view.grocery;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,7 +35,8 @@ public class GroceryAddItemFragment extends AnalyticsFragment
       mAmount = (EditText) root.findViewById(R.id.grocery_add_item_amount_field);
       mStore = (EditText) root.findViewById(R.id.grocery_add_item_store_field);
       mCategory = (EditText) root.findViewById(R.id.grocery_add_item_category_field);
-
+      
+      
       mAddToListButton.setOnClickListener(new OnClickListener()
       {
          @Override

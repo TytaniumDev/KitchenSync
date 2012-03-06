@@ -2,8 +2,17 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/container"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >    <include
-        layout="@layout/fragment_add_groceryitem" />
-    <include
-        layout="@layout/fragment_quickadd_groceryitem" />
+    android:layout_height="fill_parent" >
+    <!-- <include -->
+    <!-- layout="@layout/fragment_add_groceryitem" /> -->
+    <!-- <include -->
+    <!-- layout="@layout/fragment_quickadd_groceryitem" /> -->
+    <fragment
+        android:name="com.tyhollan.kitchensync.view.grocery.GroceryAddItemFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+    <fragment
+        android:name="com.tyhollan.kitchensync.view.grocery.GroceryQuickAddItemFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 </FrameLayout>

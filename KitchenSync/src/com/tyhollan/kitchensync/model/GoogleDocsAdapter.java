@@ -127,10 +127,10 @@ public class GoogleDocsAdapter
    private HashMap<String, String> convertGroceryItemToRecords(GroceryItem item)
    {
       HashMap<String, String> records = new HashMap<String, String>();
-      records.put(GroceryListDBAdapter.KEY_ITEMNAME, item.getItemName());
-      records.put(GroceryListDBAdapter.KEY_AMOUNT, item.getAmount());
-      records.put(GroceryListDBAdapter.KEY_STORE, item.getStore());
-      records.put(GroceryListDBAdapter.KEY_CATEGORY, item.getCategory());
+      records.put(DBAdapter.KEY_ITEMNAME, item.getItemName());
+      records.put(DBAdapter.KEY_AMOUNT, item.getAmount());
+      records.put(DBAdapter.KEY_STORE, item.getStore());
+      records.put(DBAdapter.KEY_CATEGORY, item.getCategory());
       return records;
    }
 
@@ -142,19 +142,19 @@ public class GoogleDocsAdapter
       {
          name = cell.getName();
          Log.i(tag, "Cell name: " + name);
-         if (name.equals(GroceryListDBAdapter.KEY_ITEMNAME))
+         if (name.equals(DBAdapter.KEY_ITEMNAME))
          {
             item.setItemName(cell.getValue());
          }
-         else if (name.equals(GroceryListDBAdapter.KEY_AMOUNT))
+         else if (name.equals(DBAdapter.KEY_AMOUNT))
          {
             item.setAmount(cell.getValue());
          }
-         else if (name.equals(GroceryListDBAdapter.KEY_STORE))
+         else if (name.equals(DBAdapter.KEY_STORE))
          {
             item.setStore(cell.getValue());
          }
-         else if (name.equals(GroceryListDBAdapter.KEY_CATEGORY))
+         else if (name.equals(DBAdapter.KEY_CATEGORY))
          {
             item.setCategory(cell.getValue());
          }

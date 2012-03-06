@@ -6,15 +6,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.AsyncTask;
 import android.provider.BaseColumns;
-import android.provider.ContactsContract.Data;
 import android.util.Log;
 
-public class GroceryListDBAdapter
+public class DBAdapter
 {
 
    // Event fields
@@ -24,6 +21,8 @@ public class GroceryListDBAdapter
    public static final String  KEY_STORE        = "store";
    public static final String  KEY_CATEGORY     = "category";
    public static final String  KEY_ROWINDEX     = "rowindex";
+   public static final String  KEY_TIMESTAMP    = "timestamp";
+   public static final String  KEY_FREQUENCY    = "frequency";
 
    private static final String TAG              = "DBAdapter";
    private DatabaseHelper      mDbHelper;
@@ -40,6 +39,14 @@ public class GroceryListDBAdapter
                                                       + KEY_STORE + " text not null, " + KEY_CATEGORY
                                                       + " text not null, " + KEY_ROWINDEX + " text not null, "
                                                       + "UNIQUE " + " (" + KEY_ITEMNAME + " )" + ");";
+   private static final String RECENT_TABLE     = "recentitems";
+   private static final String RECENT_CREATE    = "create table " + RECENT_TABLE + " (" + KEY_ID
+                                                      + " integer primary key " + "autoincrement, " + KEY_ITEMNAME
+                                                      + " text not null, " + KEY_AMOUNT + " text not null, "
+                                                      + KEY_STORE + " text not null, " + KEY_CATEGORY
+                                                      + " text not null, " + KEY_FREQUENCY + " integer not null, "
+                                                      + KEY_TIMESTAMP + " integer not null, " + "UNIQUE " + " ("
+                                                      + KEY_ITEMNAME + " )" + ");";
 
    private static final int    DATABASE_VERSION = 5;
 
@@ -58,6 +65,7 @@ public class GroceryListDBAdapter
       {
          Log.i(TAG, "In DatabaseHelper.onCreate");
          db.execSQL(GROCERY_CREATE);
+         db.execSQL(RECENT_CREATE);
       }
 
       @Override
@@ -68,7 +76,9 @@ public class GroceryListDBAdapter
                + ", which will destroy all data");
          Log.i(TAG, "DB version is: " + db.getVersion());
          db.execSQL("drop table " + GROCERY_TABLE + ";");
+         db.execSQL("drop table " + RECENT_TABLE + ";");
          db.execSQL(GROCERY_CREATE);
+         db.execSQL(RECENT_CREATE);
       }
    }
 
@@ -78,7 +88,7 @@ public class GroceryListDBAdapter
     * @param ctx
     *           the Context within which to work
     */
-   public GroceryListDBAdapter(Context ctx)
+   public DBAdapter(Context ctx)
    {
       this.mCtx = ctx;
    }
@@ -93,7 +103,7 @@ public class GroceryListDBAdapter
     * @throws SQLException
     *            if the database could be neither opened or created
     */
-   public GroceryListDBAdapter open() throws SQLException
+   public DBAdapter open() throws SQLException
    {
       Log.i(TAG, "In DatabaseHelper.open");
       mDbHelper = new DatabaseHelper(mCtx);
@@ -107,17 +117,14 @@ public class GroceryListDBAdapter
       mDbHelper.close();
    }
 
+   // GROCERY_TABLE things
    /**
     * Add a grocery item to the database
     */
    public long saveGroceryItem(GroceryItem item)
    {
       Log.i(TAG, "In DatabaseHelper.saveGroceryItem");
-      ContentValues initialValues = new ContentValues();
-      initialValues.put(KEY_ITEMNAME, item.getItemName());
-      initialValues.put(KEY_AMOUNT, item.getAmount());
-      initialValues.put(KEY_STORE, item.getStore());
-      initialValues.put(KEY_CATEGORY, item.getCategory());
+      ContentValues initialValues = makeValuesFromGroceryItem(item);
       if (item.getRowIndex() != null)
       {
          initialValues.put(KEY_ROWINDEX, item.getRowIndex());
@@ -141,12 +148,6 @@ public class GroceryListDBAdapter
       return mDb.delete(GROCERY_TABLE, KEY_ID + "=" + item.getId(), null) > 0;
    }
 
-   public void deleteAll()
-   {
-      mDb.execSQL("drop table " + GROCERY_TABLE + ";");
-      mDb.execSQL(GROCERY_CREATE);
-   }
-
    /**
     * Return an ArrayList of all notes in the database
     * 
@@ -156,6 +157,46 @@ public class GroceryListDBAdapter
    {
       Cursor cursor = mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
       return makeListFromCursor(cursor);
+   }
+
+   // RECENT_TABLE things
+   public void saveRecentItem(GroceryItem item)
+   {
+      if (doesGroceryItemExist(RECENT_TABLE, item))
+      {
+         // Increment frequency and update timestamp
+         mDb.execSQL("UPDATE " + RECENT_TABLE + " SET " + KEY_FREQUENCY + "=" + KEY_FREQUENCY + "+1, " + KEY_TIMESTAMP
+               + "=" + System.currentTimeMillis() + " WHERE " + KEY_ITEMNAME + "=?", new String[]
+         { item.getItemName() });
+      }
+      else
+      {
+         // New value
+         ContentValues initialValues = makeValuesFromGroceryItem(item);
+         initialValues.put(KEY_FREQUENCY, 1);
+         initialValues.put(KEY_TIMESTAMP, System.currentTimeMillis());
+         mDb.insert(RECENT_TABLE, null, initialValues);
+      }
+   }
+
+   public ArrayList<GroceryItem> getRecentItemsList()
+   {
+      String[] columns =
+      { KEY_ITEMNAME, KEY_AMOUNT, KEY_CATEGORY, KEY_STORE };
+      Cursor cursor = mDb.query(RECENT_TABLE, columns, null, null, null, null, KEY_FREQUENCY + " ASC, " + KEY_TIMESTAMP
+            + " ASC");
+      return makeListFromCursor(cursor);
+   }
+
+   // Helper methods
+   private ContentValues makeValuesFromGroceryItem(GroceryItem item)
+   {
+      ContentValues initialValues = new ContentValues();
+      initialValues.put(KEY_ITEMNAME, item.getItemName());
+      initialValues.put(KEY_AMOUNT, item.getAmount());
+      initialValues.put(KEY_STORE, item.getStore());
+      initialValues.put(KEY_CATEGORY, item.getCategory());
+      return initialValues;
    }
 
    private ArrayList<GroceryItem> makeListFromCursor(Cursor cursor)
@@ -180,8 +221,12 @@ public class GroceryListDBAdapter
       return list;
    }
 
-   public Cursor getGroceryCursor()
+   private boolean doesGroceryItemExist(String tableName, GroceryItem item)
    {
-      return mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
+      return (mDb.query(tableName, new String[]
+      { KEY_ITEMNAME }, KEY_ITEMNAME + "=?", new String[]
+      { item.getItemName() }, null, null, null)).getCount() > 0;
+
    }
+
 }

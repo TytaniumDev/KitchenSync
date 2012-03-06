@@ -20,7 +20,7 @@ public class GroceryListModel
    private static final String       tag              = "GroceryList";
    private ArrayList<GroceryItem>    groceryList;
    private GoogleDocsAdapter         gdocAdapter;
-   private GroceryListDBAdapter                 dbAdapter;
+   private DBAdapter                 dbAdapter;
    private boolean                   currentlySyncing = false;
    private ArrayAdapter<GroceryItem> mGroceryListAdapter;
    private Activity                  mGroceryListActivity;
@@ -28,7 +28,7 @@ public class GroceryListModel
    public GroceryListModel(Context context)
    {
       groceryList = new ArrayList<GroceryItem>();
-      dbAdapter = new GroceryListDBAdapter(context);
+      dbAdapter = new DBAdapter(context);
       initialDataPull();
    }
 
