@@ -11,4 +11,11 @@
         android:layout_centerHorizontal="true"
         android:text="@string/grocery_quickadd_item"
         android:textSize="28dip" />
+    
+    <ListView 
+        android:id="@+id/grocery_quickadd_listview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/grocery_quickadd_item_title"
+        />
 </RelativeLayout>

@@ -28,6 +28,7 @@ public class GroceryItem
       this.amount = (amount == null) ? "" : amount;
       this.store = (store == null) ? "" : store;
       this.category = (category == null) ? "" : category;
+      this.rowIndex = "";
    }
    
    public GroceryItem()
@@ -37,6 +38,7 @@ public class GroceryItem
       this.amount = "";
       this.store = "";
       this.category = "";
+      this.rowIndex = "";
    }
 
    /**

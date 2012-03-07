@@ -179,13 +179,18 @@ public class DBAdapter
       }
    }
 
-   public ArrayList<GroceryItem> getRecentItemsList()
+   public Cursor getRecentItemsListCursor()
    {
       String[] columns =
-      { KEY_ITEMNAME, KEY_AMOUNT, KEY_CATEGORY, KEY_STORE };
+         { KEY_ITEMNAME, KEY_AMOUNT, KEY_CATEGORY, KEY_STORE };
       Cursor cursor = mDb.query(RECENT_TABLE, columns, null, null, null, null, KEY_FREQUENCY + " ASC, " + KEY_TIMESTAMP
             + " ASC");
-      return makeListFromCursor(cursor);
+      return cursor;
+   }
+  
+   public ArrayList<GroceryItem> getRecentItemsList()
+   {
+      return makeListFromCursor(getRecentItemsListCursor());
    }
 
    // Helper methods

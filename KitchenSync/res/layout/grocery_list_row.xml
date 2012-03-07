@@ -2,34 +2,52 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    
-    <TextView 
-        android:id = "@+id/groceryRowItemName"
-        android:layout_width = "wrap_content"
-        android:layout_height = "wrap_content"
+    <TextView
+        android:id="@+id/grocery_row_item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:textStyle="bold"
+        android:paddingLeft="10dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:paddingLeft="10dp"
-        />
-    <TextView 
-        android:id = "@+id/groceryRowAmount"
-        android:layout_width = "wrap_content"
-        android:layout_height = "wrap_content"
-        android:layout_below="@+id/groceryRowItemName"
+        android:textStyle="bold" />
+    <TextView
+        android:id="@+id/grocery_row_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_below="@+id/grocery_row_item_name"
+        android:paddingLeft="10dp" />
+    <TextView
+        android:id="@+id/grocery_row_store"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/grocery_row_item_name"
+        android:layout_toLeftOf="@+id/grocery_row_syncing_icon"
+        android:gravity="right"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:scrollHorizontally="true"
         android:paddingLeft="10dp"
-        />
-    
+        android:paddingRight="10dp" />
+    <ImageView
+        android:id="@+id/grocery_row_syncing_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/grocery_row_cross_off_button"
+        android:alpha=".3"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/currentlySyncingDescription"
+        android:paddingRight="5dp"
+        android:src="@drawable/ic_action_refresh" />
     <ImageButton
-        android:id="@+id/groceryRowCrossedOffButton"
-        android:src="@drawable/ic_action_done"
-        android:contentDescription="@string/crossedOffButtonDescription"
+        android:id="@+id/grocery_row_cross_off_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:paddingRight="5dp" 
         android:background="@android:color/transparent"
-        />
+        android:contentDescription="@string/crossedOffButtonDescription"
+        android:paddingRight="5dp"
+        android:src="@drawable/ic_action_done" />
 </RelativeLayout>

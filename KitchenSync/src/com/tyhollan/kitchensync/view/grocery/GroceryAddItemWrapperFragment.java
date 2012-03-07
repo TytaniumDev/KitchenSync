@@ -85,6 +85,5 @@ public class GroceryAddItemWrapperFragment extends AnalyticsFragment
       {
          quickAdd.startAnimation(rotation);
       }
-
    }
 }

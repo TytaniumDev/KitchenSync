@@ -23,6 +23,7 @@ public class GroceryListModel
    private DBAdapter                 dbAdapter;
    private boolean                   currentlySyncing = false;
    private ArrayAdapter<GroceryItem> mGroceryListAdapter;
+   private ArrayAdapter<GroceryItem> mRecentItemsAdapter;
    private Activity                  mGroceryListActivity;
 
    public GroceryListModel(Context context)
@@ -77,6 +78,7 @@ public class GroceryListModel
       groceryList.remove(item);
       dbAdapter.open();
       dbAdapter.deleteGroceryItem(item);
+      dbAdapter.saveRecentItem(item);
       dbAdapter.close();
       if (isGDocSyncEnabled() && gdocAdapter != null)
       {
@@ -85,12 +87,12 @@ public class GroceryListModel
       updateGroceryListView();
    }
 
-   public void syncGroceryListData(Activity activity)
+   public void syncGroceryListData()
    {
       if (!currentlySyncing)
       {
          currentlySyncing = true;
-         new DataSyncTask().execute(activity);
+         new DataSyncTask().execute(mGroceryListActivity);
       }
    }
 
@@ -183,6 +185,11 @@ public class GroceryListModel
    public void setGroceryListAdapter(ArrayAdapter<GroceryItem> groceryListAdapter)
    {
       this.mGroceryListAdapter = groceryListAdapter;
+   }
+
+   public void setRecentItemsAdapter(ArrayAdapter<GroceryItem> recentItemsAdapter)
+   {
+      this.mRecentItemsAdapter = recentItemsAdapter;
    }
 
    public void setGroceryListActivity(Activity activity)

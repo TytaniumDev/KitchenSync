@@ -13,6 +13,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
@@ -43,7 +44,7 @@ public class GroceryListFragment extends ListFragment
       this.setListAdapter(mGroceryListAdapter);
       mGroceryListModel.setGroceryListAdapter(mGroceryListAdapter);
       mGroceryListModel.setGroceryListActivity(getActivity());
-      mGroceryListModel.syncGroceryListData(getActivity());
+      mGroceryListModel.syncGroceryListData();
 
       // Check to see if we have a frame in which to embed the items
       // fragment directly in the containing UI.
@@ -86,15 +87,26 @@ public class GroceryListFragment extends ListFragment
                row = convertView;
             }
             // Item Name
-            TextView itemNameView = (TextView) row.findViewById(R.id.groceryRowItemName);
+            TextView itemNameView = (TextView) row.findViewById(R.id.grocery_row_item_name);
             itemNameView.setText(getItem(position).getItemName());
 
             // Amount
-            TextView amountView = (TextView) row.findViewById(R.id.groceryRowAmount);
+            TextView amountView = (TextView) row.findViewById(R.id.grocery_row_amount);
             amountView.setText(getItem(position).getAmount());
+            
+            // Store
+            TextView storeView = (TextView) row.findViewById(R.id.grocery_row_store);
+            storeView.setText(getItem(position).getStore());
+            
+            //Syncing Icon
+            ImageView syncingView = (ImageView) row.findViewById(R.id.grocery_row_syncing_icon);
+            if(getItem(position).getRowIndex().length() > 0)
+            {
+               syncingView.setAlpha(0);
+            }
 
             // Delete Button
-            ImageButton deleteButton = (ImageButton) row.findViewById(R.id.groceryRowCrossedOffButton);
+            ImageButton deleteButton = (ImageButton) row.findViewById(R.id.grocery_row_cross_off_button);
             deleteButton.setOnClickListener(new OnClickListener()
             {
                @Override
@@ -187,7 +199,7 @@ public class GroceryListFragment extends ListFragment
       {
          public boolean onMenuItemClick(MenuItem item)
          {
-            mGroceryListModel.syncGroceryListData(getActivity());
+            mGroceryListModel.syncGroceryListData();
             return true;
          }
       });
