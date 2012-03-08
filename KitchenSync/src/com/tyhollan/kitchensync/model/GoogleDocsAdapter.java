@@ -11,7 +11,6 @@ import com.pras.SpreadSheetFactory;
 import com.pras.WorkSheet;
 import com.pras.WorkSheetCell;
 import com.pras.WorkSheetRow;
-import com.tyhollan.kitchensync.view.grocery.GroceryListFragment;
 
 public class GoogleDocsAdapter
 {
@@ -74,6 +73,22 @@ public class GoogleDocsAdapter
       }
 
       return list;
+   }
+   
+   public HashMap<String, GroceryItem> getGroceryListMap()
+   {
+      HashMap<String, GroceryItem> map = new HashMap<String, GroceryItem>();
+      ArrayList<WorkSheetRow> rows = worksheet.getData(false);
+      for (WorkSheetRow row : rows)
+      {
+         ArrayList<WorkSheetCell> cells = row.getCells();
+         Log.i(tag, "got cells");
+         GroceryItem temp = makeGroceryItemFromCells(cells);
+         temp.setRowIndex(row.getRowIndex());
+         map.put(temp.getItemName(), temp);
+      }
+      
+      return map;
    }
 
    public void addGroceryItem(final GroceryItem item)

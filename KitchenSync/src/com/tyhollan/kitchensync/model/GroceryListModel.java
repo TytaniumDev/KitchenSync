@@ -1,9 +1,11 @@
 package com.tyhollan.kitchensync.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -17,27 +19,34 @@ import android.widget.ArrayAdapter;
  */
 public class GroceryListModel
 {
-   private static final String       tag              = "GroceryList";
+   private static final String       tag              = "GroceryListModel";
    private ArrayList<GroceryItem>    groceryList;
    private GoogleDocsAdapter         gdocAdapter;
    private DBAdapter                 dbAdapter;
    private boolean                   currentlySyncing = false;
    private ArrayAdapter<GroceryItem> mGroceryListAdapter;
-   private ArrayAdapter<GroceryItem> mRecentItemsAdapter;
+   private Cursor                    mRecentItemsCursor;
    private Activity                  mGroceryListActivity;
 
    public GroceryListModel(Context context)
    {
       groceryList = new ArrayList<GroceryItem>();
       dbAdapter = new DBAdapter(context);
-      initialDataPull();
    }
 
-   private void initialDataPull()
+   public void openDBConnection()
    {
       dbAdapter.open();
-      groceryList = dbAdapter.getGroceryList();
+   }
+
+   public void closeDBConnection()
+   {
       dbAdapter.close();
+   }
+
+   public void initialDataPull()
+   {
+      groceryList = dbAdapter.getGroceryList();
    }
 
    /**
@@ -48,6 +57,12 @@ public class GroceryListModel
       return groceryList;
    }
 
+   public Cursor getRecentItemListCursor()
+   {
+      mRecentItemsCursor = dbAdapter.getRecentItemsListCursor();
+      return mRecentItemsCursor;
+   }
+   
    public void saveGroceryItem(GroceryItem item)
    {
       if (groceryList.contains(item))
@@ -66,9 +81,7 @@ public class GroceryListModel
             gdocAdapter.addGroceryItem(item);
          }
       }
-      dbAdapter.open();
       dbAdapter.saveGroceryItem(item);
-      dbAdapter.close();
       updateGroceryListView();
    }
 
@@ -76,10 +89,9 @@ public class GroceryListModel
    {
       Log.i(tag, "Deleting " + item.getItemName());
       groceryList.remove(item);
-      dbAdapter.open();
       dbAdapter.deleteGroceryItem(item);
       dbAdapter.saveRecentItem(item);
-      dbAdapter.close();
+      mRecentItemsCursor.requery();
       if (isGDocSyncEnabled() && gdocAdapter != null)
       {
          gdocAdapter.deleteGroceryItem(item);
@@ -103,7 +115,6 @@ public class GroceryListModel
       @Override
       protected Void doInBackground(Activity... params)
       {
-         dbAdapter.open();
          activity = params[0];
          AndroidAuthenticator auth = new AndroidAuthenticator(activity);
          Log.i(tag, "Got auth");
@@ -115,32 +126,31 @@ public class GroceryListModel
          // Check to see if we get data from GDocs + have internet
          // TODO
          // Pull data from GDocs into DB
-         ArrayList<GroceryItem> tempGDocsList = gdocAdapter.getGroceryList();
+         HashMap<String, GroceryItem> tempGDocsMap = gdocAdapter.getGroceryListMap();
          Log.i(tag, "Got new grocerylist from gdocs");
          // If in DB, overwrite it, if not delete from DB
          Log.i(tag, "Syncing grocery items with database");
-         ArrayList<GroceryItem> tempSQLList = dbAdapter.getGroceryList();
+         HashMap<String, GroceryItem> tempSQLMap = dbAdapter.getGroceryListMap();
          // Remove items that aren't in GDocs
-         for (GroceryItem item : tempSQLList)
+         for (String itemname : tempSQLMap.keySet())
          {
-            Log.i(tag, "in removing from SQL");
-            if (!tempGDocsList.contains(item))
+            if (!tempGDocsMap.containsKey(itemname))
             {
+               Log.i(tag, "removing from SQL");
                // GDocs doesn't have item, delete from DB
-               dbAdapter.deleteGroceryItem(item);
+               dbAdapter.deleteGroceryItem(tempSQLMap.get(itemname));
             }
          }
          // Add items from GDocs
-         for (GroceryItem item : tempGDocsList)
+         for (String itemname : tempGDocsMap.keySet())
          {
-            Log.i(tag, "in saving to SQL");
-            dbAdapter.saveGroceryItem(item);
+            Log.i(tag, "saving to SQL");
+            dbAdapter.saveGroceryItem(tempGDocsMap.get(itemname));
          }
          Log.i(tag, "All items saved");
          // Recreate GroceryList with new DB data
          groceryList = dbAdapter.getGroceryList();
          Log.i(tag, "Grocery list done updating");
-         dbAdapter.close();
          return null;
       }
 
@@ -185,11 +195,6 @@ public class GroceryListModel
    public void setGroceryListAdapter(ArrayAdapter<GroceryItem> groceryListAdapter)
    {
       this.mGroceryListAdapter = groceryListAdapter;
-   }
-
-   public void setRecentItemsAdapter(ArrayAdapter<GroceryItem> recentItemsAdapter)
-   {
-      this.mRecentItemsAdapter = recentItemsAdapter;
    }
 
    public void setGroceryListActivity(Activity activity)

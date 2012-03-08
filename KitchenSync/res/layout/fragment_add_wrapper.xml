@@ -3,10 +3,6 @@
     android:id="@+id/container"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
-    <!-- <include -->
-    <!-- layout="@layout/fragment_add_groceryitem" /> -->
-    <!-- <include -->
-    <!-- layout="@layout/fragment_quickadd_groceryitem" /> -->
     <fragment
         android:name="com.tyhollan.kitchensync.view.grocery.GroceryAddItemFragment"
         android:layout_width="fill_parent"

@@ -2,34 +2,38 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    
-    <TextView 
-        android:id = "@+id/grocery_row_item_name"
-        android:layout_width = "wrap_content"
-        android:layout_height = "wrap_content"
-        android:layout_alignParentLeft="true"
-        android:textStyle="bold"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:paddingLeft="10dp"
-        />
-    <TextView 
-        android:id = "@+id/grocery_row_amount"
-        android:layout_width = "wrap_content"
-        android:layout_height = "wrap_content"
-        android:layout_below="@+id/grocery_row_item_name"
-        android:layout_alignParentLeft="true"
-        android:paddingLeft="10dp"
-        />
-    
-    <ImageButton
-        android:id="@+id/grocery_row_cross_off_button"
-        android:src="@drawable/ic_action_done"
-        android:contentDescription="@string/crossedOffButtonDescription"
+    <TextView
+        android:id="@+id/grocery_quickadd_row_item_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:paddingLeft="10dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="bold" />
+    <TextView
+        android:id="@+id/grocery_quickadd_row_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/grocery_quickadd_row_item_name"
+        android:paddingLeft="10dp" />
+    <TextView
+        android:id="@+id/grocery_quickadd_row_store"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/grocery_quickadd_row_rightbuffer"
+        android:layout_toRightOf="@+id/grocery_quickadd_row_item_name"
+        android:ellipsize="end"
+        android:gravity="right"
+        android:paddingLeft="10dp"
+        android:singleLine="true" />
+    <ImageView
+        android:id="@+id/grocery_quickadd_row_rightbuffer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:paddingRight="5dp" 
+        android:alpha="0"
         android:background="@android:color/transparent"
-        />
+        android:src="@drawable/ic_action_refresh" />
 </RelativeLayout>

@@ -1,6 +1,7 @@
 package com.tyhollan.kitchensync.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -48,7 +49,7 @@ public class DBAdapter
                                                       + KEY_TIMESTAMP + " integer not null, " + "UNIQUE " + " ("
                                                       + KEY_ITEMNAME + " )" + ");";
 
-   private static final int    DATABASE_VERSION = 5;
+   private static final int    DATABASE_VERSION = 6;
 
    private final Context       mCtx;
 
@@ -75,8 +76,8 @@ public class DBAdapter
          Log.i(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
                + ", which will destroy all data");
          Log.i(TAG, "DB version is: " + db.getVersion());
-         db.execSQL("drop table " + GROCERY_TABLE + ";");
-         db.execSQL("drop table " + RECENT_TABLE + ";");
+         db.execSQL("drop table if exists " + GROCERY_TABLE + ";");
+         db.execSQL("drop table if exists " + RECENT_TABLE + ";");
          db.execSQL(GROCERY_CREATE);
          db.execSQL(RECENT_CREATE);
       }
@@ -159,12 +160,20 @@ public class DBAdapter
       return makeListFromCursor(cursor);
    }
 
+   public HashMap<String, GroceryItem> getGroceryListMap()
+   {
+      Cursor cursor = mDb.rawQuery("SELECT * FROM " + GROCERY_TABLE, null);
+      return makeMapFromCursor(cursor);
+   }
+
    // RECENT_TABLE things
    public void saveRecentItem(GroceryItem item)
    {
+      ContentValues initialValues = makeValuesFromGroceryItem(item);
       if (doesGroceryItemExist(RECENT_TABLE, item))
       {
          // Increment frequency and update timestamp
+         mDb.update(RECENT_TABLE, initialValues, KEY_ITEMNAME + "=?", new String[]{ KEY_ITEMNAME });
          mDb.execSQL("UPDATE " + RECENT_TABLE + " SET " + KEY_FREQUENCY + "=" + KEY_FREQUENCY + "+1, " + KEY_TIMESTAMP
                + "=" + System.currentTimeMillis() + " WHERE " + KEY_ITEMNAME + "=?", new String[]
          { item.getItemName() });
@@ -172,7 +181,6 @@ public class DBAdapter
       else
       {
          // New value
-         ContentValues initialValues = makeValuesFromGroceryItem(item);
          initialValues.put(KEY_FREQUENCY, 1);
          initialValues.put(KEY_TIMESTAMP, System.currentTimeMillis());
          mDb.insert(RECENT_TABLE, null, initialValues);
@@ -181,16 +189,23 @@ public class DBAdapter
 
    public Cursor getRecentItemsListCursor()
    {
-      String[] columns =
-         { KEY_ITEMNAME, KEY_AMOUNT, KEY_CATEGORY, KEY_STORE };
-      Cursor cursor = mDb.query(RECENT_TABLE, columns, null, null, null, null, KEY_FREQUENCY + " ASC, " + KEY_TIMESTAMP
-            + " ASC");
+      String query = "SELECT * FROM " + RECENT_TABLE + " WHERE NOT EXISTS (SELECT * FROM " + GROCERY_TABLE + " WHERE "
+            + RECENT_TABLE + "." + KEY_ITEMNAME + " = " + GROCERY_TABLE + "." + KEY_ITEMNAME + ")";
+      Cursor cursor = mDb.rawQuery(query, null);
+      // Cursor cursor = mDb.query(RECENT_TABLE, null, null, null, null, null,
+      // KEY_FREQUENCY + " DESC, " + KEY_TIMESTAMP
+      // + " DESC");
       return cursor;
    }
-  
+
    public ArrayList<GroceryItem> getRecentItemsList()
    {
       return makeListFromCursor(getRecentItemsListCursor());
+   }
+
+   public HashMap<String, GroceryItem> getRecentItemsMap()
+   {
+      return makeMapFromCursor(getRecentItemsListCursor());
    }
 
    // Helper methods
@@ -224,6 +239,30 @@ public class DBAdapter
       }
       cursor.close();
       return list;
+   }
+
+   private HashMap<String, GroceryItem> makeMapFromCursor(Cursor cursor)
+   {
+      int id = cursor.getColumnIndexOrThrow(KEY_ID);
+      int itemname = cursor.getColumnIndexOrThrow(KEY_ITEMNAME);
+      int amount = cursor.getColumnIndexOrThrow(KEY_AMOUNT);
+      int store = cursor.getColumnIndexOrThrow(KEY_STORE);
+      int group = cursor.getColumnIndexOrThrow(KEY_CATEGORY);
+      int rowindex = cursor.getColumnIndexOrThrow(KEY_ROWINDEX);
+
+      HashMap<String, GroceryItem> map = new HashMap<String, GroceryItem>();
+      if (cursor.moveToFirst())
+      {
+         do
+         {
+            map.put(
+                  cursor.getString(itemname),
+                  new GroceryItem(cursor.getLong(id), cursor.getString(itemname), cursor.getString(amount), cursor
+                        .getString(store), cursor.getString(group), cursor.getString(rowindex)));
+         } while (cursor.moveToNext());
+      }
+      cursor.close();
+      return map;
    }
 
    private boolean doesGroceryItemExist(String tableName, GroceryItem item)

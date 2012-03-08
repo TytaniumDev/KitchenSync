@@ -26,7 +26,6 @@
         android:gravity="right"
         android:ellipsize="end"
         android:singleLine="true"
-        android:scrollHorizontally="true"
         android:paddingLeft="10dp"
         android:paddingRight="10dp" />
     <ImageView

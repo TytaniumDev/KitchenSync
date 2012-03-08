@@ -6,6 +6,8 @@ import android.support.v4.view.ViewPager;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.tyhollan.kitchensync.R;
+import com.tyhollan.kitchensync.model.GroceryListModel;
+import com.tyhollan.kitchensync.model.KitchenSyncApplication;
 import com.tyhollan.kitchensync.view.AnalyticsActivity;
 import com.tyhollan.kitchensync.view.home.HomeActivity;
 
@@ -43,9 +45,9 @@ public class GroceryActivity extends AnalyticsActivity
    @Override
    protected void onCreate(Bundle savedInstanceState)
    {
+      super.onCreate(savedInstanceState);
       getSupportActionBar().setHomeButtonEnabled(true);
       getSupportActionBar().setIcon(R.drawable.grocery_list_icon);
-      super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_grocerylist);
       // Set the pager with an adapter
       ViewPager pager = (ViewPager) findViewById(R.id.grocery_pager);
@@ -56,5 +58,22 @@ public class GroceryActivity extends AnalyticsActivity
       // TitlePageIndicator titleIndicator = (TitlePageIndicator)
       // findViewById(R.id.titles);
       // titleIndicator.setViewPager(pager);
+   }
+   
+   //For Database connections
+   @Override
+   protected void onDestroy()
+   {
+      super.onDestroy();
+      ((KitchenSyncApplication) this.getApplicationContext()).getGroceryListModel().closeDBConnection();
+   }
+   
+   @Override
+   protected void onResume()
+   {
+      super.onResume();
+      GroceryListModel glm = ((KitchenSyncApplication) this.getApplicationContext()).getGroceryListModel();
+      glm.openDBConnection();
+      glm.initialDataPull();
    }
 }
