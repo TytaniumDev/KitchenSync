@@ -3,7 +3,6 @@ package com.tyhollan.kitchensync.view.grocery;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -26,7 +26,7 @@ import com.tyhollan.kitchensync.model.GroceryListModel;
 import com.tyhollan.kitchensync.model.KitchenSyncApplication;
 
 //TODO: make this implement google analytics stuff
-public class GroceryListFragment extends ListFragment
+public class GroceryListFragment extends SherlockListFragment
 {
    private boolean                   mDualPane;
    private int                       mCurCheckPosition = 0;

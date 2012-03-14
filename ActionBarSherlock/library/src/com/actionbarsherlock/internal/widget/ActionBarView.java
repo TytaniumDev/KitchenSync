@@ -40,11 +40,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
@@ -65,7 +63,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
-import static com.actionbarsherlock.internal.ActionBarSherlockCompat.getResources_getBoolean;
+import static com.actionbarsherlock.internal.ResourcesCompat.getResources_getBoolean;
 
 /**
  * @hide
@@ -105,7 +103,7 @@ public class ActionBarView extends AbsActionBarView {
     private TextView mSubtitleView;
     private View mTitleUpView;
 
-    private Spinner mSpinner;
+    private IcsSpinner mSpinner;
     private IcsLinearLayout mListNavLayout;
     private ScrollingTabContainerView mTabScrollView;
     private View mCustomNavView;
@@ -141,16 +139,15 @@ public class ActionBarView extends AbsActionBarView {
 
     Window.Callback mWindowCallback;
 
-    private final AdapterView.OnItemSelectedListener mNavItemSelectedListener =
-            new AdapterView.OnItemSelectedListener() {
-        @SuppressWarnings("rawtypes")
-        public void onItemSelected(AdapterView parent, View view, int position, long id) {
+    @SuppressWarnings("rawtypes")
+    private final IcsAdapterView.OnItemSelectedListener mNavItemSelectedListener =
+            new IcsAdapterView.OnItemSelectedListener() {
+        public void onItemSelected(IcsAdapterView parent, View view, int position, long id) {
             if (mCallback != null) {
                 mCallback.onNavigationItemSelected(position, id);
             }
         }
-        @SuppressWarnings("rawtypes")
-        public void onNothingSelected(AdapterView parent) {
+        public void onNothingSelected(IcsAdapterView parent) {
             // Do nothing
         }
     };
@@ -740,10 +737,10 @@ public class ActionBarView extends AbsActionBarView {
             switch (mode) {
             case ActionBar.NAVIGATION_MODE_LIST:
                 if (mSpinner == null) {
-                    mSpinner = new Spinner(mContext, null,
+                    mSpinner = new IcsSpinner(mContext, null,
                             R.attr.actionDropDownStyle);
-                    mListNavLayout = new IcsLinearLayout(mContext, null,
-                            R.attr.actionBarTabBarStyle);
+                    mListNavLayout = (IcsLinearLayout) LayoutInflater.from(mContext)
+                            .inflate(R.layout.abs__action_bar_tab_bar_view, null);
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                             LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
                     params.gravity = Gravity.CENTER;

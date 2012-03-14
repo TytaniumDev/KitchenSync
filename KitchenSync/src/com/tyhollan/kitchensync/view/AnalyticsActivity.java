@@ -2,11 +2,11 @@ package com.tyhollan.kitchensync.view;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.android.apps.analytics.GoogleAnalyticsTracker;
 
-public class AnalyticsActivity extends FragmentActivity {
+public class AnalyticsActivity extends SherlockFragmentActivity {
    protected static final String TRACKER_ID = "UA-29319402-1";
    protected static final boolean DISPATCH_MANUAL = false;
    protected static final int DISPATCH_INTERVAL = 20;
