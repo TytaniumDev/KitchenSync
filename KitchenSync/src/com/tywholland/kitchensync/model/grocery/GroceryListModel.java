@@ -50,7 +50,7 @@ public class GroceryListModel
 
    public void initialDataPull()
    {
-      groceryList = dbAdapter.getGroceryList();
+//      groceryList = dbAdapter.getGroceryList();
    }
 
    /**
@@ -119,42 +119,42 @@ public class GroceryListModel
       @Override
       protected Void doInBackground(Activity... params)
       {
-         activity = params[0];
-         AndroidAuthenticator auth = new AndroidAuthenticator(activity);
-         Log.i(tag, "Got auth");
-         if (gdocAdapter == null)
-         {
-            gdocAdapter = new GoogleDocsAdapter(auth);
-         }
-         Log.i(tag, "Got gdoc adapter");
-         // Check to see if we get data from GDocs + have internet
-         // TODO
-         // Pull data from GDocs into DB
-         HashMap<String, GroceryItem> tempGDocsMap = gdocAdapter.getGroceryListMap();
-         Log.i(tag, "Got new grocerylist from gdocs");
-         // If in DB, overwrite it, if not delete from DB
-         Log.i(tag, "Syncing grocery items with database");
-         HashMap<String, GroceryItem> tempSQLMap = dbAdapter.getGroceryListMap();
-         // Remove items that aren't in GDocs
-         for (String itemname : tempSQLMap.keySet())
-         {
-            if (!tempGDocsMap.containsKey(itemname))
-            {
-               Log.i(tag, "removing from SQL");
-               // GDocs doesn't have item, delete from DB
-               dbAdapter.deleteGroceryItem(tempSQLMap.get(itemname));
-            }
-         }
-         // Add items from GDocs
-         for (String itemname : tempGDocsMap.keySet())
-         {
-            Log.i(tag, "saving to SQL");
-            dbAdapter.saveGroceryItem(tempGDocsMap.get(itemname));
-         }
-         Log.i(tag, "All items saved");
-         // Recreate GroceryList with new DB data
-         groceryList = dbAdapter.getGroceryList();
-         Log.i(tag, "Grocery list done updating");
+//         activity = params[0];
+//         AndroidAuthenticator auth = new AndroidAuthenticator(activity);
+//         Log.i(tag, "Got auth");
+//         if (gdocAdapter == null)
+//         {
+//            gdocAdapter = new GoogleDocsAdapter(auth);
+//         }
+//         Log.i(tag, "Got gdoc adapter");
+//         // Check to see if we get data from GDocs + have internet
+//         // TODO
+//         // Pull data from GDocs into DB
+//         HashMap<String, GroceryItem> tempGDocsMap = gdocAdapter.getGroceryListMap();
+//         Log.i(tag, "Got new grocerylist from gdocs");
+//         // If in DB, overwrite it, if not delete from DB
+//         Log.i(tag, "Syncing grocery items with database");
+//         HashMap<String, GroceryItem> tempSQLMap = dbAdapter.getGroceryListMap();
+//         // Remove items that aren't in GDocs
+//         for (String itemname : tempSQLMap.keySet())
+//         {
+//            if (!tempGDocsMap.containsKey(itemname))
+//            {
+//               Log.i(tag, "removing from SQL");
+//               // GDocs doesn't have item, delete from DB
+//               dbAdapter.deleteGroceryItem(tempSQLMap.get(itemname));
+//            }
+//         }
+//         // Add items from GDocs
+//         for (String itemname : tempGDocsMap.keySet())
+//         {
+//            Log.i(tag, "saving to SQL");
+//            dbAdapter.saveGroceryItem(tempGDocsMap.get(itemname));
+//         }
+//         Log.i(tag, "All items saved");
+//         // Recreate GroceryList with new DB data
+//         groceryList = dbAdapter.getGroceryList();
+//         Log.i(tag, "Grocery list done updating");
          return null;
       }
 

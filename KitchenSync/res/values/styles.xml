@@ -12,13 +12,11 @@
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
-  limitations under the License.
-
+  limitations under the License.
 -->
 <resources>
-    <!-- Base application theme is the default theme. -->
+    <!-- Base application theme is the default theme. -->
     <style name="Theme" parent="android:style/Theme" />
-
     <style name="DashboardButton">
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_width">wrap_content</item>
@@ -30,5 +28,4 @@
         <item name="android:textColor">@color/accent_1</item>
         <item name="android:background">@null</item>
     </style>
-
 </resources>

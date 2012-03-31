@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="libs/gss_lib_2.2.b1.jar"/>
 	<classpathentry kind="lib" path="libs/guice-3.0-no_aop.jar"/>
 	<classpathentry kind="lib" path="libs/roboguice-2.0-RC1.jar"/>
+	<classpathentry kind="lib" path="libs/javax.inject.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

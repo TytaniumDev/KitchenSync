@@ -1,2 +1,18 @@
 # Ignore keystore, it's private info
 testingKeystore
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+
+# generated files
+bin/
+gen/
+KitchenSync/bin/
+KitchenSync/gen/
+
+# Local configuration file (sdk path, etc)
+local.properties
