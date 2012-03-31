@@ -8,11 +8,10 @@
     <string name="grocery_list_view_list_tab_name">Grocery List</string>
     <string name="grocery_list_view_add_item_tab_name">Add Item</string>
     <!-- Descriptions -->
-    <string name="crossedOffButtonDescription">Deletes this grocery item</string>
-    <string name="editButtonDescription">Edit this grocery item</string>
-    <string name="switchToAdd">Switch to normal add view</string>
-    <string name="switchToQuickAdd">Switch to quick add view</string>
-    <string name="currentlySyncingDescription">Currently Syncing this item</string>
+    <string name="crossed_off_button_description">Deletes this grocery item</string>
+    <string name="switch_to_add">Switch to normal add view</string>
+    <string name="switch_to_quick_add">Switch to quick add view</string>
+    <string name="currently_syncing_description">Currently Syncing this item</string>
     <!-- Text in Layouts -->
     <string name="grocery_add_item">Add Item</string>
     <string name="grocery_quickadd_item">Add Recent Items</string>

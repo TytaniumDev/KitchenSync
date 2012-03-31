@@ -36,7 +36,7 @@
         android:layout_toLeftOf="@+id/grocery_row_cross_off_button"
         android:alpha=".3"
         android:background="@android:color/transparent"
-        android:contentDescription="@string/currentlySyncingDescription"
+        android:contentDescription="@string/currently_syncing_description"
         android:paddingRight="5dp"
         android:src="@drawable/ic_action_refresh" />
     <ImageButton
@@ -46,7 +46,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:background="@android:color/transparent"
-        android:contentDescription="@string/crossedOffButtonDescription"
+        android:contentDescription="@string/crossed_off_button_description"
         android:paddingRight="5dp"
         android:src="@drawable/ic_action_done" />
 </RelativeLayout>
