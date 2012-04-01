@@ -51,6 +51,7 @@ public class DashboardFragment extends RoboSherlockFragment
          public void onClick(View v)
          {
             showNYIAlert(getActivity());
+            getActivity().overridePendingTransition(R.anim.slide_to_bottom_enter, R.anim.slide_to_bottom_exit);
          }
       });
    }

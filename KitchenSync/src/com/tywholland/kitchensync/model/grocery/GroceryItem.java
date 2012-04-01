@@ -49,8 +49,8 @@ public class GroceryItem
    public static final class GroceryItems implements BaseColumns
    {
       public static final Uri    CONTENT_URI  = Uri.parse("content://" + GroceryItemProvider.AUTHORITY
-                                                    + "/groceryitems");
-      public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.groceryitems";
+                                                    + "/grocerylist");
+      public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.grocerylist";
       // SQL Columns
       public static final String GROCERY_ITEM_ID       = BaseColumns._ID;
       public static final String ITEMNAME = "itemname";

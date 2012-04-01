@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/add_groceryitem_frame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <TextView
+        android:id="@+id/grocery_add_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/grocery_add_item"
+        android:textSize="28dip" />
+    <TableLayout
+        android:id="@+id/grocery_add_item_input_table"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="15dp"
+        android:layout_below="@+id/grocery_add_item_title" >
+        <TableRow>
+            <TextView
+                android:padding="5dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/grocery_item_name" />
+            <EditText
+                android:padding="5dip"
+                android:id="@+id/grocery_add_item_itemname_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:padding="5dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/grocery_amount" />
+            <EditText
+                android:padding="5dip"
+                android:id="@+id/grocery_add_item_amount_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:padding="5dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/grocery_store" />
+            <EditText
+                android:padding="5dip"
+                android:id="@+id/grocery_add_item_store_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:padding="5dip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/grocery_category" />
+            <EditText
+                android:padding="5dip"
+                android:id="@+id/grocery_add_item_category_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
+        </TableRow>
+    </TableLayout>
+    <Button
+        android:id="@+id/grocery_add_item_add_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/grocery_add_item_input_table"
+        android:layout_centerHorizontal="true"
+        android:text="@string/grocery_add_to_list" />
+</RelativeLayout>
