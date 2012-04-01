@@ -23,7 +23,7 @@ public class GroceryItemProvider extends ContentProvider
    private static final int               GROCERYITEMS            = 1;
    private static final String            GROCERYITEMS_TABLE_NAME = GroceryItemsDatabase.TABLE_GROCERY;
 
-   private static HashMap<String, String> notesProjectionMap;
+   private static HashMap<String, String> groceryItemProjectionMap;
    private GroceryItemsDatabase           dbHelper;
 
    @Override
@@ -77,7 +77,7 @@ public class GroceryItemProvider extends ContentProvider
       }
 
       SQLiteDatabase db = dbHelper.getWritableDatabase();
-      long rowId = db.insert(GROCERYITEMS_TABLE_NAME, null, values);
+      long rowId = db.replace(GROCERYITEMS_TABLE_NAME, null, values);
       if (rowId > 0)
       {
          Uri groceryitemsUri = ContentUris.withAppendedId(GroceryItems.CONTENT_URI, rowId);
@@ -104,7 +104,7 @@ public class GroceryItemProvider extends ContentProvider
       {
          case GROCERYITEMS:
             qb.setTables(GROCERYITEMS_TABLE_NAME);
-            qb.setProjectionMap(notesProjectionMap);
+            qb.setProjectionMap(groceryItemProjectionMap);
             break;
 
          default:
@@ -134,19 +134,19 @@ public class GroceryItemProvider extends ContentProvider
       getContext().getContentResolver().notifyChange(uri, null);
       return count;
    }
-
+   
    static
    {
       sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
       sUriMatcher.addURI(AUTHORITY, GROCERYITEMS_TABLE_NAME, GROCERYITEMS);
 
-      notesProjectionMap = new HashMap<String, String>();
-      notesProjectionMap.put(GroceryItems.GROCERY_ITEM_ID, GroceryItems.GROCERY_ITEM_ID);
-      notesProjectionMap.put(GroceryItems.ITEMNAME, GroceryItems.ITEMNAME);
-      notesProjectionMap.put(GroceryItems.AMOUNT, GroceryItems.AMOUNT);
-      notesProjectionMap.put(GroceryItems.STORE, GroceryItems.STORE);
-      notesProjectionMap.put(GroceryItems.CATEGORY, GroceryItems.CATEGORY);
-      notesProjectionMap.put(GroceryItems.ROWINDEX, GroceryItems.ROWINDEX);
+      groceryItemProjectionMap = new HashMap<String, String>();
+      groceryItemProjectionMap.put(GroceryItems.GROCERY_ITEM_ID, GroceryItems.GROCERY_ITEM_ID);
+      groceryItemProjectionMap.put(GroceryItems.ITEMNAME, GroceryItems.ITEMNAME);
+      groceryItemProjectionMap.put(GroceryItems.AMOUNT, GroceryItems.AMOUNT);
+      groceryItemProjectionMap.put(GroceryItems.STORE, GroceryItems.STORE);
+      groceryItemProjectionMap.put(GroceryItems.CATEGORY, GroceryItems.CATEGORY);
+      groceryItemProjectionMap.put(GroceryItems.ROWINDEX, GroceryItems.ROWINDEX);
 
    }
 
