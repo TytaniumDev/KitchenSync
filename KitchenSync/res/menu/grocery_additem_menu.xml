@@ -3,6 +3,6 @@
     <item
         android:id="@+id/grocery_additem_menu_switch"
         android:icon="@drawable/ic_action_switchview"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="@string/switch_to_quick_add"/>
 </menu>
