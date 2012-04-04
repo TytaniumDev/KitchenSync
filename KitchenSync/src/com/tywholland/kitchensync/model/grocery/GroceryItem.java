@@ -2,6 +2,8 @@ package com.tywholland.kitchensync.model.grocery;
 
 import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
 
+import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -49,7 +51,7 @@ public class GroceryItem
    public static final class GroceryItems implements BaseColumns
    {
       public static final Uri    CONTENT_URI  = Uri.parse("content://" + GroceryItemProvider.AUTHORITY
-                                                    + "/grocerylist");
+                                                    + "/" + GroceryListDatabase.TABLE_GROCERY);
       public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.grocerylist";
       // SQL Columns
       public static final String GROCERY_ITEM_ID       = BaseColumns._ID;
@@ -58,6 +60,31 @@ public class GroceryItem
       public static final String STORE    = "store";
       public static final String CATEGORY = "category";
       public static final String ROWINDEX = "rowindex";
+   }
+   public static final class RecentItems implements BaseColumns
+   {
+      public static final Uri    CONTENT_URI  = Uri.parse("content://" + GroceryItemProvider.AUTHORITY
+            + "/" + GroceryListDatabase.TABLE_RECENT);
+      public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.recentitems";
+      // SQL Columns
+      public static final String GROCERY_ITEM_ID       = BaseColumns._ID;
+      public static final String ITEMNAME = "itemname";
+      public static final String AMOUNT   = "amount";
+      public static final String STORE    = "store";
+      public static final String CATEGORY = "category";
+      public static final String FREQUENCY = "frequency";
+      public static final String TIMESTAMP = "timestamp";
+      
+   }
+   
+   public static ContentValues makeGenericContentValuesFromCursor(Cursor cursor)
+   {
+      ContentValues values = new ContentValues();
+      values.put(GroceryItems.ITEMNAME, cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ITEMNAME)));
+      values.put(GroceryItems.AMOUNT, cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.AMOUNT)));
+      values.put(GroceryItems.STORE, cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.STORE)));
+      values.put(GroceryItems.CATEGORY, cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.CATEGORY)));
+      return values;
    }
 
    /**

@@ -18,7 +18,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.tywholland.kitchensync.R;
+import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
+import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
 
 public class GroceryListFragment extends RoboSherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor>
 {
@@ -85,8 +87,11 @@ public class GroceryListFragment extends RoboSherlockListFragment implements Loa
                            getActivity().getContentResolver().delete(GroceryItems.CONTENT_URI,
                                  GroceryItems.ITEMNAME + "=?", new String[]
                                  { itemName });
+
                         }
                      }, 299);
+                     getActivity().getContentResolver().insert(RecentItems.CONTENT_URI,
+                           GroceryItem.makeGenericContentValuesFromCursor(cursor));
                   }
                });
                return true;
@@ -100,8 +105,8 @@ public class GroceryListFragment extends RoboSherlockListFragment implements Loa
    public Loader<Cursor> onCreateLoader(int id, Bundle args)
    {
       String[] projection =
-      { GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE, GroceryItems.CATEGORY,
-            GroceryItems.ROWINDEX };
+      { GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE,
+            GroceryItems.CATEGORY, GroceryItems.ROWINDEX };
 
       CursorLoader cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI, projection, null, null,
             null);
