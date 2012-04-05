@@ -19,6 +19,7 @@ import com.tywholland.kitchensync.model.grocery.GroceryListDatabase;
 
 public class GroceryItemProvider extends ContentProvider
 {
+   private static final String TAG = "GroceryItemProvider";
    public static final String             AUTHORITY               = "com.tywholland.kitchensync.model.providers.GroceryItemProvider";
    private static final UriMatcher        sUriMatcher             = new UriMatcher(UriMatcher.NO_MATCH);
    private static final int               GROCERYITEMS            = 100;
@@ -37,9 +38,11 @@ public class GroceryItemProvider extends ContentProvider
       switch (sUriMatcher.match(uri))
       {
          case GROCERYITEMS:
+            Log.i(TAG, "Deleting a grocery item");
             count = db.delete(GROCERYITEMS_TABLE_NAME, where, whereArgs);
             break;
          case RECENTITEMS:
+            Log.i(TAG, "Deleting a recent item");
             count = db.delete(RECENTITEMS_TABLE_NAME, where, whereArgs);
             break;
 
@@ -57,8 +60,10 @@ public class GroceryItemProvider extends ContentProvider
       switch (sUriMatcher.match(uri))
       {
          case GROCERYITEMS:
+            Log.i(TAG, "Getting type of grocery item");
             return GroceryItems.CONTENT_TYPE;
          case RECENTITEMS:
+            Log.i(TAG, "Getting type of recent item");
             return RecentItems.CONTENT_TYPE;
 
          default:
@@ -87,6 +92,7 @@ public class GroceryItemProvider extends ContentProvider
          switch (sUriMatcher.match(uri))
          {
             case GROCERYITEMS:
+               Log.i(TAG, "Inserting a grocery item: " + values.getAsString(GroceryItems.ITEMNAME));
                if (!values.containsKey(GroceryItems.ROWINDEX))
                {
                   values.put(GroceryItems.ROWINDEX, "");
@@ -102,6 +108,7 @@ public class GroceryItemProvider extends ContentProvider
 
             case RECENTITEMS:
 
+               Log.i(TAG, "Inserting a recent item");
                String itemName = values.getAsString(RecentItems.ITEMNAME);
                if (doesGroceryItemExist(RECENTITEMS_TABLE_NAME, values, db))
                {
@@ -155,6 +162,7 @@ public class GroceryItemProvider extends ContentProvider
       switch (sUriMatcher.match(uri))
       {
          case GROCERYITEMS:
+            Log.i(TAG, "Querying a grocery item");
             qb.setTables(GROCERYITEMS_TABLE_NAME);
             qb.setProjectionMap(groceryItemProjectionMap);
             cursor = qb.query(dbHelper.getReadableDatabase(), projection, selection, selectionArgs, null, null,
@@ -162,6 +170,7 @@ public class GroceryItemProvider extends ContentProvider
             break;
 
          case RECENTITEMS:
+            Log.i(TAG, "Querying a recent item");
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             String query = "SELECT * FROM " + RECENTITEMS_TABLE_NAME + " WHERE NOT EXISTS (SELECT * FROM "
                   + GROCERYITEMS_TABLE_NAME + " WHERE " + RECENTITEMS_TABLE_NAME + "." + RecentItems.ITEMNAME + " = "
@@ -185,10 +194,12 @@ public class GroceryItemProvider extends ContentProvider
       switch (sUriMatcher.match(uri))
       {
          case GROCERYITEMS:
+            Log.i(TAG, "Updating a grocery item");
             count = db.update(GROCERYITEMS_TABLE_NAME, values, where, whereArgs);
             break;
 
          case RECENTITEMS:
+            Log.i(TAG, "Updating a recent item");
             count = db.update(RECENTITEMS_TABLE_NAME, values, where, whereArgs);
             break;
 

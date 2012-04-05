@@ -1,6 +1,7 @@
 package com.tywholland.kitchensync.view.grocery;
 
 import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockListFragment;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -70,6 +71,7 @@ public class GroceryListFragment extends RoboSherlockListFragment implements Loa
                ImageButton deleteButton = (ImageButton) view.findViewById(R.id.grocery_row_cross_off_button);
                final String itemName = cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ITEMNAME));
                final View parent = (View) view.getParent();
+               final ContentValues itemValues = GroceryItem.makeGenericContentValuesFromCursor(cursor);
                deleteButton.setOnClickListener(new OnClickListener()
                {
                   @Override
@@ -88,10 +90,9 @@ public class GroceryListFragment extends RoboSherlockListFragment implements Loa
                                  GroceryItems.ITEMNAME + "=?", new String[]
                                  { itemName });
 
+                           getActivity().getContentResolver().insert(RecentItems.CONTENT_URI, itemValues);
                         }
-                     }, 299);
-                     getActivity().getContentResolver().insert(RecentItems.CONTENT_URI,
-                           GroceryItem.makeGenericContentValuesFromCursor(cursor));
+                     }, 285);
                   }
                });
                return true;

@@ -62,12 +62,12 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
             case R.id.grocery_quickadd_row_rightbuffer:
                // TODO: Put this in an onItemClickListener?
                final View parent = (View) view.getParent();
+               final ContentValues values = GroceryItem.makeGenericContentValuesFromCursor(cursor);
                parent.setOnClickListener(new OnClickListener()
                {
                   @Override
                   public void onClick(View v)
                   {
-                     final ContentValues values = GroceryItem.makeGenericContentValuesFromCursor(cursor);
 
                      Animation anim = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
                            R.anim.slide_to_right);
@@ -78,8 +78,9 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
                         public void run()
                         {
                            getActivity().getContentResolver().insert(GroceryItems.CONTENT_URI, values);
+                           getActivity().getContentResolver().notifyChange(RecentItems.CONTENT_URI, null);
                         }
-                     }, 299);
+                     }, 150);
                   }
                });
                return true;
