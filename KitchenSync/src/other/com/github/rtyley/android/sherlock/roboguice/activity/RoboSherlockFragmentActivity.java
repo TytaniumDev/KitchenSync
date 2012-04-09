@@ -1,25 +1,34 @@
+
 package other.com.github.rtyley.android.sherlock.roboguice.activity;
 
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.google.inject.Inject;
 
 import roboguice.RoboGuice;
-
-import roboguice.activity.event.*;
+import roboguice.activity.event.OnActivityResultEvent;
+import roboguice.activity.event.OnConfigurationChangedEvent;
+import roboguice.activity.event.OnContentChangedEvent;
+import roboguice.activity.event.OnCreateEvent;
+import roboguice.activity.event.OnDestroyEvent;
+import roboguice.activity.event.OnNewIntentEvent;
+import roboguice.activity.event.OnPauseEvent;
+import roboguice.activity.event.OnRestartEvent;
+import roboguice.activity.event.OnResumeEvent;
+import roboguice.activity.event.OnStartEvent;
+import roboguice.activity.event.OnStopEvent;
 import roboguice.event.EventManager;
 import roboguice.inject.ContentViewListener;
 import roboguice.inject.RoboInjector;
 
-import android.content.Intent;
-import android.content.res.Configuration;
-
-import com.google.inject.Inject;
-
 public class RoboSherlockFragmentActivity extends SherlockFragmentActivity {
     protected EventManager eventManager;
 
-    @Inject ContentViewListener ignored; // BUG find a better place to put this
+    @Inject
+    ContentViewListener ignored; // BUG find a better place to put this
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +64,7 @@ public class RoboSherlockFragmentActivity extends SherlockFragmentActivity {
     }
 
     @Override
-    protected void onNewIntent( Intent intent ) {
+    protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         eventManager.fire(new OnNewIntentEvent());
     }

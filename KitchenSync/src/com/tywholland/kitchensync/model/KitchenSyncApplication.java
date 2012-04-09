@@ -1,22 +1,45 @@
+
 package com.tywholland.kitchensync.model;
 
+import android.app.Activity;
 import android.app.Application;
 
-import com.tywholland.kitchensync.model.grocery.GroceryListModel;
+import com.pras.SpreadSheetFactory;
+import com.tywholland.kitchensync.util.AndroidAuthenticator;
 
 public class KitchenSyncApplication extends Application
 {
-   private GroceryListModel mGroceryList;
-   
-   @Override
-   public void onCreate()
-   {
-      super.onCreate();
-      mGroceryList = new GroceryListModel(getApplicationContext());
-   }
-   
-   public GroceryListModel getGroceryListModel()
-   {
-      return mGroceryList;
-   }
+    private AndroidAuthenticator mAuth = null;
+
+    @Override
+    public void onCreate()
+    {
+        super.onCreate();
+    }
+    
+    private void initAndroidAuth(Activity activity)
+    {
+        if (mAuth == null)
+        {
+            mAuth = new AndroidAuthenticator(activity);
+        }
+    }
+
+    public void promptForAuth(Activity activity)
+    {
+        initAndroidAuth(activity);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SpreadSheetFactory factory = SpreadSheetFactory.getInstance(mAuth);
+                factory.getAllSpreadSheets();
+            }
+        }).start();
+    }
+
+    public AndroidAuthenticator getAndroidAuthenticator(Activity activity)
+    {
+        initAndroidAuth(activity);
+        return mAuth;
+    }
 }

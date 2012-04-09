@@ -1,6 +1,6 @@
+
 package com.tywholland.kitchensync.view.grocery;
 
-import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockListFragment;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -23,106 +23,121 @@ import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
 
-public class GroceryListFragment extends RoboSherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor>
-{
-   private static final int    GROCERY_LIST_LOADER = 0x01;
+import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockListFragment;
 
-   private SimpleCursorAdapter adapter;
+public class GroceryListFragment extends RoboSherlockListFragment implements
+        LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int GROCERY_LIST_LOADER = 0x01;
 
-   @Override
-   public void onCreate(Bundle savedInstanceState)
-   {
-      super.onCreate(savedInstanceState);
-      String[] uiBindFrom =
-      { GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE, GroceryItems.ROWINDEX, GroceryItems.ITEMNAME };
-      int[] uiBindTo =
-      { R.id.grocery_row_item_name, R.id.grocery_row_amount, R.id.grocery_row_store, R.id.grocery_row_syncing_icon,
-            R.id.grocery_row_cross_off_button };
+    private SimpleCursorAdapter mAdapter;
 
-      getActivity().getSupportLoaderManager().initLoader(GROCERY_LIST_LOADER, null, this);
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        String[] uiBindFrom =
+        {
+                GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE,
+                GroceryItems.ROWINDEX, GroceryItems.ITEMNAME
+        };
+        int[] uiBindTo =
+        {
+                R.id.grocery_row_item_name, R.id.grocery_row_amount, R.id.grocery_row_store,
+                R.id.grocery_row_syncing_icon,
+                R.id.grocery_row_cross_off_button
+        };
 
-      adapter = new SimpleCursorAdapter(getActivity().getApplicationContext(), R.layout.grocery_list_row, null,
-            uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-      adapter.setViewBinder(new GroceryListViewBinder());
-      setListAdapter(adapter);
-   }
+        getActivity().getSupportLoaderManager().initLoader(GROCERY_LIST_LOADER, null, this);
 
-   private class GroceryListViewBinder implements SimpleCursorAdapter.ViewBinder
-   {
+        mAdapter = new SimpleCursorAdapter(getActivity().getApplicationContext(),
+                R.layout.grocery_list_row, null,
+                uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        mAdapter.setViewBinder(new GroceryListViewBinder());
+        setListAdapter(mAdapter);
+    }
 
-      @Override
-      public boolean setViewValue(final View view, final Cursor cursor, int columnIndex)
-      {
-         int viewId = view.getId();
-         switch (viewId)
-         {
-            case R.id.grocery_row_syncing_icon:
-               // Syncing Icon
-               ImageView syncingView = (ImageView) view;
+    private class GroceryListViewBinder implements SimpleCursorAdapter.ViewBinder
+    {
 
-               if (cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ROWINDEX)).length() > 0)
-               {
-                  syncingView.setAlpha(0);
-               }
-               return true;
+        @Override
+        public boolean setViewValue(final View view, final Cursor cursor, int columnIndex) {
+            int viewId = view.getId();
+            switch (viewId) {
+                case R.id.grocery_row_syncing_icon:
+                    // Syncing Icon
+                    ImageView syncingView = (ImageView) view;
 
-            case R.id.grocery_row_cross_off_button:
-               // Delete Button
-               ImageButton deleteButton = (ImageButton) view.findViewById(R.id.grocery_row_cross_off_button);
-               final String itemName = cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ITEMNAME));
-               final View parent = (View) view.getParent();
-               final ContentValues itemValues = GroceryItem.makeGenericContentValuesFromCursor(cursor);
-               deleteButton.setOnClickListener(new OnClickListener()
-               {
-                  @Override
-                  public void onClick(View v)
-                  {
-                     Log.i("GroceryListFragment", "deleting itemName: " + itemName);
-                     Animation anim = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),
-                           R.anim.slide_to_right);
-                     anim.setDuration(300);
-                     parent.startAnimation(anim);
-                     new Handler().postDelayed(new Runnable()
-                     {
-                        public void run()
-                        {
-                           getActivity().getContentResolver().delete(GroceryItems.CONTENT_URI,
-                                 GroceryItems.ITEMNAME + "=?", new String[]
-                                 { itemName });
+                    if (cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ROWINDEX))
+                            .length() > 0) {
+                        syncingView.setAlpha(0);
+                    }
+                    return true;
 
-                           getActivity().getContentResolver().insert(RecentItems.CONTENT_URI, itemValues);
+                case R.id.grocery_row_cross_off_button:
+                    // Delete Button
+                    ImageButton deleteButton = (ImageButton) view
+                            .findViewById(R.id.grocery_row_cross_off_button);
+                    final String itemName = cursor.getString(cursor
+                            .getColumnIndexOrThrow(GroceryItems.ITEMNAME));
+                    final View parent = (View) view.getParent();
+                    final ContentValues itemValues = GroceryItem
+                            .makeGenericContentValuesFromCursor(cursor);
+                    deleteButton.setOnClickListener(new OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v) {
+                            Log.i("GroceryListFragment", "deleting itemName: " + itemName);
+                            Animation anim = AnimationUtils.loadAnimation(getActivity()
+                                    .getApplicationContext(),
+                                    R.anim.slide_to_right);
+                            anim.setDuration(300);
+                            parent.startAnimation(anim);
+                            new Handler().postDelayed(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    getActivity().getContentResolver().delete(
+                                            GroceryItems.CONTENT_URI,
+                                            GroceryItems.ITEMNAME + "=?", new String[]
+                                            {
+                                                itemName
+                                            });
+
+                                    getActivity().getContentResolver().insert(
+                                            RecentItems.CONTENT_URI, itemValues);
+                                }
+                            }, 285);
                         }
-                     }, 285);
-                  }
-               });
-               return true;
-         }
-         return false;
-      }
+                    });
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
 
-   }
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String[] projection =
+        {
+                GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
+                GroceryItems.STORE,
+                GroceryItems.CATEGORY, GroceryItems.ROWINDEX
+        };
 
-   @Override
-   public Loader<Cursor> onCreateLoader(int id, Bundle args)
-   {
-      String[] projection =
-      { GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE,
-            GroceryItems.CATEGORY, GroceryItems.ROWINDEX };
+        CursorLoader cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI,
+                projection, null, null,
+                null);
+        return cursorLoader;
+    }
 
-      CursorLoader cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI, projection, null, null,
-            null);
-      return cursorLoader;
-   }
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        mAdapter.swapCursor(cursor);
+    }
 
-   @Override
-   public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
-   {
-      adapter.swapCursor(cursor);
-   }
-
-   @Override
-   public void onLoaderReset(Loader<Cursor> loader)
-   {
-      adapter.swapCursor(null);
-   }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapter.swapCursor(null);
+    }
 }

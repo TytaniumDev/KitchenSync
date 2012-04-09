@@ -1,10 +1,12 @@
+
 package other.com.github.rtyley.android.sherlock.roboguice.fragment;
 
-import roboguice.RoboGuice;
 import android.os.Bundle;
 import android.view.View;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
+
+import roboguice.RoboGuice;
 
 public abstract class RoboSherlockDialogFragment extends SherlockDialogFragment {
     @Override

@@ -1,244 +1,247 @@
-package com.tywholland.kitchensync.model.grocery;
 
-import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
+package com.tywholland.kitchensync.model.grocery;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
+
 public class GroceryItem
 {
-   private long   id;
-   private String itemName;
-   private String amount;
-   private String store;
-   private String category;
-   // Used to store Google Docs row location
-   private String rowIndex;
+    private long id;
+    private String itemName;
+    private String amount;
+    private String store;
+    private String category;
+    // Used to store Google Docs row location
+    private String rowIndex;
 
-   // Constructor used in the DBAdapter
-   public GroceryItem(long id, String itemName, String amount, String store, String category, String rowIndex)
-   {
-      this.id = id;
-      this.itemName = (itemName == null) ? "" : itemName;
-      this.amount = (amount == null) ? "" : amount;
-      this.store = (store == null) ? "" : store;
-      this.category = (category == null) ? "" : category;
-      this.rowIndex = (rowIndex == null) ? "" : rowIndex;
-   }
+    // Constructor used in the DBAdapter
+    public GroceryItem(long id, String itemName, String amount, String store, String category,
+            String rowIndex)
+    {
+        this.id = id;
+        this.itemName = (itemName == null) ? "" : itemName;
+        this.amount = (amount == null) ? "" : amount;
+        this.store = (store == null) ? "" : store;
+        this.category = (category == null) ? "" : category;
+        this.rowIndex = (rowIndex == null) ? "" : rowIndex;
+    }
 
-   public GroceryItem(String itemName, String amount, String store, String category)
-   {
-      this.id = -1;
-      this.itemName = (itemName == null) ? "" : itemName;
-      this.amount = (amount == null) ? "" : amount;
-      this.store = (store == null) ? "" : store;
-      this.category = (category == null) ? "" : category;
-      this.rowIndex = "";
-   }
+    public GroceryItem(String itemName, String amount, String store, String category)
+    {
+        this.id = -1;
+        this.itemName = (itemName == null) ? "" : itemName;
+        this.amount = (amount == null) ? "" : amount;
+        this.store = (store == null) ? "" : store;
+        this.category = (category == null) ? "" : category;
+        this.rowIndex = "";
+    }
 
-   public GroceryItem()
-   {
-      this.id = -1;
-      this.itemName = "";
-      this.amount = "";
-      this.store = "";
-      this.category = "";
-      this.rowIndex = "";
-   }
+    public GroceryItem()
+    {
+        this.id = -1;
+        this.itemName = "";
+        this.amount = "";
+        this.store = "";
+        this.category = "";
+        this.rowIndex = "";
+    }
 
-   public static final class GroceryItems implements BaseColumns
-   {
-      public static final Uri    CONTENT_URI  = Uri.parse("content://" + GroceryItemProvider.AUTHORITY
-                                                    + "/" + GroceryListDatabase.TABLE_GROCERY);
-      public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.grocerylist";
-      // SQL Columns
-      public static final String GROCERY_ITEM_ID       = BaseColumns._ID;
-      public static final String ITEMNAME = "itemname";
-      public static final String AMOUNT   = "amount";
-      public static final String STORE    = "store";
-      public static final String CATEGORY = "category";
-      public static final String ROWINDEX = "rowindex";
-   }
-   public static final class RecentItems implements BaseColumns
-   {
-      public static final Uri    CONTENT_URI  = Uri.parse("content://" + GroceryItemProvider.AUTHORITY
-            + "/" + GroceryListDatabase.TABLE_RECENT);
-      public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.recentitems";
-      // SQL Columns
-      public static final String GROCERY_ITEM_ID       = BaseColumns._ID;
-      public static final String ITEMNAME = "itemname";
-      public static final String AMOUNT   = "amount";
-      public static final String STORE    = "store";
-      public static final String CATEGORY = "category";
-      public static final String FREQUENCY = "frequency";
-      public static final String TIMESTAMP = "timestamp";
-      
-   }
-   
-   public static ContentValues makeGenericContentValuesFromCursor(Cursor cursor)
-   {
-      ContentValues values = new ContentValues();
-      values.put(GroceryItems.ITEMNAME, cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ITEMNAME)));
-      values.put(GroceryItems.AMOUNT, cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.AMOUNT)));
-      values.put(GroceryItems.STORE, cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.STORE)));
-      values.put(GroceryItems.CATEGORY, cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.CATEGORY)));
-      return values;
-   }
+    public static final class GroceryItems implements BaseColumns
+    {
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + GroceryItemProvider.AUTHORITY
+                + "/" + GroceryListDatabase.TABLE_GROCERY);
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.grocerylist";
+        // SQL Columns
+        public static final String GROCERY_ITEM_ID = BaseColumns._ID;
+        public static final String ITEMNAME = "itemname";
+        public static final String AMOUNT = "amount";
+        public static final String STORE = "store";
+        public static final String CATEGORY = "category";
+        public static final String ROWINDEX = "rowindex";
+    }
 
-   /**
-    * @return the id
-    */
-   public long getId()
-   {
-      return id;
-   }
+    public static final class RecentItems implements BaseColumns
+    {
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + GroceryItemProvider.AUTHORITY
+                + "/" + GroceryListDatabase.TABLE_RECENT);
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.recentitems";
+        // SQL Columns
+        public static final String GROCERY_ITEM_ID = BaseColumns._ID;
+        public static final String ITEMNAME = "itemname";
+        public static final String AMOUNT = "amount";
+        public static final String STORE = "store";
+        public static final String CATEGORY = "category";
+        public static final String FREQUENCY = "frequency";
+        public static final String TIMESTAMP = "timestamp";
 
-   /**
-    * @param id
-    *           the id to set
-    */
-   public void setId(long id)
-   {
-      this.id = id;
-   }
+    }
 
-   /**
-    * @return the itemName
-    */
-   public String getItemName()
-   {
-      return itemName;
-   }
+    public static ContentValues makeGenericContentValuesFromCursor(Cursor cursor)
+    {
+        ContentValues values = new ContentValues();
+        values.put(GroceryItems.ITEMNAME,
+                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ITEMNAME)));
+        values.put(GroceryItems.AMOUNT,
+                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.AMOUNT)));
+        values.put(GroceryItems.STORE,
+                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.STORE)));
+        values.put(GroceryItems.CATEGORY,
+                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.CATEGORY)));
+        return values;
+    }
 
-   /**
-    * @param itemName
-    *           the itemName to set
-    */
-   public void setItemName(String itemName)
-   {
-      this.itemName = itemName;
-   }
+    /**
+     * @return the id
+     */
+    public long getId()
+    {
+        return id;
+    }
 
-   /**
-    * @return the amount
-    */
-   public String getAmount()
-   {
-      return amount;
-   }
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id)
+    {
+        this.id = id;
+    }
 
-   /**
-    * @param amount
-    *           the amount to set
-    */
-   public void setAmount(String amount)
-   {
-      this.amount = amount;
-   }
+    /**
+     * @return the itemName
+     */
+    public String getItemName()
+    {
+        return itemName;
+    }
 
-   /**
-    * @return the store
-    */
-   public String getStore()
-   {
-      return store;
-   }
+    /**
+     * @param itemName the itemName to set
+     */
+    public void setItemName(String itemName)
+    {
+        this.itemName = itemName;
+    }
 
-   /**
-    * @param store
-    *           the store to set
-    */
-   public void setStore(String store)
-   {
-      this.store = store;
-   }
+    /**
+     * @return the amount
+     */
+    public String getAmount()
+    {
+        return amount;
+    }
 
-   /**
-    * @return the group
-    */
-   public String getCategory()
-   {
-      return category;
-   }
+    /**
+     * @param amount the amount to set
+     */
+    public void setAmount(String amount)
+    {
+        this.amount = amount;
+    }
 
-   /**
-    * @param group
-    *           the group to set
-    */
-   public void setCategory(String category)
-   {
-      this.category = category;
-   }
+    /**
+     * @return the store
+     */
+    public String getStore()
+    {
+        return store;
+    }
 
-   /**
-    * @return the rowIndex
-    */
-   public String getRowIndex()
-   {
-      return rowIndex;
-   }
+    /**
+     * @param store the store to set
+     */
+    public void setStore(String store)
+    {
+        this.store = store;
+    }
 
-   /**
-    * @param rowIndex
-    *           the rowIndex to set
-    */
-   public void setRowIndex(String rowIndex)
-   {
-      this.rowIndex = rowIndex;
-   }
+    /**
+     * @return the group
+     */
+    public String getCategory()
+    {
+        return category;
+    }
 
-   @Override
-   public String toString()
-   {
-      return itemName + " " + amount + " " + store + " " + category;
-   }
+    /**
+     * @param group the group to set
+     */
+    public void setCategory(String category)
+    {
+        this.category = category;
+    }
 
-   @Override
-   public boolean equals(Object o)
-   {
-      if (o == null)
-      {
-         return false;
-      }
-      if (o == this)
-      {
-         return true;
-      }
-      if (o.getClass() != getClass())
-      {
-         return false;
-      }
-      if (((GroceryItem) o).getItemName().equals(this.itemName))
-      {
-         return true;
-      }
-      return false;
-   }
+    /**
+     * @return the rowIndex
+     */
+    public String getRowIndex()
+    {
+        return rowIndex;
+    }
 
-   public boolean fullEquals(GroceryItem item)
-   {
-      if (!this.itemName.equals(item.getItemName()))
-      {
-         return false;
-      }
-      else if (!this.amount.equals(item.getAmount()))
-      {
-         return false;
-      }
-      else if (!this.store.equals(item.getStore()))
-      {
-         return false;
-      }
-      else if (!this.category.equals(item.getCategory()))
-      {
-         return false;
-      }
-      else if (!this.rowIndex.equals(item.getRowIndex()))
-      {
-         return false;
-      }
-      return true;
-   }
+    /**
+     * @param rowIndex the rowIndex to set
+     */
+    public void setRowIndex(String rowIndex)
+    {
+        this.rowIndex = rowIndex;
+    }
+
+    @Override
+    public String toString()
+    {
+        return itemName + " " + amount + " " + store + " " + category;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o == null)
+        {
+            return false;
+        }
+        if (o == this)
+        {
+            return true;
+        }
+        if (o.getClass() != getClass())
+        {
+            return false;
+        }
+        if (((GroceryItem) o).getItemName().equals(this.itemName))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean fullEquals(GroceryItem item)
+    {
+        if (!this.itemName.equals(item.getItemName()))
+        {
+            return false;
+        }
+        else if (!this.amount.equals(item.getAmount()))
+        {
+            return false;
+        }
+        else if (!this.store.equals(item.getStore()))
+        {
+            return false;
+        }
+        else if (!this.category.equals(item.getCategory()))
+        {
+            return false;
+        }
+        else if (!this.rowIndex.equals(item.getRowIndex()))
+        {
+            return false;
+        }
+        return true;
+    }
 }

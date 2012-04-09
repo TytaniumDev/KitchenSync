@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
+
 package other.com.github.rtyley.android.sherlock.roboguice.activity;
 
 import android.content.Intent;
@@ -82,7 +83,7 @@ public class RoboSherlockActivity extends SherlockActivity {
     }
 
     @Override
-    protected void onNewIntent( Intent intent ) {
+    protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         eventManager.fire(new OnNewIntentEvent());
     }

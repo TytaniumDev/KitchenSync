@@ -13,7 +13,15 @@
  * See the License for the specific language governing permissions
  * and limitations under the License.
  */
+
 package other.com.github.rtyley.android.sherlock.roboguice.activity;
+
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Bundle;
+
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.google.inject.Inject;
 
 import roboguice.RoboGuice;
 import roboguice.activity.event.OnActivityResultEvent;
@@ -30,12 +38,6 @@ import roboguice.activity.event.OnStopEvent;
 import roboguice.event.EventManager;
 import roboguice.inject.ContentViewListener;
 import roboguice.inject.RoboInjector;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.os.Bundle;
-
-import com.actionbarsherlock.app.SherlockListActivity;
-import com.google.inject.Inject;
 
 /**
  * An example of how to make your own Robo-enabled Sherlock activity. Feel free
@@ -81,7 +83,7 @@ public class RoboSherlockListActivity extends SherlockListActivity {
     }
 
     @Override
-    protected void onNewIntent( Intent intent ) {
+    protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         eventManager.fire(new OnNewIntentEvent());
     }
