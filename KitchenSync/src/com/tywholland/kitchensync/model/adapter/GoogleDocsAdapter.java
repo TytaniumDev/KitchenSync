@@ -13,6 +13,7 @@ import com.pras.WorkSheetCell;
 import com.pras.WorkSheetRow;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
+import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
 import com.tywholland.kitchensync.util.AndroidAuthenticator;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class GoogleDocsAdapter
     private final ContentResolver mContentResolver;
     private boolean authenticated = false;
 
-    public GoogleDocsAdapter(final AndroidAuthenticator auth, ContentResolver contentResolver)
+    public GoogleDocsAdapter(final AndroidAuthenticator auth, final ContentResolver contentResolver)
     {
         mContentResolver = contentResolver;
         new Thread(new Runnable() {
@@ -74,6 +75,8 @@ public class GoogleDocsAdapter
                     Log.i(tag, "Got worksheet: " + worksheet.getTitle());
                     spreadsheetKey = ss.getKey();
                     Log.i(tag, "Got ss key");
+                    contentResolver.call(GroceryItems.CONTENT_URI,
+                            GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
                 }
             }
         }).start();
@@ -202,22 +205,22 @@ public class GoogleDocsAdapter
         {
             name = cell.getName();
             Log.i(tag, "Cell name: " + name);
-            // if (name.equals(DBAdapter.KEY_ITEMNAME))
-            // {
-            // item.setItemName(cell.getValue());
-            // }
-            // else if (name.equals(DBAdapter.KEY_AMOUNT))
-            // {
-            // item.setAmount(cell.getValue());
-            // }
-            // else if (name.equals(DBAdapter.KEY_STORE))
-            // {
-            // item.setStore(cell.getValue());
-            // }
-            // else if (name.equals(DBAdapter.KEY_CATEGORY))
-            // {
-            // item.setCategory(cell.getValue());
-            // }
+            if (name.equals(GroceryItems.ITEMNAME))
+            {
+                item.setItemName(cell.getValue());
+            }
+            else if (name.equals(GroceryItems.AMOUNT))
+            {
+                item.setAmount(cell.getValue());
+            }
+            else if (name.equals(GroceryItems.STORE))
+            {
+                item.setStore(cell.getValue());
+            }
+            else if (name.equals(GroceryItems.CATEGORY))
+            {
+                item.setCategory(cell.getValue());
+            }
         }
         return item;
     }

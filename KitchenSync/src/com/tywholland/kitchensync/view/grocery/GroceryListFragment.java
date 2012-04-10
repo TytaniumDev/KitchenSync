@@ -22,6 +22,7 @@ import com.tywholland.kitchensync.R;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
+import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
 
 import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockListFragment;
 
@@ -79,6 +80,8 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                             .findViewById(R.id.grocery_row_cross_off_button);
                     final String itemName = cursor.getString(cursor
                             .getColumnIndexOrThrow(GroceryItems.ITEMNAME));
+                    final String rowIndex = cursor.getString(cursor
+                            .getColumnIndexOrThrow(GroceryItems.ROWINDEX));
                     final View parent = (View) view.getParent();
                     final ContentValues itemValues = GroceryItem
                             .makeGenericContentValuesFromCursor(cursor);
@@ -100,7 +103,7 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                                             GroceryItems.CONTENT_URI,
                                             GroceryItems.ITEMNAME + "=?", new String[]
                                             {
-                                                itemName
+                                                itemName, rowIndex
                                             });
 
                                     getActivity().getContentResolver().insert(

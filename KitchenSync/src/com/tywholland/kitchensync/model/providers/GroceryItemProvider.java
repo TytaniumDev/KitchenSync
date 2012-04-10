@@ -10,20 +10,25 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.tywholland.kitchensync.model.adapter.GoogleDocsAdapter;
+import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
 import com.tywholland.kitchensync.model.grocery.GroceryListDatabase;
 import com.tywholland.kitchensync.util.AndroidAuthenticator;
+import com.tywholland.kitchensync.util.grocery.GroceryItemUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GroceryItemProvider extends ContentProvider
 {
     private static final String TAG = "GroceryItemProvider";
     public static final String AUTHORITY = "com.tywholland.kitchensync.model.providers.GroceryItemProvider";
+    public static final String SYNC_WITH_GOOGLE_DOCS_CALL = "syncWithGoogleDocs";
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private static final int GROCERYITEMS = 100;
     private static final int RECENTITEMS = 110;
@@ -43,7 +48,18 @@ public class GroceryItemProvider extends ContentProvider
         {
             case GROCERYITEMS:
                 Log.i(TAG, "Deleting a grocery item");
-                count = db.delete(GROCERYITEMS_TABLE_NAME, where, whereArgs);
+                // Only use the first whereArgs, as the second part is used for
+                // the rowIndex for GoogleDocs syncing
+                count = db.delete(GROCERYITEMS_TABLE_NAME, where, new String[] {
+                        whereArgs[0]
+                });
+                // Sync with google docs
+                if (whereArgs.length >= 2 && whereArgs[1].length() > 0)
+                {
+                    ContentValues values = new ContentValues();
+                    values.put(GroceryItems.ROWINDEX, whereArgs[1]);
+                    gdocsHelper.deleteGroceryItem(values);
+                }
                 break;
             case RECENTITEMS:
                 Log.i(TAG, "Deleting a recent item");
@@ -104,7 +120,7 @@ public class GroceryItemProvider extends ContentProvider
                         values.put(GroceryItems.ROWINDEX, "");
                     }
                     rowId = db.replace(GROCERYITEMS_TABLE_NAME, null, values);
-                    //Sync with google docs
+                    // Sync with google docs
                     gdocsHelper.addGroceryItem(values);
                     if (rowId > 0)
                     {
@@ -168,7 +184,8 @@ public class GroceryItemProvider extends ContentProvider
     public boolean onCreate()
     {
         dbHelper = new GroceryListDatabase(getContext());
-        gdocsHelper = new GoogleDocsAdapter(new AndroidAuthenticator(getContext()), getContext().getContentResolver());
+        gdocsHelper = new GoogleDocsAdapter(new AndroidAuthenticator(getContext()), getContext()
+                .getContentResolver());
         return true;
     }
 
@@ -219,6 +236,11 @@ public class GroceryItemProvider extends ContentProvider
             case GROCERYITEMS:
                 Log.i(TAG, "Updating a grocery item");
                 count = db.update(GROCERYITEMS_TABLE_NAME, values, where, whereArgs);
+                // Sync with google docs
+                if (values.getAsString(GroceryItems.ROWINDEX).length() > 0)
+                {
+                    gdocsHelper.editGroceryItem(values);
+                }
                 break;
 
             case RECENTITEMS:
@@ -232,6 +254,88 @@ public class GroceryItemProvider extends ContentProvider
 
         getContext().getContentResolver().notifyChange(uri, null);
         return count;
+    }
+
+    @Override
+    public Bundle call(String method, String arg, Bundle extras) {
+        if (method.equals(SYNC_WITH_GOOGLE_DOCS_CALL))
+        {
+            syncWithGoogleDocs();
+        }
+        return super.call(method, arg, extras);
+    }
+
+    private void syncWithGoogleDocs()
+    {
+        Log.i("GroceryItemProvider", "Syncing with google docs!");
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                // Grab all data
+                HashMap<String, GroceryItem> googleDocsData = gdocsHelper.getGroceryListMap();
+                ArrayList<GroceryItem> sqlData = getSqlData();
+                // Go through every entry in sql:
+                // If it has a rowindex, see if it is in googleDocsData. If it
+                // is, update it. If it is not, delete it. Remove item from
+                // googleDocsData
+                // Add remaining googleDocsData to sql
+                for (GroceryItem item : sqlData)
+                {
+                    if (item.getRowIndex().length() > 0)
+                    {
+                        String itemName = item.getItemName();
+                        if (googleDocsData.containsKey(itemName))
+                        {
+                            db.update(GROCERYITEMS_TABLE_NAME,
+                                    GroceryItemUtil.makeContentValuesFromGroceryItem(googleDocsData
+                                            .get(itemName)), GroceryItems.ITEMNAME + "=?",
+                                    new String[] {
+                                        itemName
+                                    });
+                        }
+                        else
+                        {
+                            // It was deleted on google docs, remove from sql
+                            db.delete(GROCERYITEMS_TABLE_NAME, GroceryItems.ITEMNAME + "=?",
+                                    new String[] {
+                                        itemName
+                                    });
+                        }
+                        //Remove from googleDocsData so we don't add it at the end
+                        googleDocsData.remove(itemName);
+                    }
+                }
+                for(GroceryItem itemToAdd : googleDocsData.values())
+                {
+                    db.insert(GROCERYITEMS_TABLE_NAME, null, GroceryItemUtil.makeContentValuesFromGroceryItem(itemToAdd));
+                }
+                db.close();
+            }
+        }).start();
+    }
+
+    private ArrayList<GroceryItem> getSqlData()
+    {
+        ArrayList<GroceryItem> sqlData = new ArrayList<GroceryItem>();
+        String[] projection =
+        {
+                GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
+                GroceryItems.STORE,
+                GroceryItems.CATEGORY, GroceryItems.ROWINDEX
+        };
+
+        Cursor sqlCursor = query(GroceryItems.CONTENT_URI, projection, null, null, null);
+        sqlCursor.moveToFirst();
+
+        while (!sqlCursor.isAfterLast())
+        {
+            sqlData.add(GroceryItemUtil.makeGroceryItemFromCursor(sqlCursor));
+            sqlCursor.moveToNext();
+        }
+        sqlCursor.close();
+        return sqlData;
     }
 
     static
