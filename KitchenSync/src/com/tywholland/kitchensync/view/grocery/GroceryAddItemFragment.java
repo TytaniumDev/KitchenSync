@@ -12,6 +12,7 @@ import android.widget.EditText;
 
 import com.tywholland.kitchensync.R;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
+import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
 
 import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import roboguice.inject.InjectView;
@@ -52,6 +53,8 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
                 values.put(GroceryItems.CATEGORY, mCategory.getText().toString());
                 values.put(GroceryItems.ROWINDEX, "");
                 getActivity().getContentResolver().insert(GroceryItems.CONTENT_URI, values);
+                getActivity().getContentResolver().notifyChange(
+                        RecentItems.CONTENT_URI, null);
                 // Reset text fields
                 mItemName.setText("");
                 mAmount.setText("");

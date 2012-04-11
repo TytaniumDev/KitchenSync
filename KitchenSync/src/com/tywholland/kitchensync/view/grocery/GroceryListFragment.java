@@ -18,6 +18,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.tywholland.kitchensync.R;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
@@ -36,6 +40,7 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         String[] uiBindFrom =
         {
                 GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE,
@@ -70,7 +75,7 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
 
                     if (cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ROWINDEX))
                             .length() > 0) {
-                        syncingView.setAlpha(0);
+                        syncingView.setVisibility(View.GONE);
                     }
                     return true;
 
@@ -103,7 +108,7 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                                             GroceryItems.CONTENT_URI,
                                             GroceryItems.ITEMNAME + "=?", new String[]
                                             {
-                                                itemName, rowIndex
+                                                    itemName, rowIndex
                                             });
 
                                     getActivity().getContentResolver().insert(
@@ -142,5 +147,23 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        Log.i("ListFragment", "Inside listfragment createoptionsmenu");
+        inflater.inflate(R.menu.grocery_list_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+        final MenuItem refresh = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
+        refresh.setOnMenuItemClickListener(new OnMenuItemClickListener()
+        {
+            public boolean onMenuItemClick(MenuItem item)
+            {
+                getActivity().getContentResolver().call(GroceryItems.CONTENT_URI,
+                        GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
+                return true;
+            }
+        });
     }
 }
