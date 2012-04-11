@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -59,6 +61,15 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                 R.layout.grocery_list_row, null,
                 uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         mAdapter.setViewBinder(new GroceryListViewBinder());
+        //TODO: Finish this
+        getListView().setOnItemLongClickListener(new
+                OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> av, View view, int
+                            position, long id) {
+                        return false;
+                    }
+                });
         setListAdapter(mAdapter);
     }
 

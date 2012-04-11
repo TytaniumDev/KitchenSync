@@ -124,7 +124,7 @@ public class GroceryItemProvider extends ContentProvider
                     }
                     rowId = db.replace(GROCERYITEMS_TABLE_NAME, null, values);
                     // Sync with google docs
-                    if(isNetworkAvailable())
+                    if (isNetworkAvailable())
                     {
                         gdocsHelper.addGroceryItem(values);
                     }
@@ -190,10 +190,11 @@ public class GroceryItemProvider extends ContentProvider
     public boolean onCreate()
     {
         dbHelper = new GroceryListDatabase(getContext());
-        if(isNetworkAvailable())
+        if (isNetworkAvailable())
         {
-            gdocsHelper = new GoogleDocsAdapter(new AndroidAuthenticator(getContext()), getContext()
-                    .getContentResolver());
+            gdocsHelper = new GoogleDocsAdapter(new AndroidAuthenticator(getContext()),
+                    getContext()
+                            .getContentResolver());
         }
         return true;
     }
@@ -311,14 +312,19 @@ public class GroceryItemProvider extends ContentProvider
                                     new String[] {
                                         itemName
                                     });
+                            // Add to recent items
+                            db.insert(RECENTITEMS_TABLE_NAME, null,
+                                    GroceryItemUtil.makeContentValuesFromGroceryItem(item));
                         }
-                        //Remove from googleDocsData so we don't add it at the end
+                        // Remove from googleDocsData so we don't add it at the
+                        // end
                         googleDocsData.remove(itemName);
                     }
                 }
-                for(GroceryItem itemToAdd : googleDocsData.values())
+                for (GroceryItem itemToAdd : googleDocsData.values())
                 {
-                    db.insert(GROCERYITEMS_TABLE_NAME, null, GroceryItemUtil.makeContentValuesFromGroceryItem(itemToAdd));
+                    db.insert(GROCERYITEMS_TABLE_NAME, null,
+                            GroceryItemUtil.makeContentValuesFromGroceryItem(itemToAdd));
                 }
                 getContext().getContentResolver().notifyChange(GroceryItems.CONTENT_URI, null);
                 db.close();
@@ -374,10 +380,10 @@ public class GroceryItemProvider extends ContentProvider
         }, null, null, null)).getCount() > 0;
 
     }
-    
+
     private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager 
-              = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
     }
