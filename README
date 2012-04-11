@@ -17,15 +17,14 @@ Since all of the icons are just defaults right now, here is what they do:
 	Grocery List View:
 		The button in the top right on the action bar is a refresh button. This just pulls data from Google Docs again.
 		The buttons on the right of all of the grocery items deletes that item (from the phone and from Google Docs!).
-
+	Add Item View: The top right button that looks like a "syncing" button switches between Add Item and Quick Add Item view. The icon for this will change later.
+	Quick Add Item View: Shows you a list of items you have recently removed from your grocery list, with most deleted item on top and then most recently deleted item at the top of that.
 
 Things that don't work yet:
 -Recipe List
--Adding grocery items from the phone
 -Actual icons
 -Turning off gdoc sync
 -Unique tablet UI
--Animations and some ActionBar stuff in Android 4.0
 
 
 
