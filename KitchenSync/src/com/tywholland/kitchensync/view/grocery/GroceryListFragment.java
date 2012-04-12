@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -62,14 +63,16 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                 uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         mAdapter.setViewBinder(new GroceryListViewBinder());
         //TODO: Finish this
-        getListView().setOnItemLongClickListener(new
-                OnItemLongClickListener() {
-                    @Override
-                    public boolean onItemLongClick(AdapterView<?> av, View view, int
-                            position, long id) {
-                        return false;
-                    }
-                });
+//        getListView().setOnItemLongClickListener(new
+//                OnItemLongClickListener() {
+//                    @Override
+//                    public boolean onItemLongClick(AdapterView<?> av, View view, int
+//                            position, long id) {
+//                        Cursor c = ((SimpleCursorAdapter)getListAdapter()).getCursor();
+//                        c.moveToPosition(position);
+//                        return false;
+//                    }
+//                });
         setListAdapter(mAdapter);
     }
 
@@ -163,7 +166,6 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
-        Log.i("ListFragment", "Inside listfragment createoptionsmenu");
         inflater.inflate(R.menu.grocery_list_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
         final MenuItem refresh = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
@@ -171,8 +173,14 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
         {
             public boolean onMenuItemClick(MenuItem item)
             {
-                getActivity().getContentResolver().call(GroceryItems.CONTENT_URI,
-                        GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
+                new Handler().postDelayed(new Runnable()
+                {
+                    public void run()
+                    {
+                        getActivity().getContentResolver().call(GroceryItems.CONTENT_URI,
+                                GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
+                    }
+                }, 500);
                 return true;
             }
         });

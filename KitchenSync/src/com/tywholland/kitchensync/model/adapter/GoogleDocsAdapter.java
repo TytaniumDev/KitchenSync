@@ -32,20 +32,26 @@ public class GoogleDocsAdapter
     private String spreadsheetKey;
     private boolean newDocument = false;
     private final ContentResolver mContentResolver;
-    private boolean authenticated = false;
+    private final AndroidAuthenticator mAndroidAuth;
+    private boolean connected = false;
 
-    public GoogleDocsAdapter(final AndroidAuthenticator auth, final ContentResolver contentResolver)
+    public GoogleDocsAdapter(AndroidAuthenticator auth, ContentResolver contentResolver)
     {
         mContentResolver = contentResolver;
+        mAndroidAuth = auth;
+        initGoogleDocs();
+    }
+    
+    private void initGoogleDocs()
+    {
         new Thread(new Runnable() {
 
             @Override
             public void run() {
                 newDocument = false;
-                SpreadSheetFactory ssf = SpreadSheetFactory.getInstance(auth);
-                if (auth.getAuthToken("wise") != null)
+                SpreadSheetFactory ssf = SpreadSheetFactory.getInstance(mAndroidAuth);
+                if (mAndroidAuth.getAuthToken("wise") != null)
                 {
-                    authenticated = true;
                     Log.i(tag, "Got ssf");
                     ArrayList<SpreadSheet> ssList = ssf.getSpreadSheet(GROCERY_LIST_DOC_NAME, true);
                     Log.i(tag, "Got sslist");
@@ -60,6 +66,14 @@ public class GoogleDocsAdapter
                     }
                     SpreadSheet ss = ssList.get(0);
                     Log.i(tag, "Got ss");
+                    ArrayList<WorkSheet> wsList = ss.getAllWorkSheets();
+                    Log.i(tag, "Got wslist");
+                    worksheet = wsList.get(0);
+                    Log.i(tag, "Got worksheet: " + worksheet.getTitle());
+                    if(!worksheet.getTitle().equals(GROCERY_LIST_DOC_NAME))
+                    {
+                        newDocument = true;
+                    }
                     if (newDocument)
                     {
                         Log.i(tag, "Adding new worksheet");
@@ -68,56 +82,42 @@ public class GoogleDocsAdapter
                         // Remove old default worksheet
                         ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
                         Log.i(tag, "Columns: " + ss.getAllWorkSheets().get(0).getColumns());
+                        wsList = ss.getAllWorkSheets();
+                        Log.i(tag, "Got wslist");
+                        worksheet = wsList.get(0);
+                        Log.i(tag, "Got worksheet: " + worksheet.getTitle());
                     }
-                    ArrayList<WorkSheet> wsList = ss.getAllWorkSheets();
-                    Log.i(tag, "Got wslist");
-                    worksheet = wsList.get(0);
-                    Log.i(tag, "Got worksheet: " + worksheet.getTitle());
                     spreadsheetKey = ss.getKey();
                     Log.i(tag, "Got ss key");
-                    contentResolver.call(GroceryItems.CONTENT_URI,
+                    connected = true;
+                    mContentResolver.call(GroceryItems.CONTENT_URI,
                             GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
                 }
             }
         }).start();
-
-    }
-
-    public ArrayList<GroceryItem> getGroceryList()
-    {
-        ArrayList<GroceryItem> list = new ArrayList<GroceryItem>();
-        ArrayList<WorkSheetRow> rows = worksheet.getData(false);
-        for (WorkSheetRow row : rows)
-        {
-            ArrayList<WorkSheetCell> cells = row.getCells();
-            Log.i(tag, "got cells");
-            GroceryItem temp = makeGroceryItemFromCells(cells);
-            temp.setRowIndex(row.getRowIndex());
-            list.add(temp);
-        }
-
-        return list;
     }
 
     public HashMap<String, GroceryItem> getGroceryListMap()
     {
         HashMap<String, GroceryItem> map = new HashMap<String, GroceryItem>();
-        ArrayList<WorkSheetRow> rows = worksheet.getData(false);
-        for (WorkSheetRow row : rows)
+        if (connected)
         {
-            ArrayList<WorkSheetCell> cells = row.getCells();
-            Log.i(tag, "got cells");
-            GroceryItem temp = makeGroceryItemFromCells(cells);
-            temp.setRowIndex(row.getRowIndex());
-            map.put(temp.getItemName(), temp);
+            ArrayList<WorkSheetRow> rows = worksheet.getData(false);
+            for (WorkSheetRow row : rows)
+            {
+                ArrayList<WorkSheetCell> cells = row.getCells();
+                Log.i(tag, "got cells");
+                GroceryItem temp = makeGroceryItemFromCells(cells);
+                temp.setRowIndex(row.getRowIndex());
+                map.put(temp.getItemName(), temp);
+            }
         }
-
         return map;
     }
 
     public void addGroceryItem(final ContentValues values)
     {
-        if (authenticated)
+        if (connected)
         {
             Log.i(tag, "Adding an item to gdocs");
             new AddRowTask().execute(values);
@@ -132,24 +132,33 @@ public class GoogleDocsAdapter
         protected WorkSheetRow doInBackground(ContentValues... arg0)
         {
             values = arg0[0];
-            return worksheet.addListRow(convertContentValuesToRecords(values));
+            if (values != null)
+            {
+                return worksheet.addListRow(convertContentValuesToRecords(values));
+            }
+            else
+            {
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(WorkSheetRow result) {
-            super.onPostExecute(result);
-            values.put(GroceryItems.ROWINDEX, result.getRowIndex());
-            mContentResolver.update(GroceryItems.CONTENT_URI,
-                    values, GroceryItems.ITEMNAME
-                            + "=?", new String[] {
-                        values.getAsString(GroceryItems.ITEMNAME)
-                    });
+            if (result != null && result.getRowIndex() != null) {
+                super.onPostExecute(result);
+                values.put(GroceryItems.ROWINDEX, result.getRowIndex());
+                mContentResolver.update(GroceryItems.CONTENT_URI,
+                        values, GroceryItems.ITEMNAME
+                                + "=?", new String[] {
+                            values.getAsString(GroceryItems.ITEMNAME)
+                        });
+            }
         }
     }
 
     public void editGroceryItem(final ContentValues values)
     {
-        if (authenticated)
+        if (connected)
         {
             new EditRowTask().execute(values);
         }
@@ -169,7 +178,7 @@ public class GoogleDocsAdapter
 
     public void deleteGroceryItem(ContentValues values)
     {
-        if (authenticated)
+        if (connected)
         {
             new DeleteRowTask().execute(values);
         }

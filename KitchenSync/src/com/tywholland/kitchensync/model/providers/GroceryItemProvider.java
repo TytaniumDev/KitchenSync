@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.tywholland.kitchensync.model.KitchenSyncApplication;
 import com.tywholland.kitchensync.model.adapter.GoogleDocsAdapter;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
@@ -32,6 +33,7 @@ public class GroceryItemProvider extends ContentProvider
     private static final String TAG = "GroceryItemProvider";
     public static final String AUTHORITY = "com.tywholland.kitchensync.model.providers.GroceryItemProvider";
     public static final String SYNC_WITH_GOOGLE_DOCS_CALL = "syncWithGoogleDocs";
+    public static final String SET_ANDROID_AUTH_CALL = "setAndroidAuth";
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private static final int GROCERYITEMS = 100;
     private static final int RECENTITEMS = 110;
@@ -40,7 +42,7 @@ public class GroceryItemProvider extends ContentProvider
 
     private static HashMap<String, String> groceryItemProjectionMap;
     private GroceryListDatabase dbHelper;
-    private GoogleDocsAdapter gdocsHelper;
+    private GoogleDocsAdapter gdocsHelper = null;
 
     @Override
     public int delete(Uri uri, String where, String[] whereArgs)
@@ -57,7 +59,7 @@ public class GroceryItemProvider extends ContentProvider
                         whereArgs[0]
                 });
                 // Sync with google docs
-                if (isNetworkAvailable() && whereArgs.length >= 2 && whereArgs[1].length() > 0)
+                if (isGoogleDocsEnabled() && whereArgs.length >= 2 && whereArgs[1].length() > 0)
                 {
                     ContentValues values = new ContentValues();
                     values.put(GroceryItems.ROWINDEX, whereArgs[1]);
@@ -124,7 +126,7 @@ public class GroceryItemProvider extends ContentProvider
                     }
                     rowId = db.replace(GROCERYITEMS_TABLE_NAME, null, values);
                     // Sync with google docs
-                    if (isNetworkAvailable())
+                    if (isGoogleDocsEnabled())
                     {
                         gdocsHelper.addGroceryItem(values);
                     }
@@ -190,12 +192,13 @@ public class GroceryItemProvider extends ContentProvider
     public boolean onCreate()
     {
         dbHelper = new GroceryListDatabase(getContext());
-        if (isNetworkAvailable())
-        {
-            gdocsHelper = new GoogleDocsAdapter(new AndroidAuthenticator(getContext()),
-                    getContext()
-                            .getContentResolver());
-        }
+        // if (isNetworkAvailable())
+        // {
+        // gdocsHelper = new GoogleDocsAdapter(new
+        // AndroidAuthenticator(getContext()),
+        // getContext()
+        // .getContentResolver());
+        // }
         return true;
     }
 
@@ -247,7 +250,7 @@ public class GroceryItemProvider extends ContentProvider
                 Log.i(TAG, "Updating a grocery item");
                 count = db.update(GROCERYITEMS_TABLE_NAME, values, where, whereArgs);
                 // Sync with google docs
-                if (isNetworkAvailable() && values.getAsString(GroceryItems.ROWINDEX).length() > 0)
+                if (isGoogleDocsEnabled() && values.getAsString(GroceryItems.ROWINDEX).length() > 0)
                 {
                     gdocsHelper.editGroceryItem(values);
                 }
@@ -268,9 +271,13 @@ public class GroceryItemProvider extends ContentProvider
 
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
-        if (method.equals(SYNC_WITH_GOOGLE_DOCS_CALL) && isNetworkAvailable())
+        if (isGoogleDocsEnabled() && method.equals(SYNC_WITH_GOOGLE_DOCS_CALL))
         {
             syncWithGoogleDocs();
+        }
+        else if (method.equals(SET_ANDROID_AUTH_CALL))
+        {
+            setAndroidAuth((AndroidAuthenticator) extras.get(KitchenSyncApplication.ANDROID_AUTH));
         }
         return super.call(method, arg, extras);
     }
@@ -298,38 +305,64 @@ public class GroceryItemProvider extends ContentProvider
                         String itemName = item.getItemName();
                         if (googleDocsData.containsKey(itemName))
                         {
-                            db.update(GROCERYITEMS_TABLE_NAME,
+                            Log.i("GroceryItemProvider", "GoogleDocsSync: updating row in sql");
+                            db.updateWithOnConflict(GROCERYITEMS_TABLE_NAME,
                                     GroceryItemUtil.makeContentValuesFromGroceryItem(googleDocsData
                                             .get(itemName)), GroceryItems.ITEMNAME + "=?",
                                     new String[] {
                                         itemName
-                                    });
+                                    }, SQLiteDatabase.CONFLICT_REPLACE);
                         }
                         else
                         {
+                            Log.i("GroceryItemProvider", "GoogleDocsSync: deleting row in sql");
                             // It was deleted on google docs, remove from sql
                             db.delete(GROCERYITEMS_TABLE_NAME, GroceryItems.ITEMNAME + "=?",
                                     new String[] {
                                         itemName
                                     });
                             // Add to recent items
+                            ContentValues recentValues = GroceryItemUtil
+                                    .makeContentValuesFromGroceryItem(item);
+                            recentValues.remove(GroceryItems.ROWINDEX);
                             db.insert(RECENTITEMS_TABLE_NAME, null,
-                                    GroceryItemUtil.makeContentValuesFromGroceryItem(item));
+                                    recentValues);
                         }
                         // Remove from googleDocsData so we don't add it at the
                         // end
                         googleDocsData.remove(itemName);
                     }
+                    else
+                    {
+                        gdocsHelper.addGroceryItem(GroceryItemUtil.makeContentValuesFromGroceryItem(item));
+                    }
                 }
                 for (GroceryItem itemToAdd : googleDocsData.values())
                 {
+                    Log.i("GroceryItemProvider", "GoogleDocsSync: inserting row into sql");
                     db.insert(GROCERYITEMS_TABLE_NAME, null,
                             GroceryItemUtil.makeContentValuesFromGroceryItem(itemToAdd));
                 }
+                Log.i("GroceryItemProvider", "GoogleDocsSync: about to notify change");
                 getContext().getContentResolver().notifyChange(GroceryItems.CONTENT_URI, null);
-                db.close();
+                // Log.i("GroceryItemProvider",
+                // "GoogleDocsSync: about to close database");
+                // db.close();
             }
         }).start();
+    }
+
+    private void setAndroidAuth(AndroidAuthenticator auth)
+    {
+        if(auth.getAuthToken("wise") != null)
+        {
+            gdocsHelper = new GoogleDocsAdapter(auth, getContext().getContentResolver());
+            Log.i("GroceryItemProvider", "Got an auth token, gdocshelper enabled");
+        }
+        else
+        {
+            Log.i("GroceryItemProvider", "Didn't get an auth token, gdocshelper should be null");
+        }
     }
 
     private ArrayList<GroceryItem> getSqlData()
@@ -379,6 +412,18 @@ public class GroceryItemProvider extends ContentProvider
                 (String) values.get(itemname)
         }, null, null, null)).getCount() > 0;
 
+    }
+    
+    private boolean isGoogleDocsEnabled()
+    {
+        if(gdocsHelper != null)
+        {
+            if(isNetworkAvailable())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isNetworkAvailable() {

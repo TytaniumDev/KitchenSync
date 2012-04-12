@@ -11,8 +11,11 @@ import android.util.Log;
 
 import com.pras.auth.Authenticator;
 
-public class AndroidAuthenticator implements Authenticator
+import java.io.Serializable;
+
+public class AndroidAuthenticator implements Authenticator, Serializable
 {
+    private static final long serialVersionUID = 1L;
     private final String TAG = "AndroidAuthenticator";
     private Activity activity;
     private AccountManager manager;
