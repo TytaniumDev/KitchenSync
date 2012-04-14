@@ -9,6 +9,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.tywholland.kitchensync.R;
 import com.tywholland.kitchensync.model.KitchenSyncApplication;
 import com.tywholland.kitchensync.view.home.HomeActivity;
+import com.viewpagerindicator.TabPageIndicator;
 import com.viewpagerindicator.TitlePageIndicator;
 import com.viewpagerindicator.TitlePageIndicator.IndicatorStyle;
 
@@ -22,7 +23,7 @@ public class GroceryActivity extends RoboSherlockFragmentActivity
     @InjectView(R.id.grocery_viewpager)
     ViewPager pager;
     @InjectView(R.id.grocery_titles)
-    TitlePageIndicator indicator;
+    TabPageIndicator indicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -38,14 +39,14 @@ public class GroceryActivity extends RoboSherlockFragmentActivity
         pager.setCurrentItem(1);
 
         // Set ViewPagerIndicator theme
-        final float density = getResources().getDisplayMetrics().density;
-        indicator.setFooterLineHeight(1 * density); // 1dp
-        indicator.setFooterIndicatorHeight(3 * density); // 3dp
-        indicator.setFooterIndicatorStyle(IndicatorStyle.Underline);
-        indicator.setTextColor(0xAA000000);
-        indicator.setSelectedColor(0xFF000000);
-        indicator.setSelectedBold(true);
-        indicator.setClipPadding(10 * density);
+//        final float density = getResources().getDisplayMetrics().density;
+//        indicator.setFooterLineHeight(1 * density); // 1dp
+//        indicator.setFooterIndicatorHeight(3 * density); // 3dp
+//        indicator.setFooterIndicatorStyle(IndicatorStyle.Underline);
+//        indicator.setTextColor(0xAA000000);
+//        indicator.setSelectedColor(0xFF000000);
+//        indicator.setSelectedBold(true);
+//        indicator.setClipPadding(10 * density);
     }
 
     @Override

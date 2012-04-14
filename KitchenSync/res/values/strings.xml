@@ -13,8 +13,8 @@
     <string name="switch_to_quick_add">Switch to Quick Add View</string>
     <string name="currently_syncing_description">Currently Syncing this item</string>
     <!-- Text in Layouts -->
-    <string name="grocery_add_item">Add Item</string>
-    <string name="grocery_quickadd_item">Add Recent Items</string>
+    <string name="grocery_add_item">New Item</string>
+    <string name="grocery_quickadd_item">Recent Items</string>
     <string name="grocery_item_name">Item Name</string>
     <string name="grocery_amount">Amount</string>
     <string name="grocery_store">Store</string>

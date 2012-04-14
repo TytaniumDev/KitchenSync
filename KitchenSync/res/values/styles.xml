@@ -28,4 +28,16 @@
         <item name="android:textColor">@color/accent_1</item>
         <item name="android:background">@null</item>
     </style>
+    <style name="StyledIndicators" parent="@style/Theme.Sherlock.Light">
+        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="vpiTabTextStyle">@style/CustomTabPageIndicator.Text</item>
+    </style>
+    <style name="CustomTabPageIndicator" parent="Widget.TabPageIndicator">
+        <item name="android:background">@drawable/custom_tab_indicator</item>
+    </style>
+    <style name="CustomTabPageIndicator.Text" parent="Widget.TabPageIndicator.Text">
+        <item name="android:textColor">#FF000000</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>
