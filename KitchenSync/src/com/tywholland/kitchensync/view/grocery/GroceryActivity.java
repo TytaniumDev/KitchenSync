@@ -3,11 +3,15 @@ package com.tywholland.kitchensync.view.grocery;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.support.v4.view.ViewPager;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.tywholland.kitchensync.R;
 import com.tywholland.kitchensync.model.KitchenSyncApplication;
+import com.tywholland.kitchensync.view.KitchenSyncFragmentActivity;
 import com.tywholland.kitchensync.view.home.HomeActivity;
 import com.viewpagerindicator.TabPageIndicator;
 import com.viewpagerindicator.TitlePageIndicator;
@@ -18,7 +22,7 @@ import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
 @ContentView(R.layout.activity_grocery)
-public class GroceryActivity extends RoboSherlockFragmentActivity
+public class GroceryActivity extends KitchenSyncFragmentActivity
 {
     @InjectView(R.id.grocery_viewpager)
     ViewPager pager;
@@ -37,16 +41,6 @@ public class GroceryActivity extends RoboSherlockFragmentActivity
         pager.setAdapter(adapter);
         indicator.setViewPager(pager);
         pager.setCurrentItem(1);
-
-        // Set ViewPagerIndicator theme
-//        final float density = getResources().getDisplayMetrics().density;
-//        indicator.setFooterLineHeight(1 * density); // 1dp
-//        indicator.setFooterIndicatorHeight(3 * density); // 3dp
-//        indicator.setFooterIndicatorStyle(IndicatorStyle.Underline);
-//        indicator.setTextColor(0xAA000000);
-//        indicator.setSelectedColor(0xFF000000);
-//        indicator.setSelectedBold(true);
-//        indicator.setClipPadding(10 * density);
     }
 
     @Override

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:title="@string/settings_google_doc_sync_title"
+        android:key="GOOGLE_DOCS_SYNC"
+        android:summaryOff="@string/settings_google_doc_sync_off"
+        android:summaryOn="@string/settings_google_doc_sync_on" />
+    <ListPreference
+        android:entries="@array/settings_text_size_list"
+        android:entryValues="@array/settings_text_size_list"
+        android:defaultValue="@string/medium"
+        android:key="TEXT_SIZE"
+        android:title="@string/settings_text_size_title" />
+    <ListPreference
+        android:entries="@array/settings_theme_list"
+        android:entryValues="@array/settings_theme_list"
+        android:defaultValue="@string/light"
+        android:key="THEME"
+        android:title="@string/settings_theme_title" />
+</PreferenceScreen>

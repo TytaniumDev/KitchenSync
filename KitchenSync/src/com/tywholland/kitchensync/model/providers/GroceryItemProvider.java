@@ -14,6 +14,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.tywholland.kitchensync.model.KitchenSyncApplication;
@@ -305,7 +306,8 @@ public class GroceryItemProvider extends ContentProvider
                         String itemName = item.getItemName();
                         if (googleDocsData.containsKey(itemName))
                         {
-                            Log.i("GroceryItemProvider", "GoogleDocsSync: updating row in sql");
+                            Log.i("GroceryItemProvider", "GoogleDocsSync: updating " + itemName
+                                    + " in sql");
                             db.updateWithOnConflict(GROCERYITEMS_TABLE_NAME,
                                     GroceryItemUtil.makeContentValuesFromGroceryItem(googleDocsData
                                             .get(itemName)), GroceryItems.ITEMNAME + "=?",
@@ -315,7 +317,8 @@ public class GroceryItemProvider extends ContentProvider
                         }
                         else
                         {
-                            Log.i("GroceryItemProvider", "GoogleDocsSync: deleting row in sql");
+                            Log.i("GroceryItemProvider", "GoogleDocsSync: deleting " + itemName
+                                    + " in sql");
                             // It was deleted on google docs, remove from sql
                             db.delete(GROCERYITEMS_TABLE_NAME, GroceryItems.ITEMNAME + "=?",
                                     new String[] {
@@ -334,7 +337,8 @@ public class GroceryItemProvider extends ContentProvider
                     }
                     else
                     {
-                        gdocsHelper.addGroceryItem(GroceryItemUtil.makeContentValuesFromGroceryItem(item));
+                        gdocsHelper.addGroceryItem(GroceryItemUtil
+                                .makeContentValuesFromGroceryItem(item));
                     }
                 }
                 for (GroceryItem itemToAdd : googleDocsData.values())
@@ -354,7 +358,7 @@ public class GroceryItemProvider extends ContentProvider
 
     private void setAndroidAuth(AndroidAuthenticator auth)
     {
-        if(auth.getAuthToken("wise") != null)
+        if (auth.getAuthToken("wise") != null)
         {
             gdocsHelper = new GoogleDocsAdapter(auth, getContext().getContentResolver());
             Log.i("GroceryItemProvider", "Got an auth token, gdocshelper enabled");
@@ -413,14 +417,18 @@ public class GroceryItemProvider extends ContentProvider
         }, null, null, null)).getCount() > 0;
 
     }
-    
+
     private boolean isGoogleDocsEnabled()
     {
-        if(gdocsHelper != null)
+        if (PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean(
+                "GOOGLE_DOCS_SYNC", true))
         {
-            if(isNetworkAvailable())
+            if (gdocsHelper != null)
             {
-                return true;
+                if (isNetworkAvailable())
+                {
+                    return true;
+                }
             }
         }
         return false;

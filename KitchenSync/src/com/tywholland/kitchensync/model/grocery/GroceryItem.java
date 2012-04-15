@@ -10,6 +10,7 @@ import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
 
 public class GroceryItem
 {
+    public static final String CONTENT_VALUES = "groceryitemvalues";
     private long id;
     private String itemName;
     private String amount;
@@ -93,6 +94,16 @@ public class GroceryItem
                 cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.STORE)));
         values.put(GroceryItems.CATEGORY,
                 cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.CATEGORY)));
+        return values;
+    }
+    
+    public static ContentValues makeFullContentValuesFromCursor(Cursor cursor)
+    {
+        ContentValues values = makeGenericContentValuesFromCursor(cursor);
+        values.put(GroceryItems.GROCERY_ITEM_ID,
+                cursor.getString(cursor.getColumnIndex(GroceryItems.GROCERY_ITEM_ID)));
+        values.put(GroceryItems.ROWINDEX,
+                cursor.getString(cursor.getColumnIndex(GroceryItems.ROWINDEX)));
         return values;
     }
 

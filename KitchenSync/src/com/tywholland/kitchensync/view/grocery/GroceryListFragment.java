@@ -1,11 +1,13 @@
 
 package com.tywholland.kitchensync.view.grocery;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -14,10 +16,10 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -47,13 +49,12 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
         String[] uiBindFrom =
         {
                 GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE,
-                GroceryItems.ROWINDEX, GroceryItems.ITEMNAME
+                GroceryItems.ROWINDEX
         };
         int[] uiBindTo =
         {
                 R.id.grocery_row_item_name, R.id.grocery_row_amount, R.id.grocery_row_store,
-                R.id.grocery_row_syncing_icon,
-                R.id.grocery_row_cross_off_button
+                R.id.grocery_row_syncing_icon
         };
 
         getActivity().getSupportLoaderManager().initLoader(GROCERY_LIST_LOADER, null, this);
@@ -62,80 +63,106 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                 R.layout.grocery_list_row, null,
                 uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         mAdapter.setViewBinder(new GroceryListViewBinder());
-        //TODO: Finish this
-//        getListView().setOnItemLongClickListener(new
-//                OnItemLongClickListener() {
-//                    @Override
-//                    public boolean onItemLongClick(AdapterView<?> av, View view, int
-//                            position, long id) {
-//                        Cursor c = ((SimpleCursorAdapter)getListAdapter()).getCursor();
-//                        c.moveToPosition(position);
-//                        return false;
-//                    }
-//                });
+
         setListAdapter(mAdapter);
     }
 
+    // TODO: Find out how to do this without using a viewbinder for better
+    // performance
     private class GroceryListViewBinder implements SimpleCursorAdapter.ViewBinder
     {
 
         @Override
         public boolean setViewValue(final View view, final Cursor cursor, int columnIndex) {
             int viewId = view.getId();
-            switch (viewId) {
-                case R.id.grocery_row_syncing_icon:
-                    // Syncing Icon
-                    ImageView syncingView = (ImageView) view;
+            if (viewId == R.id.grocery_row_syncing_icon)
+            {
+                // Initialize everything that isn't text
+                final View parent = (View) view.getParent();
+                // Syncing Icon
+                ImageView syncingView = (ImageView) view;
 
-                    if (cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ROWINDEX))
-                            .length() > 0) {
-                        syncingView.setVisibility(View.GONE);
-                    }
-                    return true;
+                if (cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ROWINDEX))
+                        .length() > 0) {
+                    syncingView.setVisibility(View.GONE);
+                }
 
-                case R.id.grocery_row_cross_off_button:
-                    // Delete Button
-                    ImageButton deleteButton = (ImageButton) view
-                            .findViewById(R.id.grocery_row_cross_off_button);
-                    final String itemName = cursor.getString(cursor
-                            .getColumnIndexOrThrow(GroceryItems.ITEMNAME));
-                    final String rowIndex = cursor.getString(cursor
-                            .getColumnIndexOrThrow(GroceryItems.ROWINDEX));
-                    final View parent = (View) view.getParent();
-                    final ContentValues itemValues = GroceryItem
-                            .makeGenericContentValuesFromCursor(cursor);
-                    deleteButton.setOnClickListener(new OnClickListener()
-                    {
-                        @Override
-                        public void onClick(View v) {
-                            Log.i("GroceryListFragment", "deleting itemName: " + itemName);
-                            Animation anim = AnimationUtils.loadAnimation(getActivity()
-                                    .getApplicationContext(),
-                                    R.anim.slide_to_right);
-                            anim.setDuration(300);
-                            parent.startAnimation(anim);
-                            new Handler().postDelayed(new Runnable()
+                // Delete Button
+                ImageButton deleteButton = (ImageButton) parent
+                        .findViewById(R.id.grocery_row_cross_off_button);
+                final ContentValues itemValues = GroceryItem
+                        .makeGenericContentValuesFromCursor(cursor);
+                final String itemName = itemValues.getAsString(GroceryItems.ITEMNAME);
+                final String rowIndex = itemValues.getAsString(GroceryItems.ROWINDEX);
+                deleteButton.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        Log.i("GroceryListFragment", "deleting itemName: " + itemName);
+                        Animation anim = AnimationUtils.loadAnimation(getActivity()
+                                .getApplicationContext(),
+                                R.anim.slide_to_right);
+                        anim.setDuration(300);
+                        parent.startAnimation(anim);
+                        new Handler().postDelayed(new Runnable()
+                        {
+                            public void run()
                             {
-                                public void run()
-                                {
-                                    getActivity().getContentResolver().delete(
-                                            GroceryItems.CONTENT_URI,
-                                            GroceryItems.ITEMNAME + "=?", new String[]
-                                            {
-                                                    itemName, rowIndex
-                                            });
+                                getActivity().getContentResolver().delete(
+                                        GroceryItems.CONTENT_URI,
+                                        GroceryItems.ITEMNAME + "=?", new String[]
+                                        {
+                                                itemName, rowIndex
+                                        });
 
-                                    getActivity().getContentResolver().insert(
-                                            RecentItems.CONTENT_URI, itemValues);
-                                }
-                            }, 285);
-                        }
-                    });
-                    return true;
-                default:
-                    return false;
+                                getActivity().getContentResolver().insert(
+                                        RecentItems.CONTENT_URI, itemValues);
+                            }
+                        }, 285);
+                    }
+                });
+
+                // Dropdown button
+                final ContentValues fullItemValues = GroceryItem.makeFullContentValuesFromCursor(cursor);
+                ImageButton dropDownButton = (ImageButton) parent
+                        .findViewById(R.id.grocery_row_dropdown);
+                // registerForContextMenu(dropDownButton);
+                registerForContextMenu(parent);
+                dropDownButton.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showOptionsDialog(fullItemValues);
+                    }
+                });
+
+                // Longclick (for older android users)
+                parent.setOnLongClickListener(new OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        showOptionsDialog(fullItemValues);
+                        return true;
+                    }
+                });
+                return true;
             }
+            return false;
         }
+    }
+
+    private void showOptionsDialog(final ContentValues values)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setItems(R.array.grocery_dialog_options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(getActivity(), GroceryEditItemActivity.class);
+                intent.putExtra(GroceryItem.CONTENT_VALUES, values);
+                startActivity(intent);
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        alert.show();
     }
 
     @Override
@@ -166,8 +193,8 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
-        inflater.inflate(R.menu.grocery_list_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.grocery_list_menu, menu);
         final MenuItem refresh = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
         refresh.setOnMenuItemClickListener(new OnMenuItemClickListener()
         {

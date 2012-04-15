@@ -5,12 +5,13 @@ import android.os.Bundle;
 
 import com.tywholland.kitchensync.R;
 import com.tywholland.kitchensync.model.KitchenSyncApplication;
+import com.tywholland.kitchensync.view.KitchenSyncFragmentActivity;
 
 import other.com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import roboguice.inject.ContentView;
 
 @ContentView(R.layout.activity_home)
-public class HomeActivity extends RoboSherlockFragmentActivity
+public class HomeActivity extends KitchenSyncFragmentActivity
 {
     @Override
     protected void onCreate(Bundle savedInstanceState)
