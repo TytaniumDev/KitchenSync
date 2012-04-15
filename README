@@ -1,7 +1,7 @@
 Currently in development stages, so bugs could be very common. Please let me know if you run into any, the more detail you can provide about what you were doing when the bug happened, the better!
 
 On first use:
-1) When you first start the app and go to the Grocery List, a new Google Document will be created for you called GroceryListAppData. This is a hard-coded name that the app looks for, so do not change it.
+1) When you first start the app and go to the Grocery List, a new Google Document will be created for you called Kitchen Sync Grocery List. This is a hard-coded name that the app looks for, so do not change it.
 2) Enter whatever data you like in the rows below the column names. Be careful: the app will stop pulling data as soon as it sees an empty row, so make sure to not leave any spaces.
 
 How I am using it (so the most tested use case):
@@ -11,12 +11,13 @@ How I am using it (so the most tested use case):
 4) Done grocery shopping!
 
 
-Since all of the icons are just defaults right now, here is what they do:
+Since all of the icons are just temporary right now, here is what they do:
 	Home Screen:
 		Only the top button works. It's just a button to go to the grocery list view.
 	Grocery List View:
-		The button in the top right on the action bar is a refresh button. This just pulls data from Google Docs again.
-		The buttons on the right of all of the grocery items deletes that item (from the phone and from Google Docs!).
+		The button in the top right on the action bar is a refresh button. This just pulls data from Google Docs again. Data is automatically synced when you launch the app, so pressing this button usually isn't necessary.
+		The button on the left of all of the grocery items deletes that item (from the phone and from Google Docs!).
+		The button on the right of the grocery item lets you edit the item. The same thing happens when you long-press on the row. 
 	Add Item View: The top right button that looks like a "syncing" button switches between Add Item and Quick Add Item view. The icon for this will change later.
 	Quick Add Item View: Shows you a list of items you have recently removed from your grocery list, with most deleted item on top and then most recently deleted item at the top of that.
 
