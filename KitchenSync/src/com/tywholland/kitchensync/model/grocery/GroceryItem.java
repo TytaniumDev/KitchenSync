@@ -4,6 +4,7 @@ package com.tywholland.kitchensync.model.grocery;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.storage.StorageManager;
 import android.provider.BaseColumns;
 
 import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
@@ -53,10 +54,6 @@ public class GroceryItem
 
     public static final class GroceryItems implements BaseColumns
     {
-        public static final Uri CONTENT_URI = Uri.parse("content://"
-                + GroceryItemProvider.AUTHORITY
-                + "/" + GroceryListDatabase.TABLE_GROCERY);
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.grocerylist";
         // SQL Columns
         public static final String GROCERY_ITEM_ID = BaseColumns._ID;
         public static final String ITEMNAME = "itemname";
@@ -64,6 +61,11 @@ public class GroceryItem
         public static final String STORE = "store";
         public static final String CATEGORY = "category";
         public static final String ROWINDEX = "rowindex";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.grocerylist";
+        //Content URIs
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + GroceryItemProvider.AUTHORITY
+                + "/" + GroceryListDatabase.TABLE_GROCERY);
     }
 
     public static final class RecentItems implements BaseColumns

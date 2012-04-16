@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<!--     <item  -->
+<!--         android:id="@+id/grocery_list_menu_filter" -->
+<!--         android:showAsAction="always" -->
+<!--         android:actionLayout="@layout/action_sort" -->
+<!--         android:title="@string/grocery_store" -->
+<!--         /> -->
     <item
         android:id="@+id/grocery_list_menu_refresh"
         android:icon="@drawable/ic_action_refresh"

@@ -37,6 +37,7 @@ public class GroceryItemProvider extends ContentProvider
     public static final String SET_ANDROID_AUTH_CALL = "setAndroidAuth";
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private static final int GROCERYITEMS = 100;
+    private static final int GROCERYITEMSSTOREQUERY = 120;
     private static final int RECENTITEMS = 110;
     private static final String GROCERYITEMS_TABLE_NAME = GroceryListDatabase.TABLE_GROCERY;
     private static final String RECENTITEMS_TABLE_NAME = GroceryListDatabase.TABLE_RECENT;
@@ -60,7 +61,7 @@ public class GroceryItemProvider extends ContentProvider
                         whereArgs[0]
                 });
                 // Sync with google docs
-                if (isGoogleDocsEnabled() && whereArgs.length >= 2 && whereArgs[1].length() > 0)
+                if (isGoogleDocsEnabled() && whereArgs.length >= 2 && whereArgs[1] != null && whereArgs[1].length() > 0)
                 {
                     ContentValues values = new ContentValues();
                     values.put(GroceryItems.ROWINDEX, whereArgs[1]);
@@ -395,6 +396,7 @@ public class GroceryItemProvider extends ContentProvider
     {
         sUriMatcher.addURI(AUTHORITY, GROCERYITEMS_TABLE_NAME, GROCERYITEMS);
         sUriMatcher.addURI(AUTHORITY, RECENTITEMS_TABLE_NAME, RECENTITEMS);
+        sUriMatcher.addURI(AUTHORITY, GROCERYITEMS_TABLE_NAME + "/" + GroceryItems.STORE, GROCERYITEMSSTOREQUERY);
 
         groceryItemProjectionMap = new HashMap<String, String>();
         groceryItemProjectionMap.put(GroceryItems.GROCERY_ITEM_ID, GroceryItems.GROCERY_ITEM_ID);

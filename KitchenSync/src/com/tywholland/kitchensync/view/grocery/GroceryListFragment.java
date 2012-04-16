@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
@@ -20,9 +21,12 @@ import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -38,14 +42,25 @@ import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockL
 public class GroceryListFragment extends RoboSherlockListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final int GROCERY_LIST_LOADER = 0x01;
+    private static final String ALL_STORES = "All Stores"; 
 
     private SimpleCursorAdapter mAdapter;
-
+    private String mCurFilter;
+    private final String[] mGroceryItemProjection =
+    {
+            GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
+            GroceryItems.STORE,
+            GroceryItems.CATEGORY, GroceryItems.ROWINDEX
+    };
+    private ArrayAdapter<String> mFilterAdapter;
+    
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        // TODO: Change this to load last filter from sharedprefs
+        mCurFilter = ALL_STORES;
         String[] uiBindFrom =
         {
                 GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE,
@@ -63,8 +78,31 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                 R.layout.grocery_list_row, null,
                 uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         mAdapter.setViewBinder(new GroceryListViewBinder());
-
         setListAdapter(mAdapter);
+        setListShown(false);
+        getLoaderManager().initLoader(0, null, this);
+
+        // Spinner stuff for filtering by store
+        ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        // Filter ArrayAdapter
+        mFilterAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),
+                R.layout.filter_spinner);
+        mFilterAdapter.add(ALL_STORES);
+        // Filter NavigationListener
+        final LoaderCallbacks<Cursor> lc = this;
+        OnNavigationListener onNavigationListener = new OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int position, long itemId) {
+                mCurFilter = mFilterAdapter.getItem(position);
+                Log.i("GroceryListFragment", "Changing filter to: " + mCurFilter);
+                filterAdapterReset();
+                getLoaderManager().restartLoader(0, null, lc);
+                return true;
+            }
+        };
+        actionBar.setListNavigationCallbacks(mFilterAdapter, onNavigationListener);
+
     }
 
     // TODO: Find out how to do this without using a viewbinder for better
@@ -90,10 +128,13 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                 // Delete Button
                 ImageButton deleteButton = (ImageButton) parent
                         .findViewById(R.id.grocery_row_cross_off_button);
+                final ContentValues fullItemValues = GroceryItem
+                        .makeFullContentValuesFromCursor(cursor);
                 final ContentValues itemValues = GroceryItem
                         .makeGenericContentValuesFromCursor(cursor);
                 final String itemName = itemValues.getAsString(GroceryItems.ITEMNAME);
-                final String rowIndex = itemValues.getAsString(GroceryItems.ROWINDEX);
+                final String rowIndex = fullItemValues.getAsString(GroceryItems.ROWINDEX);
+                final String storesAsCSV = itemValues.getAsString(GroceryItems.STORE);
                 deleteButton.setOnClickListener(new OnClickListener()
                 {
                     @Override
@@ -117,13 +158,13 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
 
                                 getActivity().getContentResolver().insert(
                                         RecentItems.CONTENT_URI, itemValues);
+                                filterAdapterReset();
                             }
                         }, 285);
                     }
                 });
 
                 // Dropdown button
-                final ContentValues fullItemValues = GroceryItem.makeFullContentValuesFromCursor(cursor);
                 ImageButton dropDownButton = (ImageButton) parent
                         .findViewById(R.id.grocery_row_dropdown);
                 // registerForContextMenu(dropDownButton);
@@ -143,10 +184,37 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                         return true;
                     }
                 });
+
+                // Add store to FilterSpinner
+                filterAdapterAdd(storesAsCSV);
                 return true;
             }
             return false;
         }
+    }
+    
+    private void filterAdapterAdd(String storesAsCSV)
+    {
+        for (String store : storesAsCSV.split(","))
+        {
+            store = store.trim();
+            if (store.length() > 0 && mFilterAdapter.getPosition(store) == -1)
+            {
+                // Doesn't exist, add to ArrayAdapter
+                mFilterAdapter.add(store);
+            }
+        }
+    }
+    
+    private void filterAdapterReset()
+    {
+        if(mCurFilter.equals(ALL_STORES))
+        {
+            //On All Stores, reset the adapter
+            mFilterAdapter.clear();
+            mFilterAdapter.add(ALL_STORES);
+        }
+        //Not on All Stores, keep existing adapter
     }
 
     private void showOptionsDialog(final ContentValues values)
@@ -167,22 +235,36 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection =
+        CursorLoader cursorLoader;
+        if (mCurFilter != null && !mCurFilter.equals(ALL_STORES))
         {
-                GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
-                GroceryItems.STORE,
-                GroceryItems.CATEGORY, GroceryItems.ROWINDEX
-        };
-
-        CursorLoader cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI,
-                projection, null, null,
-                null);
+            // Apply filter
+            cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI,
+                    mGroceryItemProjection, GroceryItems.STORE + "=?", new String[] {
+                            mCurFilter
+                    },
+                    null);
+        }
+        else
+        {
+            // No filter
+            cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI,
+                    mGroceryItemProjection, null, null,
+                    null);
+        }
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
+
+        // The list should now be shown.
+        if (isResumed()) {
+            setListShown(true);
+        } else {
+            setListShownNoAnimation(true);
+        }
     }
 
     @Override

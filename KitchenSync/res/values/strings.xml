@@ -33,7 +33,7 @@
     <string name="small">Small</string>
     <string name="medium">Medium</string>
     <string name="large">Large</string>
-<!--     Settings Menu -->
+    <!-- Settings Menu -->
     <string name="settings_google_doc_sync_title">Google Docs Sync</string>
     <string name="settings_google_doc_sync_on">Syncing On</string>
     <string name="settings_google_doc_sync_off">Syncing Off</string>
@@ -48,6 +48,4 @@
         <item>@string/light</item>
         <item>@string/dark</item>
     </string-array>
-
-    
 </resources>
