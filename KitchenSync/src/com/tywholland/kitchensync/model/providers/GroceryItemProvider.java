@@ -61,7 +61,8 @@ public class GroceryItemProvider extends ContentProvider
                         whereArgs[0]
                 });
                 // Sync with google docs
-                if (isGoogleDocsEnabled() && whereArgs.length >= 2 && whereArgs[1] != null && whereArgs[1].length() > 0)
+                if (isGoogleDocsEnabled() && whereArgs.length >= 2 && whereArgs[1] != null
+                        && whereArgs[1].length() > 0)
                 {
                     ContentValues values = new ContentValues();
                     values.put(GroceryItems.ROWINDEX, whereArgs[1]);
@@ -213,7 +214,7 @@ public class GroceryItemProvider extends ContentProvider
         switch (sUriMatcher.match(uri))
         {
             case GROCERYITEMS:
-                Log.i(TAG, "Querying a grocery item");
+                // Log.i(TAG, "Querying a grocery item");
                 qb.setTables(GROCERYITEMS_TABLE_NAME);
                 qb.setProjectionMap(groceryItemProjectionMap);
                 cursor = qb.query(dbHelper.getReadableDatabase(), projection, selection,
@@ -222,7 +223,7 @@ public class GroceryItemProvider extends ContentProvider
                 break;
 
             case RECENTITEMS:
-                Log.i(TAG, "Querying a recent item");
+                // Log.i(TAG, "Querying a recent item");
                 SQLiteDatabase db = dbHelper.getReadableDatabase();
                 String query = "SELECT * FROM " + RECENTITEMS_TABLE_NAME
                         + " WHERE NOT EXISTS (SELECT * FROM "
@@ -294,65 +295,72 @@ public class GroceryItemProvider extends ContentProvider
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
                 // Grab all data
                 HashMap<String, GroceryItem> googleDocsData = gdocsHelper.getGroceryListMap();
-                ArrayList<GroceryItem> sqlData = getSqlData();
-                // Go through every entry in sql:
-                // If it has a rowindex, see if it is in googleDocsData. If it
-                // is, update it. If it is not, delete it. Remove item from
-                // googleDocsData
-                // Add remaining googleDocsData to sql
-                for (GroceryItem item : sqlData)
+                if (googleDocsData != null)
                 {
-                    if (item.getRowIndex().length() > 0)
+                    ArrayList<GroceryItem> sqlData = getSqlData();
+                    // Go through every entry in sql:
+                    // If it has a rowindex, see if it is in googleDocsData. If
+                    // it
+                    // is, update it. If it is not, delete it. Remove item from
+                    // googleDocsData
+                    // Add remaining googleDocsData to sql
+                    for (GroceryItem item : sqlData)
                     {
-                        String itemName = item.getItemName();
-                        if (googleDocsData.containsKey(itemName))
+                        if (item.getRowIndex().length() > 0)
                         {
-                            Log.i("GroceryItemProvider", "GoogleDocsSync: updating " + itemName
-                                    + " in sql");
-                            db.updateWithOnConflict(GROCERYITEMS_TABLE_NAME,
-                                    GroceryItemUtil.makeContentValuesFromGroceryItem(googleDocsData
-                                            .get(itemName)), GroceryItems.ITEMNAME + "=?",
-                                    new String[] {
-                                        itemName
-                                    }, SQLiteDatabase.CONFLICT_REPLACE);
+                            String itemName = item.getItemName();
+                            if (googleDocsData.containsKey(itemName))
+                            {
+                                Log.i("GroceryItemProvider", "GoogleDocsSync: updating " + itemName
+                                        + " in sql");
+                                db.updateWithOnConflict(GROCERYITEMS_TABLE_NAME,
+                                        GroceryItemUtil
+                                                .makeContentValuesFromGroceryItem(googleDocsData
+                                                        .get(itemName)), GroceryItems.ITEMNAME
+                                                + "=?",
+                                        new String[] {
+                                            itemName
+                                        }, SQLiteDatabase.CONFLICT_REPLACE);
+                            }
+                            else
+                            {
+                                Log.i("GroceryItemProvider", "GoogleDocsSync: deleting " + itemName
+                                        + " in sql");
+                                // It was deleted on google docs, remove from
+                                // sql
+                                db.delete(GROCERYITEMS_TABLE_NAME, GroceryItems.ITEMNAME + "=?",
+                                        new String[] {
+                                            itemName
+                                        });
+                                // Add to recent items
+                                ContentValues recentValues = GroceryItemUtil
+                                        .makeContentValuesFromGroceryItem(item);
+                                recentValues.remove(GroceryItems.ROWINDEX);
+                                insert(RecentItems.CONTENT_URI, recentValues);
+                            }
+                            // Remove from googleDocsData so we don't add it at
+                            // the
+                            // end
+                            googleDocsData.remove(itemName);
                         }
                         else
                         {
-                            Log.i("GroceryItemProvider", "GoogleDocsSync: deleting " + itemName
-                                    + " in sql");
-                            // It was deleted on google docs, remove from sql
-                            db.delete(GROCERYITEMS_TABLE_NAME, GroceryItems.ITEMNAME + "=?",
-                                    new String[] {
-                                        itemName
-                                    });
-                            // Add to recent items
-                            ContentValues recentValues = GroceryItemUtil
-                                    .makeContentValuesFromGroceryItem(item);
-                            recentValues.remove(GroceryItems.ROWINDEX);
-                            db.insert(RECENTITEMS_TABLE_NAME, null,
-                                    recentValues);
+                            gdocsHelper.addGroceryItem(GroceryItemUtil
+                                    .makeContentValuesFromGroceryItem(item));
                         }
-                        // Remove from googleDocsData so we don't add it at the
-                        // end
-                        googleDocsData.remove(itemName);
                     }
-                    else
+                    for (GroceryItem itemToAdd : googleDocsData.values())
                     {
-                        gdocsHelper.addGroceryItem(GroceryItemUtil
-                                .makeContentValuesFromGroceryItem(item));
+                        Log.i("GroceryItemProvider", "GoogleDocsSync: inserting row into sql");
+                        db.insert(GROCERYITEMS_TABLE_NAME, null,
+                                GroceryItemUtil.makeContentValuesFromGroceryItem(itemToAdd));
                     }
+                    Log.i("GroceryItemProvider", "GoogleDocsSync: about to notify change");
+                    getContext().getContentResolver().notifyChange(GroceryItems.CONTENT_URI, null);
+                    // Log.i("GroceryItemProvider",
+                    // "GoogleDocsSync: about to close database");
+                    // db.close();
                 }
-                for (GroceryItem itemToAdd : googleDocsData.values())
-                {
-                    Log.i("GroceryItemProvider", "GoogleDocsSync: inserting row into sql");
-                    db.insert(GROCERYITEMS_TABLE_NAME, null,
-                            GroceryItemUtil.makeContentValuesFromGroceryItem(itemToAdd));
-                }
-                Log.i("GroceryItemProvider", "GoogleDocsSync: about to notify change");
-                getContext().getContentResolver().notifyChange(GroceryItems.CONTENT_URI, null);
-                // Log.i("GroceryItemProvider",
-                // "GoogleDocsSync: about to close database");
-                // db.close();
             }
         }).start();
     }
@@ -396,7 +404,8 @@ public class GroceryItemProvider extends ContentProvider
     {
         sUriMatcher.addURI(AUTHORITY, GROCERYITEMS_TABLE_NAME, GROCERYITEMS);
         sUriMatcher.addURI(AUTHORITY, RECENTITEMS_TABLE_NAME, RECENTITEMS);
-        sUriMatcher.addURI(AUTHORITY, GROCERYITEMS_TABLE_NAME + "/" + GroceryItems.STORE, GROCERYITEMSSTOREQUERY);
+        sUriMatcher.addURI(AUTHORITY, GROCERYITEMS_TABLE_NAME + "/" + GroceryItems.STORE,
+                GROCERYITEMSSTOREQUERY);
 
         groceryItemProjectionMap = new HashMap<String, String>();
         groceryItemProjectionMap.put(GroceryItems.GROCERY_ITEM_ID, GroceryItems.GROCERY_ITEM_ID);

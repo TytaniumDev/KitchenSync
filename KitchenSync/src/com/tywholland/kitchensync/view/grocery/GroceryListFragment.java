@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,16 +22,19 @@ import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import com.tywholland.kitchensync.R;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
@@ -42,9 +46,11 @@ import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockL
 public class GroceryListFragment extends RoboSherlockListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final int GROCERY_LIST_LOADER = 0x01;
-    private static final String ALL_STORES = "All Stores"; 
+    private static final String ALL_STORES = "All Stores";
+    private static final String PREFS_FILTER = "curfilter";
 
     private SimpleCursorAdapter mAdapter;
+    private Spinner mSpinner;
     private String mCurFilter;
     private final String[] mGroceryItemProjection =
     {
@@ -53,14 +59,14 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
             GroceryItems.CATEGORY, GroceryItems.ROWINDEX
     };
     private ArrayAdapter<String> mFilterAdapter;
-    
+    private Multiset<String> mStoreBag;
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        // TODO: Change this to load last filter from sharedprefs
-        mCurFilter = ALL_STORES;
+
         String[] uiBindFrom =
         {
                 GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE,
@@ -81,27 +87,6 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
         setListAdapter(mAdapter);
         setListShown(false);
         getLoaderManager().initLoader(0, null, this);
-
-        // Spinner stuff for filtering by store
-        ActionBar actionBar = getSherlockActivity().getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        // Filter ArrayAdapter
-        mFilterAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),
-                R.layout.filter_spinner);
-        mFilterAdapter.add(ALL_STORES);
-        // Filter NavigationListener
-        final LoaderCallbacks<Cursor> lc = this;
-        OnNavigationListener onNavigationListener = new OnNavigationListener() {
-            @Override
-            public boolean onNavigationItemSelected(int position, long itemId) {
-                mCurFilter = mFilterAdapter.getItem(position);
-                Log.i("GroceryListFragment", "Changing filter to: " + mCurFilter);
-                filterAdapterReset();
-                getLoaderManager().restartLoader(0, null, lc);
-                return true;
-            }
-        };
-        actionBar.setListNavigationCallbacks(mFilterAdapter, onNavigationListener);
 
     }
 
@@ -158,7 +143,7 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
 
                                 getActivity().getContentResolver().insert(
                                         RecentItems.CONTENT_URI, itemValues);
-                                filterAdapterReset();
+                                removeStores(storesAsCSV);
                             }
                         }, 285);
                     }
@@ -184,37 +169,10 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                         return true;
                     }
                 });
-
-                // Add store to FilterSpinner
-                filterAdapterAdd(storesAsCSV);
                 return true;
             }
             return false;
         }
-    }
-    
-    private void filterAdapterAdd(String storesAsCSV)
-    {
-        for (String store : storesAsCSV.split(","))
-        {
-            store = store.trim();
-            if (store.length() > 0 && mFilterAdapter.getPosition(store) == -1)
-            {
-                // Doesn't exist, add to ArrayAdapter
-                mFilterAdapter.add(store);
-            }
-        }
-    }
-    
-    private void filterAdapterReset()
-    {
-        if(mCurFilter.equals(ALL_STORES))
-        {
-            //On All Stores, reset the adapter
-            mFilterAdapter.clear();
-            mFilterAdapter.add(ALL_STORES);
-        }
-        //Not on All Stores, keep existing adapter
     }
 
     private void showOptionsDialog(final ContentValues values)
@@ -240,8 +198,8 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
         {
             // Apply filter
             cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI,
-                    mGroceryItemProjection, GroceryItems.STORE + "=?", new String[] {
-                            mCurFilter
+                    mGroceryItemProjection, GroceryItems.STORE + " LIKE ?", new String[] {
+                            "%" + mCurFilter + "%"
                     },
                     null);
         }
@@ -288,10 +246,106 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                     {
                         getActivity().getContentResolver().call(GroceryItems.CONTENT_URI,
                                 GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
+                        fillStoreSelectionSpinner();
                     }
                 }, 500);
                 return true;
             }
         });
+        // Grocery store spinner filter stuff
+        mSpinner = (Spinner) menu.findItem(R.id.grocery_list_menu_filter).getActionView();
+        // Get last filter from sharedprefs
+        mCurFilter = getActivity().getPreferences(0).getString(PREFS_FILTER, ALL_STORES);
+        Log.i("GroceryListFragment", "Loaded from sharedprefs, curfilter is: " + mCurFilter);
+
+        // Filter ArrayAdapter
+        mFilterAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),
+                R.layout.filter_spinner);
+        mSpinner.setAdapter(mFilterAdapter);
+        fillStoreSelectionSpinner();
+        final LoaderCallbacks<Cursor> lc = this;
+        mSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                mCurFilter = mFilterAdapter.getItem(position);
+                Log.i("GroceryListFragment",
+                        "Filter item selected, setting current filter to: "
+                                + mCurFilter);
+                getLoaderManager().restartLoader(0, null, lc);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+                Log.i("GroceryListFragment", "Nothing selected for some reason?");
+            }
+        });
+
+    }
+
+    private void fillStoreSelectionSpinner()
+    {
+        mStoreBag = HashMultiset.create();
+        mFilterAdapter.clear();
+        mFilterAdapter.add(ALL_STORES);
+        // Set spinner items
+        Cursor c = getActivity().getContentResolver().query(GroceryItems.CONTENT_URI, new String[] {
+                GroceryItems.GROCERY_ITEM_ID, GroceryItems.STORE
+        }, null, null, null);
+        while (c.moveToNext())
+        {
+            // Add store to FilterSpinner
+            filterAdapterAdd(c.getString(c.getColumnIndexOrThrow(GroceryItems.STORE)));
+        }
+        // Set to last selected store
+        Log.i("GroceryListFragment", "mFilteAdapter size is: " + mFilterAdapter.getCount());
+        int position = mFilterAdapter.getPosition(mCurFilter);
+        Log.i("GroceryListFragment", "Trying to set spinner position to " + mCurFilter
+                + ", is: " + position);
+        if (position != -1)
+        {
+            mSpinner.setSelection(position);
+        }
+    }
+
+    private void filterAdapterAdd(String storesAsCSV)
+    {
+        for (String store : storesAsCSV.split(","))
+        {
+            store = store.trim();
+            // Add to bag always
+            mStoreBag.add(store);
+            if (store.length() > 0 && mFilterAdapter.getPosition(store) == -1)
+            {
+                // Doesn't exist, add to ArrayAdapter
+                mFilterAdapter.add(store);
+            }
+        }
+    }
+
+    private void removeStores(String storesAsCSV)
+    {
+        for (String store : storesAsCSV.split(","))
+        {
+            store = store.trim();
+            mStoreBag.remove(store);
+            if (mStoreBag.count(store) <= 0)
+            {
+                Log.i("GroceryListFragment", "Removing " + store + " from spinner");
+                mFilterAdapter.remove(store);
+                // Reset to All Stores
+                mSpinner.setSelection(0);
+            }
+        }
+    }
+
+    @Override
+    public void onDestroyOptionsMenu() {
+        super.onDestroyOptionsMenu();
+        // Save spinner state to sharedprefs
+        SharedPreferences.Editor editor = getActivity().getPreferences(0).edit();
+        editor.putString(PREFS_FILTER, mCurFilter);
+        editor.commit();
+        Log.i("GroceryListFragment", "Saving current filter, is: " + mCurFilter);
     }
 }

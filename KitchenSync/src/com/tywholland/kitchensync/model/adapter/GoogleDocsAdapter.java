@@ -41,67 +41,78 @@ public class GoogleDocsAdapter
         mAndroidAuth = auth;
         initGoogleDocs();
     }
-    
+
     private void initGoogleDocs()
     {
-        new Thread(new Runnable() {
+        new InitGoogleDocsTask().execute();
+    }
 
-            @Override
-            public void run() {
-                newDocument = false;
-                SpreadSheetFactory ssf = SpreadSheetFactory.getInstance(mAndroidAuth);
-                if (mAndroidAuth.getAuthToken("wise") != null)
+    private class InitGoogleDocsTask extends AsyncTask<Void, Void, Void>
+    {
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            newDocument = false;
+            SpreadSheetFactory ssf = SpreadSheetFactory.getInstance(mAndroidAuth);
+            if (mAndroidAuth.getAuthToken("wise") != null)
+            {
+                Log.i(tag, "Got ssf");
+                ArrayList<SpreadSheet> ssList = ssf.getSpreadSheet(GROCERY_LIST_DOC_NAME, true);
+                Log.i(tag, "Got sslist");
+                // Check for spreadsheet
+                if (ssList == null || ssList.size() == 0)
                 {
-                    Log.i(tag, "Got ssf");
-                    ArrayList<SpreadSheet> ssList = ssf.getSpreadSheet(GROCERY_LIST_DOC_NAME, true);
-                    Log.i(tag, "Got sslist");
-                    // Check for spreadsheet
-                    if (ssList == null || ssList.size() == 0)
-                    {
-                        Log.i(tag, "SpreadSheet " + GROCERY_LIST_DOC_NAME + " does not exist");
-                        // Create spreadsheet
-                        ssf.createSpreadSheet(GROCERY_LIST_DOC_NAME);
-                        ssList = ssf.getSpreadSheet(GROCERY_LIST_DOC_NAME, true);
-                        newDocument = true;
-                    }
-                    SpreadSheet ss = ssList.get(0);
-                    Log.i(tag, "Got ss");
-                    ArrayList<WorkSheet> wsList = ss.getAllWorkSheets();
+                    Log.i(tag, "SpreadSheet " + GROCERY_LIST_DOC_NAME + " does not exist");
+                    // Create spreadsheet
+                    ssf.createSpreadSheet(GROCERY_LIST_DOC_NAME);
+                    ssList = ssf.getSpreadSheet(GROCERY_LIST_DOC_NAME, true);
+                    newDocument = true;
+                }
+                SpreadSheet ss = ssList.get(0);
+                Log.i(tag, "Got ss");
+                ArrayList<WorkSheet> wsList = ss.getAllWorkSheets();
+                Log.i(tag, "Got wslist");
+                worksheet = wsList.get(0);
+                Log.i(tag, "Got worksheet: " + worksheet.getTitle());
+                if (!worksheet.getTitle().equals(GROCERY_LIST_DOC_NAME))
+                {
+                    newDocument = true;
+                }
+                if (newDocument)
+                {
+                    Log.i(tag, "Adding new worksheet");
+                    // Create worksheet
+                    ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
+                    // Remove old default worksheet
+                    ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
+//                    Log.i(tag, "Columns: " + ss.getAllWorkSheets().get(0).getColumns());
+                    wsList = ss.getAllWorkSheets();
                     Log.i(tag, "Got wslist");
                     worksheet = wsList.get(0);
                     Log.i(tag, "Got worksheet: " + worksheet.getTitle());
-                    if(!worksheet.getTitle().equals(GROCERY_LIST_DOC_NAME))
-                    {
-                        newDocument = true;
-                    }
-                    if (newDocument)
-                    {
-                        Log.i(tag, "Adding new worksheet");
-                        // Create worksheet
-                        ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
-                        // Remove old default worksheet
-                        ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
-                        Log.i(tag, "Columns: " + ss.getAllWorkSheets().get(0).getColumns());
-                        wsList = ss.getAllWorkSheets();
-                        Log.i(tag, "Got wslist");
-                        worksheet = wsList.get(0);
-                        Log.i(tag, "Got worksheet: " + worksheet.getTitle());
-                    }
-                    spreadsheetKey = ss.getKey();
-                    Log.i(tag, "Got ss key");
-                    connected = true;
-                    mContentResolver.call(GroceryItems.CONTENT_URI,
-                            GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
                 }
+                spreadsheetKey = ss.getKey();
+                Log.i(tag, "Got ss key");
+                connected = true;
             }
-        }).start();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            mContentResolver.call(GroceryItems.CONTENT_URI,
+                    GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
+        }
+
     }
 
     public HashMap<String, GroceryItem> getGroceryListMap()
     {
-        HashMap<String, GroceryItem> map = new HashMap<String, GroceryItem>();
+        HashMap<String, GroceryItem> map = null;
         if (connected)
         {
+            map = new HashMap<String, GroceryItem>();
             ArrayList<WorkSheetRow> rows = worksheet.getData(false);
             for (WorkSheetRow row : rows)
             {
@@ -213,7 +224,6 @@ public class GoogleDocsAdapter
         for (WorkSheetCell cell : cells)
         {
             name = cell.getName();
-            Log.i(tag, "Cell name: " + name);
             if (name.equals(GroceryItems.ITEMNAME))
             {
                 item.setItemName(cell.getValue());
