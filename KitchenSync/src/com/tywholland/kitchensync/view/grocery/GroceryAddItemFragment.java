@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.tywholland.kitchensync.R;
+import com.tywholland.kitchensync.model.KitchenSyncApplication;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
 
@@ -52,7 +53,8 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
                 values.put(GroceryItems.STORE, mStore.getText().toString());
                 values.put(GroceryItems.CATEGORY, mCategory.getText().toString());
                 values.put(GroceryItems.ROWINDEX, "");
-                getActivity().getContentResolver().insert(GroceryItems.CONTENT_URI, values);
+                ((KitchenSyncApplication) getActivity().getApplication())
+                .getGoogleDocsProviderWrapper().insert(GroceryItems.CONTENT_URI, values);
                 getActivity().getContentResolver().notifyChange(
                         RecentItems.CONTENT_URI, null);
                 // Reset text fields

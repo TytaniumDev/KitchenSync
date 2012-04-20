@@ -36,10 +36,10 @@ import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.tywholland.kitchensync.R;
+import com.tywholland.kitchensync.model.KitchenSyncApplication;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
-import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
 
 import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockListFragment;
 
@@ -134,18 +134,20 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                         {
                             public void run()
                             {
-                                getActivity().getContentResolver().delete(
-                                        GroceryItems.CONTENT_URI,
-                                        GroceryItems.ITEMNAME + "=?", new String[]
-                                        {
-                                                itemName, rowIndex
-                                        });
+                                ((KitchenSyncApplication) getActivity().getApplication())
+                                        .getGoogleDocsProviderWrapper().delete(
+                                                GroceryItems.CONTENT_URI,
+                                                GroceryItems.ITEMNAME + "=?", new String[]
+                                                {
+                                                        itemName
+                                                }, rowIndex);
 
-                                getActivity().getContentResolver().insert(
+                                ((KitchenSyncApplication) getActivity().getApplication())
+                                .getGoogleDocsProviderWrapper().insert(
                                         RecentItems.CONTENT_URI, itemValues);
                                 removeStores(storesAsCSV);
                             }
-                        }, 285);
+                        }, anim.getDuration() - 15);
                     }
                 });
 
@@ -244,11 +246,11 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
                 {
                     public void run()
                     {
-                        getActivity().getContentResolver().call(GroceryItems.CONTENT_URI,
-                                GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
+                        ((KitchenSyncApplication) getActivity().getApplication())
+                        .getGoogleDocsProviderWrapper().syncWithGoogleDocs();
                         fillStoreSelectionSpinner();
                     }
-                }, 500);
+                }, 150);
                 return true;
             }
         });
@@ -289,7 +291,8 @@ public class GroceryListFragment extends RoboSherlockListFragment implements
         mFilterAdapter.clear();
         mFilterAdapter.add(ALL_STORES);
         // Set spinner items
-        Cursor c = getActivity().getContentResolver().query(GroceryItems.CONTENT_URI, new String[] {
+        Cursor c = ((KitchenSyncApplication) getActivity().getApplication())
+                .getGoogleDocsProviderWrapper().query(GroceryItems.CONTENT_URI, new String[] {
                 GroceryItems.GROCERY_ITEM_ID, GroceryItems.STORE
         }, null, null, null);
         while (c.moveToNext())

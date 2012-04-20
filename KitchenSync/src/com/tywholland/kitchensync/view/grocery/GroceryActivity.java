@@ -3,21 +3,15 @@ package com.tywholland.kitchensync.view.grocery;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.support.v4.view.ViewPager;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.tywholland.kitchensync.R;
 import com.tywholland.kitchensync.model.KitchenSyncApplication;
 import com.tywholland.kitchensync.view.KitchenSyncFragmentActivity;
 import com.tywholland.kitchensync.view.home.HomeActivity;
 import com.viewpagerindicator.TabPageIndicator;
-import com.viewpagerindicator.TitlePageIndicator;
-import com.viewpagerindicator.TitlePageIndicator.IndicatorStyle;
 
-import other.com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
@@ -41,6 +35,7 @@ public class GroceryActivity extends KitchenSyncFragmentActivity
         pager.setAdapter(adapter);
         indicator.setViewPager(pager);
         pager.setCurrentItem(1);
+        
     }
 
     @Override

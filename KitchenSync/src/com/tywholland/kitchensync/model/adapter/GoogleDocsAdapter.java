@@ -1,9 +1,9 @@
 
 package com.tywholland.kitchensync.model.adapter;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.util.Log;
 
 import com.pras.SpreadSheet;
@@ -13,7 +13,7 @@ import com.pras.WorkSheetCell;
 import com.pras.WorkSheetRow;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
-import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
+import com.tywholland.kitchensync.model.providers.GoogleDocsProviderWrapper;
 import com.tywholland.kitchensync.util.AndroidAuthenticator;
 
 import java.util.ArrayList;
@@ -31,19 +31,21 @@ public class GoogleDocsAdapter
     private WorkSheet worksheet;
     private String spreadsheetKey;
     private boolean newDocument = false;
-    private final ContentResolver mContentResolver;
+    private final GoogleDocsProviderWrapper mProvider;
     private final AndroidAuthenticator mAndroidAuth;
     private boolean connected = false;
 
-    public GoogleDocsAdapter(AndroidAuthenticator auth, ContentResolver contentResolver)
+    public GoogleDocsAdapter(AndroidAuthenticator auth,
+            GoogleDocsProviderWrapper googleDocsProviderWrapper)
     {
-        mContentResolver = contentResolver;
+        mProvider = googleDocsProviderWrapper;
         mAndroidAuth = auth;
         initGoogleDocs();
     }
 
     private void initGoogleDocs()
     {
+        Looper.prepare();
         new InitGoogleDocsTask().execute();
     }
 
@@ -85,7 +87,8 @@ public class GoogleDocsAdapter
                     ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
                     // Remove old default worksheet
                     ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
-//                    Log.i(tag, "Columns: " + ss.getAllWorkSheets().get(0).getColumns());
+                    // Log.i(tag, "Columns: " +
+                    // ss.getAllWorkSheets().get(0).getColumns());
                     wsList = ss.getAllWorkSheets();
                     Log.i(tag, "Got wslist");
                     worksheet = wsList.get(0);
@@ -101,8 +104,7 @@ public class GoogleDocsAdapter
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            mContentResolver.call(GroceryItems.CONTENT_URI,
-                    GroceryItemProvider.SYNC_WITH_GOOGLE_DOCS_CALL, null, null);
+            mProvider.syncWithGoogleDocs();
         }
 
     }
@@ -158,7 +160,7 @@ public class GoogleDocsAdapter
             if (result != null && result.getRowIndex() != null) {
                 super.onPostExecute(result);
                 values.put(GroceryItems.ROWINDEX, result.getRowIndex());
-                mContentResolver.update(GroceryItems.CONTENT_URI,
+                mProvider.update(GroceryItems.CONTENT_URI,
                         values, GroceryItems.ITEMNAME
                                 + "=?", new String[] {
                             values.getAsString(GroceryItems.ITEMNAME)

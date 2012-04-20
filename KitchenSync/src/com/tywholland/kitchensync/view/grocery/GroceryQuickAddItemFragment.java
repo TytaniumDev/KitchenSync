@@ -19,6 +19,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 
 import com.tywholland.kitchensync.R;
+import com.tywholland.kitchensync.model.KitchenSyncApplication;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
@@ -88,7 +89,8 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
                             {
                                 public void run()
                                 {
-                                    getActivity().getContentResolver().insert(
+                                    ((KitchenSyncApplication) getActivity().getApplication())
+                                    .getGoogleDocsProviderWrapper().insert(
                                             GroceryItems.CONTENT_URI, values);
                                     getActivity().getContentResolver().notifyChange(
                                             RecentItems.CONTENT_URI, null);

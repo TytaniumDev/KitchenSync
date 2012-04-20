@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.tywholland.kitchensync.R;
+import com.tywholland.kitchensync.model.KitchenSyncApplication;
 import com.tywholland.kitchensync.model.grocery.GroceryItem;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
 
@@ -53,7 +54,8 @@ public class GroceryEditItemActivity extends RoboSherlockActivity{
             @Override
             public void onClick(View v) {
                 getNewValues();
-                getContentResolver().update(GroceryItems.CONTENT_URI, mNewValues, GroceryItems.GROCERY_ITEM_ID + "=?", new String[] {mNewValues.getAsString(GroceryItems.GROCERY_ITEM_ID)});
+                ((KitchenSyncApplication) getApplication())
+                .getGoogleDocsProviderWrapper().update(GroceryItems.CONTENT_URI, mNewValues, GroceryItems.GROCERY_ITEM_ID + "=?", new String[] {mNewValues.getAsString(GroceryItems.GROCERY_ITEM_ID)});
                 finish();
             }
         });
