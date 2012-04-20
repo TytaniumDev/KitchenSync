@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ViewAnimator;
 import android.widget.ViewFlipper;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;

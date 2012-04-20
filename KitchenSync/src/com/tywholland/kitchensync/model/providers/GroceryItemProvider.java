@@ -195,13 +195,6 @@ public class GroceryItemProvider extends ContentProvider
     public boolean onCreate()
     {
         dbHelper = new GroceryListDatabase(getContext());
-        // if (isNetworkAvailable())
-        // {
-        // gdocsHelper = new GoogleDocsAdapter(new
-        // AndroidAuthenticator(getContext()),
-        // getContext()
-        // .getContentResolver());
-        // }
         return true;
     }
 
@@ -284,6 +277,8 @@ public class GroceryItemProvider extends ContentProvider
         }
         return super.call(method, arg, extras);
     }
+    
+    
 
     private void syncWithGoogleDocs()
     {
@@ -365,7 +360,7 @@ public class GroceryItemProvider extends ContentProvider
         }).start();
     }
 
-    private void setAndroidAuth(AndroidAuthenticator auth)
+    public void setAndroidAuth(AndroidAuthenticator auth)
     {
         if (auth.getAuthToken("wise") != null)
         {

@@ -3,6 +3,8 @@ package com.tywholland.kitchensync.model;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.os.Bundle;
 
 import com.pras.SpreadSheetFactory;
@@ -39,9 +41,20 @@ public class KitchenSyncApplication extends Application
                 factory.getAllSpreadSheets();
                 Bundle auth = new Bundle();
                 auth.putSerializable(ANDROID_AUTH, mAuth);
-                getContentResolver().call(GroceryItems.CONTENT_URI,
-                        GroceryItemProvider.SET_ANDROID_AUTH_CALL, null,
-                        auth);
+                if(android.os.Build.VERSION.SDK_INT >= 11)
+                {
+                    getContentResolver().call(GroceryItems.CONTENT_URI,
+                            GroceryItemProvider.SET_ANDROID_AUTH_CALL, null,
+                            auth);
+                }
+                else
+                {
+                    //GROSS STUFF
+                    //Use startSync instead of call(SET_ANDROID_AUTH_CALL)
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable(ANDROID_AUTH, auth);
+                    getContentResolver().startSync(GroceryItems.CONTENT_URI, bundle);
+                }
             }
         }).start();
     }
