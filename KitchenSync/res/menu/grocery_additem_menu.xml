@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
         android:id="@+id/grocery_additem_menu_switch"
-        android:icon="@drawable/ic_action_switchview"
+        android:icon="@drawable/ic_menu_agenda"
         android:showAsAction="always"
         android:title="@string/switch_to_quick_add"/>
 </menu>

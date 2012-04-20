@@ -11,7 +11,7 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/crossed_off_button_description"
         android:padding="8dp"
-        android:src="@drawable/ic_action_delete" />
+        android:src="@drawable/ic_clear_search_api_holo_light" />
     <TextView
         android:id="@+id/grocery_row_item_name"
         android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/currently_syncing_description"
         android:padding="8dp"
-        android:src="@drawable/ic_action_out_of_sync" />
+        android:src="@drawable/ic_dialog_alert_holo_light" />
     <ImageButton 
         android:id="@+id/grocery_row_dropdown"
         android:layout_width="wrap_content"
