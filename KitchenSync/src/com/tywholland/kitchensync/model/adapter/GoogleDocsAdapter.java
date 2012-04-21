@@ -23,9 +23,10 @@ public class GoogleDocsAdapter
 {
     private static final String GROCERY_LIST_DOC_NAME = "Kitchen Sync Grocery List";
     private static final String tag = "GoogleDocsAdapter";
+    private static final String SKIP_ROWS_WARNING = "WARNING: Syncing stops at first blank row. Please do not leave blank rows between items.";
     private static final String[] columns =
     {
-            "Item Name", "Amount", "Store", "Category"
+            "Item Name", "Amount", "Store", "Category", SKIP_ROWS_WARNING
     };
 
     private WorkSheet worksheet;
@@ -75,6 +76,7 @@ public class GoogleDocsAdapter
                 ArrayList<WorkSheet> wsList = ss.getAllWorkSheets();
                 Log.i(tag, "Got wslist");
                 worksheet = wsList.get(0);
+                Log.i(tag, "Number of rows: " + worksheet.getRowCount());
                 Log.i(tag, "Got worksheet: " + worksheet.getTitle());
                 if (!worksheet.getTitle().equals(GROCERY_LIST_DOC_NAME))
                 {
@@ -94,11 +96,50 @@ public class GoogleDocsAdapter
                     worksheet = wsList.get(0);
                     Log.i(tag, "Got worksheet: " + worksheet.getTitle());
                 }
+                //Add warning column
+                if(worksheet.getColCount() < columns.length)
+                {
+                    Log.i(tag, "Adding skip rows warning to gdoc");
+                    ArrayList<WorkSheetRow> olddata = worksheet.getData(false);
+                    ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
+                    ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
+                    worksheet = ss.getAllWorkSheets().get(0);
+                    for(WorkSheetRow row : olddata)
+                    {
+                        worksheet.addListRow(convertWorkSheetRowToRecord(row));
+                    }
+                }
                 spreadsheetKey = ss.getKey();
                 Log.i(tag, "Got ss key");
                 connected = true;
             }
             return null;
+        }
+
+        private HashMap<String, String> convertWorkSheetRowToRecord(WorkSheetRow row) {
+            HashMap<String, String> map = new HashMap<String, String>();
+            String name;
+            for (WorkSheetCell cell : row.getCells())
+            {
+                name = cell.getName();
+                if (name.equals(GroceryItems.ITEMNAME))
+                {
+                    map.put(GroceryItems.ITEMNAME, (cell.getValue()));
+                }
+                else if (name.equals(GroceryItems.AMOUNT))
+                {
+                    map.put(GroceryItems.AMOUNT, (cell.getValue()));
+                }
+                else if (name.equals(GroceryItems.STORE))
+                {
+                    map.put(GroceryItems.STORE, (cell.getValue()));
+                }
+                else if (name.equals(GroceryItems.CATEGORY))
+                {
+                    map.put(GroceryItems.CATEGORY, (cell.getValue()));
+                }
+            }
+            return map;
         }
 
         @Override
