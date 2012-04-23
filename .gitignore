@@ -7,6 +7,8 @@ testingKeystore
 # Java class files
 *.class
 
+# Market APK
+*.apk
 
 # generated files
 bin/
