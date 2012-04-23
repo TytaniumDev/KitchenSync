@@ -12,9 +12,11 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
+import com.tywholland.kitchensync.model.adapter.SQLiteAdapter;
+import com.tywholland.kitchensync.model.grocery.GroceryItem.Categories;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.GroceryItems;
 import com.tywholland.kitchensync.model.grocery.GroceryItem.RecentItems;
-import com.tywholland.kitchensync.model.grocery.GroceryListDatabase;
+import com.tywholland.kitchensync.model.grocery.GroceryItem.Stores;
 
 import java.util.HashMap;
 
@@ -26,14 +28,16 @@ public class GroceryItemProvider extends ContentProvider
     public static final String SET_ANDROID_AUTH_CALL = "setAndroidAuth";
     public static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     public static final int GROCERYITEMS = 100;
-    public static final int GROCERYITEMSSTOREQUERY = 120;
     public static final int RECENTITEMS = 110;
-    public static final String GROCERYITEMS_TABLE_NAME = GroceryListDatabase.TABLE_GROCERY;
-    public static final String RECENTITEMS_TABLE_NAME = GroceryListDatabase.TABLE_RECENT;
+    public static final int STORES = 120;
+    public static final int CATEGORIES = 130;
+    public static final String GROCERYITEMS_TABLE_NAME = SQLiteAdapter.TABLE_GROCERY;
+    public static final String RECENTITEMS_TABLE_NAME = SQLiteAdapter.TABLE_RECENT;
+    public static final String STORES_TABLE_NAME = SQLiteAdapter.TABLE_STORES;
+    public static final String CATEGORIES_TABLE_NAME = SQLiteAdapter.TABLE_CATEGORIES;
 
     private static HashMap<String, String> groceryItemProjectionMap;
-    private GroceryListDatabase dbHelper;
-    
+    private SQLiteAdapter dbHelper;
 
     @Override
     public int delete(Uri uri, String where, String[] whereArgs)
@@ -154,6 +158,22 @@ public class GroceryItemProvider extends ContentProvider
                     }
                     throw new SQLException("Failed to insert row into " + uri);
 
+                case STORES:
+                    Log.i(TAG, "Inserting a store");
+                    executeIncrementSQL(db, STORES_TABLE_NAME, Stores.FREQUENCY, Stores.STORE,
+                            values.getAsString(Stores.STORE));
+                    Uri storesUri = Stores.CONTENT_URI;
+                    getContext().getContentResolver().notifyChange(storesUri, null);
+                    return storesUri;
+
+                case CATEGORIES:
+                    Log.i(TAG, "Inserting a category");
+                    executeIncrementSQL(db, CATEGORIES_TABLE_NAME, Categories.FREQUENCY,
+                            Categories.CATEGORY, values.getAsString(Categories.CATEGORY));
+                    Uri categoriesUri = Categories.CONTENT_URI;
+                    getContext().getContentResolver().notifyChange(categoriesUri, null);
+                    return categoriesUri;
+
                 default:
                     throw new IllegalArgumentException("Unknown URI " + uri);
             }
@@ -168,7 +188,7 @@ public class GroceryItemProvider extends ContentProvider
     @Override
     public boolean onCreate()
     {
-        dbHelper = new GroceryListDatabase(getContext());
+        dbHelper = new SQLiteAdapter(getContext());
         return true;
     }
 
@@ -223,7 +243,8 @@ public class GroceryItemProvider extends ContentProvider
 
             case RECENTITEMS:
                 Log.i(TAG, "Updating a recent item");
-                count = db.updateWithOnConflict(RECENTITEMS_TABLE_NAME, values, where, whereArgs, SQLiteDatabase.CONFLICT_REPLACE);
+                count = db.updateWithOnConflict(RECENTITEMS_TABLE_NAME, values, where, whereArgs,
+                        SQLiteDatabase.CONFLICT_REPLACE);
                 break;
 
             default:
@@ -238,9 +259,11 @@ public class GroceryItemProvider extends ContentProvider
     {
         sUriMatcher.addURI(AUTHORITY, GROCERYITEMS_TABLE_NAME, GROCERYITEMS);
         sUriMatcher.addURI(AUTHORITY, RECENTITEMS_TABLE_NAME, RECENTITEMS);
+        sUriMatcher.addURI(AUTHORITY, STORES_TABLE_NAME, STORES);
+        sUriMatcher.addURI(AUTHORITY, CATEGORIES_TABLE_NAME, CATEGORIES);
 
         groceryItemProjectionMap = new HashMap<String, String>();
-        groceryItemProjectionMap.put(GroceryItems.GROCERY_ITEM_ID, GroceryItems.GROCERY_ITEM_ID);
+        groceryItemProjectionMap.put(GroceryItems.ITEM_ID, GroceryItems.ITEM_ID);
         groceryItemProjectionMap.put(GroceryItems.ITEMNAME, GroceryItems.ITEMNAME);
         groceryItemProjectionMap.put(GroceryItems.AMOUNT, GroceryItems.AMOUNT);
         groceryItemProjectionMap.put(GroceryItems.STORE, GroceryItems.STORE);
@@ -248,6 +271,7 @@ public class GroceryItemProvider extends ContentProvider
         groceryItemProjectionMap.put(GroceryItems.ROWINDEX, GroceryItems.ROWINDEX);
     }
 
+    // Helper methods
     private boolean doesGroceryItemExist(String tableName, ContentValues values, SQLiteDatabase db)
     {
         String itemname = GroceryItems.ITEMNAME;
@@ -259,5 +283,16 @@ public class GroceryItemProvider extends ContentProvider
                 (String) values.get(itemname)
         }, null, null, null)).getCount() > 0;
 
+    }
+
+    private void executeIncrementSQL(SQLiteDatabase db, String tableName, String columnToIncrement,
+            String uniqueKey, String uniqueKeyValue)
+    {
+        db.execSQL("INSERT OR REPLACE INTO "
+                + tableName
+                + " VALUES (?, COALESCE((SELECT " + columnToIncrement + " FROM " + tableName
+                + "WHERE " + uniqueKey + "=? ), 0) + 1);", new String[] {
+                uniqueKeyValue, uniqueKeyValue
+        });
     }
 }

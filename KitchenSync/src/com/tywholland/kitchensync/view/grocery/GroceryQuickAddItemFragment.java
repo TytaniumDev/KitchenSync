@@ -110,7 +110,7 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
     {
         String[] projection =
         {
-                RecentItems.GROCERY_ITEM_ID, RecentItems.ITEMNAME, RecentItems.AMOUNT,
+                RecentItems.ITEM_ID, RecentItems.ITEMNAME, RecentItems.AMOUNT,
                 RecentItems.STORE, RecentItems.CATEGORY
         };
 

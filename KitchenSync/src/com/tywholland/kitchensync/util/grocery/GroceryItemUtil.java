@@ -91,7 +91,7 @@ public class GroceryItemUtil
 
     private static void setColumnIndicies(Cursor cursor)
     {
-        idColumn = cursor.getColumnIndexOrThrow(GroceryItems.GROCERY_ITEM_ID);
+        idColumn = cursor.getColumnIndexOrThrow(GroceryItems.ITEM_ID);
         itemnameColumn = cursor.getColumnIndexOrThrow(GroceryItems.ITEMNAME);
         amountColumn = cursor.getColumnIndexOrThrow(GroceryItems.AMOUNT);
         storeColumn = cursor.getColumnIndexOrThrow(GroceryItems.STORE);

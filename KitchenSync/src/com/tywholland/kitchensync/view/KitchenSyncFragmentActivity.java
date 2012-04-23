@@ -1,7 +1,6 @@
 package com.tywholland.kitchensync.view;
 
 import android.content.Intent;
-import android.preference.PreferenceActivity;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;

@@ -18,7 +18,6 @@ import com.viewpagerindicator.TitleProvider;
 
 public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements TitleProvider
 {
-    private static final String TAG = "GroceryViewPagerAdapter";
     private String[] titles;
 
     public GroceryViewPagerAdapter(FragmentManager fm)

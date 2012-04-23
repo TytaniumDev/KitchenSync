@@ -58,7 +58,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     private String mCurFilter;
     private final String[] mGroceryItemProjection =
     {
-            GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
+            GroceryItems.ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
             GroceryItems.STORE,
             GroceryItems.CATEGORY, GroceryItems.ROWINDEX
     };
@@ -297,7 +297,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         // Set spinner items
         Cursor c = ((KitchenSyncApplication) getActivity().getApplication())
                 .getGoogleDocsProviderWrapper().query(GroceryItems.CONTENT_URI, new String[] {
-                        GroceryItems.GROCERY_ITEM_ID, GroceryItems.STORE
+                        GroceryItems.ITEM_ID, GroceryItems.STORE
                 }, null, null, null);
         while (c.moveToNext())
         {

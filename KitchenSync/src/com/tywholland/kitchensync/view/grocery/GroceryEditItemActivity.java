@@ -55,7 +55,7 @@ public class GroceryEditItemActivity extends RoboSherlockActivity{
             public void onClick(View v) {
                 getNewValues();
                 ((KitchenSyncApplication) getApplication())
-                .getGoogleDocsProviderWrapper().update(GroceryItems.CONTENT_URI, mNewValues, GroceryItems.GROCERY_ITEM_ID + "=?", new String[] {mNewValues.getAsString(GroceryItems.GROCERY_ITEM_ID)});
+                .getGoogleDocsProviderWrapper().update(GroceryItems.CONTENT_URI, mNewValues, GroceryItems.ITEM_ID + "=?", new String[] {mNewValues.getAsString(GroceryItems.ITEM_ID)});
                 finish();
             }
         });
@@ -74,7 +74,7 @@ public class GroceryEditItemActivity extends RoboSherlockActivity{
         mNewValues.put(GroceryItems.AMOUNT, mAmount.getText().toString());
         mNewValues.put(GroceryItems.STORE, mStore.getText().toString());
         mNewValues.put(GroceryItems.CATEGORY, mCategory.getText().toString());
-        mNewValues.put(GroceryItems.GROCERY_ITEM_ID, mOldValues.getAsInteger(GroceryItems.GROCERY_ITEM_ID));
+        mNewValues.put(GroceryItems.ITEM_ID, mOldValues.getAsInteger(GroceryItems.ITEM_ID));
         mNewValues.put(GroceryItems.ROWINDEX, mOldValues.getAsString(GroceryItems.ROWINDEX));
     }
     

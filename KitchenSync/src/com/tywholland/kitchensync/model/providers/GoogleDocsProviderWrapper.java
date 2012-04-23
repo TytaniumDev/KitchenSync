@@ -191,7 +191,7 @@ public class GoogleDocsProviderWrapper {
         ArrayList<GroceryItem> sqlData = new ArrayList<GroceryItem>();
         String[] projection =
         {
-                GroceryItems.GROCERY_ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
+                GroceryItems.ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
                 GroceryItems.STORE,
                 GroceryItems.CATEGORY, GroceryItems.ROWINDEX
         };

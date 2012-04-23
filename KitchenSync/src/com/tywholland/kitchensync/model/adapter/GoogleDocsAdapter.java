@@ -156,14 +156,28 @@ public class GoogleDocsAdapter
         if (connected)
         {
             map = new HashMap<String, GroceryItem>();
-            ArrayList<WorkSheetRow> rows = worksheet.getData(false);
-            for (WorkSheetRow row : rows)
+            if(worksheet == null)
             {
-                ArrayList<WorkSheetCell> cells = row.getCells();
-                Log.i(tag, "got cells");
-                GroceryItem temp = makeGroceryItemFromCells(cells);
-                temp.setRowIndex(row.getRowIndex());
-                map.put(temp.getItemName(), temp);
+                Log.e(tag, "WARNING: Worksheet is null in getGroceryListMap");
+            }
+            else
+            {
+                ArrayList<WorkSheetRow> rows = worksheet.getData(false);
+                if(rows != null)
+                {
+                    for (WorkSheetRow row : rows)
+                    {
+                        ArrayList<WorkSheetCell> cells = row.getCells();
+                        Log.i(tag, "got cells");
+                        GroceryItem temp = makeGroceryItemFromCells(cells);
+                        temp.setRowIndex(row.getRowIndex());
+                        map.put(temp.getItemName(), temp);
+                    }
+                }
+                else
+                {
+                    Log.e(tag, "WARNING: Worksheet rows are null in getGroceryListMap");
+                }
             }
         }
         return map;

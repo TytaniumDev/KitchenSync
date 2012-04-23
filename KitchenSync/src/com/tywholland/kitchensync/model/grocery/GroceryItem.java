@@ -4,9 +4,9 @@ package com.tywholland.kitchensync.model.grocery;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.storage.StorageManager;
 import android.provider.BaseColumns;
 
+import com.tywholland.kitchensync.model.adapter.SQLiteAdapter;
 import com.tywholland.kitchensync.model.providers.GroceryItemProvider;
 
 public class GroceryItem
@@ -55,7 +55,7 @@ public class GroceryItem
     public static final class GroceryItems implements BaseColumns
     {
         // SQL Columns
-        public static final String GROCERY_ITEM_ID = BaseColumns._ID;
+        public static final String ITEM_ID = BaseColumns._ID;
         public static final String ITEMNAME = "itemname";
         public static final String AMOUNT = "amount";
         public static final String STORE = "store";
@@ -65,24 +65,47 @@ public class GroceryItem
         //Content URIs
         public static final Uri CONTENT_URI = Uri.parse("content://"
                 + GroceryItemProvider.AUTHORITY
-                + "/" + GroceryListDatabase.TABLE_GROCERY);
+                + "/" + SQLiteAdapter.TABLE_GROCERY);
     }
 
     public static final class RecentItems implements BaseColumns
     {
         public static final Uri CONTENT_URI = Uri.parse("content://"
                 + GroceryItemProvider.AUTHORITY
-                + "/" + GroceryListDatabase.TABLE_RECENT);
+                + "/" + SQLiteAdapter.TABLE_RECENT);
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.recentitems";
         // SQL Columns
-        public static final String GROCERY_ITEM_ID = BaseColumns._ID;
+        public static final String ITEM_ID = BaseColumns._ID;
         public static final String ITEMNAME = "itemname";
         public static final String AMOUNT = "amount";
         public static final String STORE = "store";
         public static final String CATEGORY = "category";
         public static final String FREQUENCY = "frequency";
         public static final String TIMESTAMP = "timestamp";
-
+    }
+    
+    public static final class Stores implements BaseColumns
+    {
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + GroceryItemProvider.AUTHORITY
+                + "/" + SQLiteAdapter.TABLE_STORES);
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.stores";
+        // SQL Columns
+        public static final String ITEM_ID = BaseColumns._ID;
+        public static final String STORE = GroceryItems.STORE;
+        public static final String FREQUENCY = RecentItems.FREQUENCY;
+    }
+    
+    public static final class Categories implements BaseColumns
+    {
+        public static final Uri CONTENT_URI = Uri.parse("content://"
+                + GroceryItemProvider.AUTHORITY
+                + "/" + SQLiteAdapter.TABLE_CATEGORIES);
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.tywholland.categories";
+        // SQL Columns
+        public static final String ITEM_ID = BaseColumns._ID;
+        public static final String CATEGORY = GroceryItems.CATEGORY;
+        public static final String FREQUENCY = RecentItems.FREQUENCY;
     }
 
     public static ContentValues makeGenericContentValuesFromCursor(Cursor cursor)
@@ -102,8 +125,8 @@ public class GroceryItem
     public static ContentValues makeFullContentValuesFromCursor(Cursor cursor)
     {
         ContentValues values = makeGenericContentValuesFromCursor(cursor);
-        values.put(GroceryItems.GROCERY_ITEM_ID,
-                cursor.getString(cursor.getColumnIndex(GroceryItems.GROCERY_ITEM_ID)));
+        values.put(GroceryItems.ITEM_ID,
+                cursor.getString(cursor.getColumnIndex(GroceryItems.ITEM_ID)));
         values.put(GroceryItems.ROWINDEX,
                 cursor.getString(cursor.getColumnIndex(GroceryItems.ROWINDEX)));
         return values;

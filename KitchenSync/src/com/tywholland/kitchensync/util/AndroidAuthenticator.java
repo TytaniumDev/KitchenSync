@@ -33,6 +33,9 @@ public class AndroidAuthenticator implements Authenticator, Serializable
         manager = AccountManager.get(context);
     }
 
+    @SuppressWarnings({
+            "deprecation", "rawtypes"
+    })
     public String getAuthToken(String service)
     {
         if (service == null)

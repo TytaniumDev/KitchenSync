@@ -1,14 +1,13 @@
 package com.tywholland.kitchensync.view;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.tywholland.kitchensync.R;
-import com.tywholland.kitchensync.view.home.HomeActivity;
 
 public class PreferencesActivity extends SherlockPreferenceActivity{
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
