@@ -19,7 +19,7 @@ import other.com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockA
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
-@ContentView(R.layout.fragment_add_groceryitem)
+@ContentView(R.layout.activity_edit_item)
 public class GroceryEditItemActivity extends RoboSherlockActivity{
     @InjectView(R.id.grocery_add_item_title) TextView mTitle;
     @InjectView(R.id.grocery_add_item_add_button) Button mButton;

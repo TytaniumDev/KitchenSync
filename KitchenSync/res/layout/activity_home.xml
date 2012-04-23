@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
     android:id="@+id/home_root"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
-
-    <fragment android:name="com.tywholland.kitchensync.view.home.DashboardFragment"
-        android:id="@+id/fragment_dashboard"
+    android:layout_height="fill_parent" >
+    <LinearLayout
+        android:id="@+id/dashboard_container_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+        <fragment
+            android:id="@+id/fragment_dashboard"
+            android:name="com.tywholland.kitchensync.view.home.DashboardFragment"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ad_layout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
-
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="bottom" >
+        <include layout="@layout/adview" />
+    </LinearLayout>
+</RelativeLayout>

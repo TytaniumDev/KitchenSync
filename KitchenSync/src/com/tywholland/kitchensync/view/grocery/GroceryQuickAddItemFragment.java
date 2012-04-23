@@ -35,7 +35,7 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View root = inflater.inflate(R.layout.fragment_quickadd_groceryitem, container, true);
+        View root = inflater.inflate(R.layout.fragment_quickadd_groceryitem, container, false);
 
         ListView listView = (ListView) root.findViewById(R.id.grocery_quickadd_listview);
         String[] uiBindFrom =

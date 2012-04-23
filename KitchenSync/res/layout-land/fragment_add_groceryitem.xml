@@ -28,13 +28,11 @@
                 android:text="@string/grocery_item_name" />
             <EditText
                 android:id="@+id/grocery_add_item_itemname_field"
-                android:layout_width="match_parent"
                 android:layout_weight="1"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:padding="5dip" />
-        </TableRow>
-        <TableRow>
+                android:padding="4dip" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -47,7 +45,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:padding="5dip" />
+                android:padding="4dip" />
         </TableRow>
         <TableRow>
             <TextView
@@ -59,12 +57,10 @@
             <EditText
                 android:id="@+id/grocery_add_item_store_field"
                 android:layout_width="match_parent"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:inputType="text"
                 android:padding="4dip" />
-        </TableRow>
-        <TableRow>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -73,8 +69,8 @@
                 android:text="@string/grocery_category" />
             <EditText
                 android:id="@+id/grocery_add_item_category_field"
-                android:layout_width="match_parent"
                 android:layout_weight="1"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
                 android:padding="4dip" />
