@@ -11,7 +11,7 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/crossed_off_button_description"
         android:padding="8dp"
-        android:src="@drawable/ic_clear_search_api_holo_light" />
+        android:src="@drawable/custom_delete_button" />
     <TextView
         android:id="@+id/grocery_row_item_name"
         android:layout_width="wrap_content"
