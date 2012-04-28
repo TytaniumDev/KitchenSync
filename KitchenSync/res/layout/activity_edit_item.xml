@@ -5,7 +5,7 @@
    <include layout="@layout/fragment_add_groceryitem"
        android:layout_alignParentTop="true"/>
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="bottom" >

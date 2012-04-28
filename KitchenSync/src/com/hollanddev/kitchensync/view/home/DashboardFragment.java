@@ -41,8 +41,8 @@ public class DashboardFragment extends RoboSherlockFragment
             @Override
             public void onClick(View v)
             {
-                startActivity(new Intent(getActivity(), GroceryActivity.class));
-                getActivity().overridePendingTransition(R.anim.slide_to_top_enter,
+                startActivity(new Intent(getSherlockActivity(), GroceryActivity.class));
+                getSherlockActivity().overridePendingTransition(R.anim.slide_to_top_enter,
                         R.anim.slide_to_top_exit);
             }
         });
@@ -53,8 +53,8 @@ public class DashboardFragment extends RoboSherlockFragment
             @Override
             public void onClick(View v)
             {
-                showNYIAlert(getActivity());
-                getActivity().overridePendingTransition(R.anim.slide_to_bottom_enter,
+                showNYIAlert(getSherlockActivity());
+                getSherlockActivity().overridePendingTransition(R.anim.slide_to_bottom_enter,
                         R.anim.slide_to_bottom_exit);
             }
         });

@@ -1,8 +1,6 @@
 
 package com.hollanddev.kitchensync.model.grocery;
 
-import android.content.ContentValues;
-import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -106,30 +104,6 @@ public class GroceryItem
         public static final String ITEM_ID = BaseColumns._ID;
         public static final String CATEGORY = GroceryItems.CATEGORY;
         public static final String FREQUENCY = RecentItems.FREQUENCY;
-    }
-
-    public static ContentValues makeGenericContentValuesFromCursor(Cursor cursor)
-    {
-        ContentValues values = new ContentValues();
-        values.put(GroceryItems.ITEMNAME,
-                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ITEMNAME)));
-        values.put(GroceryItems.AMOUNT,
-                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.AMOUNT)));
-        values.put(GroceryItems.STORE,
-                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.STORE)));
-        values.put(GroceryItems.CATEGORY,
-                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.CATEGORY)));
-        return values;
-    }
-    
-    public static ContentValues makeFullContentValuesFromCursor(Cursor cursor)
-    {
-        ContentValues values = makeGenericContentValuesFromCursor(cursor);
-        values.put(GroceryItems.ITEM_ID,
-                cursor.getString(cursor.getColumnIndex(GroceryItems.ITEM_ID)));
-        values.put(GroceryItems.ROWINDEX,
-                cursor.getString(cursor.getColumnIndex(GroceryItems.ROWINDEX)));
-        return values;
     }
 
     /**

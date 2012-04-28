@@ -35,51 +35,6 @@ public class GroceryItemUtil
         return initialValues;
     }
 
-//    public static ArrayList<GroceryItem>
-//            makeGroceryItemArrayListFromCursor(Cursor cursor)
-//    {
-//        idColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_ID);
-//        itemnameColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_ITEMNAME);
-//        amountColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_AMOUNT);
-//        storeColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_STORE);
-//        groupColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_CATEGORY);
-//        rowindexColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_ROWINDEX);
-//
-//        ArrayList<GroceryItem> list = new ArrayList<GroceryItem>();
-//        if (cursor.moveToFirst())
-//        {
-//            do
-//            {
-//                list.add(makeGroceryItemFromCursor(cursor));
-//            } while (cursor.moveToNext());
-//        }
-//        cursor.close();
-//        return list;
-//    }
-//
-//    public static HashMap<String, GroceryItem>
-//            makeGroceryItemHashMapFromCursor(Cursor cursor)
-//    {
-//        idColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_ID);
-//        itemnameColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_ITEMNAME);
-//        amountColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_AMOUNT);
-//        storeColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_STORE);
-//        groupColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_CATEGORY);
-//        rowindexColumn = cursor.getColumnIndexOrThrow(DBAdapter.KEY_ROWINDEX);
-//
-//        HashMap<String, GroceryItem> map = new HashMap<String, GroceryItem>();
-//        if (cursor.moveToFirst())
-//        {
-//            do
-//            {
-//                map.put(cursor.getString(itemnameColumn),
-//                        makeGroceryItemFromCursor(cursor));
-//            } while (cursor.moveToNext());
-//        }
-//        cursor.close();
-//        return map;
-//    }
-
     public static GroceryItem makeGroceryItemFromCursor(Cursor cursor)
     {
         setColumnIndicies(cursor);
@@ -87,6 +42,30 @@ public class GroceryItemUtil
                 cursor.getString(amountColumn), cursor.getString(storeColumn),
                 cursor.getString(categoryColumm),
                 cursor.getString(rowindexColumn));
+    }
+    
+    public static ContentValues makeGenericContentValuesFromCursor(Cursor cursor)
+    {
+        ContentValues values = new ContentValues();
+        values.put(GroceryItems.ITEMNAME,
+                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ITEMNAME)));
+        values.put(GroceryItems.AMOUNT,
+                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.AMOUNT)));
+        values.put(GroceryItems.STORE,
+                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.STORE)));
+        values.put(GroceryItems.CATEGORY,
+                cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.CATEGORY)));
+        return values;
+    }
+    
+    public static ContentValues makeFullContentValuesFromCursor(Cursor cursor)
+    {
+        ContentValues values = makeGenericContentValuesFromCursor(cursor);
+        values.put(GroceryItems.ITEM_ID,
+                cursor.getString(cursor.getColumnIndex(GroceryItems.ITEM_ID)));
+        values.put(GroceryItems.ROWINDEX,
+                cursor.getString(cursor.getColumnIndex(GroceryItems.ROWINDEX)));
+        return values;
     }
 
     private static void setColumnIndicies(Cursor cursor)

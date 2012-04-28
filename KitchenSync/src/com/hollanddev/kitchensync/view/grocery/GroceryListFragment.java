@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -19,9 +20,11 @@ import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -39,13 +42,15 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
+import com.hollanddev.kitchensync.R;
+import com.hollanddev.kitchensync.R.anim;
+import com.hollanddev.kitchensync.R.layout;
 import com.hollanddev.kitchensync.model.KitchenSyncApplication;
 import com.hollanddev.kitchensync.model.grocery.GroceryItem;
 import com.hollanddev.kitchensync.model.grocery.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.model.grocery.GroceryItem.RecentItems;
-import com.hollanddev.kitchensync.R;
-import com.hollanddev.kitchensync.R.anim;
-import com.hollanddev.kitchensync.R.layout;
+import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
+import com.hollanddev.kitchensync.util.grocery.GroceryItemUtil;
 
 import other.com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 
@@ -91,8 +96,8 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                 R.id.grocery_row_item_name, R.id.grocery_row_amount, R.id.grocery_row_store
         };
 
-        getActivity().getSupportLoaderManager().initLoader(GROCERY_LIST_LOADER, null, this);
-        mAdapter = new GroceryListAdapter(getActivity().getApplicationContext(),
+        getSherlockActivity().getSupportLoaderManager().initLoader(GROCERY_LIST_LOADER, null, this);
+        mAdapter = new GroceryListAdapter(getSherlockActivity().getApplicationContext(),
                 R.layout.grocery_list_row, null,
                 uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         mListView.setAdapter(mAdapter);
@@ -130,42 +135,45 @@ public class GroceryListFragment extends RoboSherlockFragment implements
             ImageButton deleteButton = (ImageButton) view
                     .findViewById(R.id.grocery_row_cross_off_button);
             // Need full item values to delete from google docs
-            final ContentValues fullItemValues = GroceryItem
+            final ContentValues fullItemValues = GroceryItemUtil
                     .makeFullContentValuesFromCursor(cursor);
             // Need just generic values for adding to recent items
-            final ContentValues itemValues = GroceryItem
+            final ContentValues itemValues = GroceryItemUtil
                     .makeGenericContentValuesFromCursor(cursor);
             final String rowIndex = fullItemValues.getAsString(GroceryItems.ROWINDEX);
             final String itemName = itemValues.getAsString(GroceryItems.ITEMNAME);
             final String storesAsCSV = itemValues.getAsString(GroceryItems.STORE);
+            final GoogleDocsProviderWrapper gdocProviderWrapper = ((KitchenSyncApplication) getSherlockActivity()
+                    .getApplication()).getGoogleDocsProviderWrapper();
+            final Animation anim = AnimationUtils.loadAnimation(getSherlockActivity()
+                    .getApplicationContext(),
+                    R.anim.shrink_fade_out_from_bottom);
             deleteButton.setOnClickListener(new OnClickListener()
             {
                 @Override
                 public void onClick(View v) {
                     Log.i("GroceryListFragment", "deleting itemName: " + itemName);
-                    Animation anim = AnimationUtils.loadAnimation(getActivity()
-                            .getApplicationContext(),
-                            R.anim.slide_to_right);
-                    anim.setDuration(300);
                     view.startAnimation(anim);
                     new Handler().postDelayed(new Runnable()
                     {
                         public void run()
                         {
-                            ((KitchenSyncApplication) getActivity().getApplication())
-                                    .getGoogleDocsProviderWrapper().delete(
-                                            GroceryItems.CONTENT_URI,
-                                            GroceryItems.ITEMNAME + "=?", new String[]
-                                            {
-                                                itemName
-                                            }, rowIndex);
-
-                            ((KitchenSyncApplication) getActivity().getApplication())
-                                    .getGoogleDocsProviderWrapper().insert(
-                                            RecentItems.CONTENT_URI, itemValues);
-                            removeStores(storesAsCSV);
+                            gdocProviderWrapper.delete(
+                                    GroceryItems.CONTENT_URI,
+                                    GroceryItems.ITEMNAME + "=?", new String[]
+                                    {
+                                        itemName
+                                    }, rowIndex);
+                            gdocProviderWrapper.insert(RecentItems.CONTENT_URI, itemValues);
+                            getSherlockActivity().getContentResolver().notifyChange(
+                                    GroceryItems.CONTENT_URI, null);
+                            getSherlockActivity().getContentResolver().notifyChange(
+                                    RecentItems.CONTENT_URI, null);
+                            view.invalidate();
                         }
-                    }, anim.getDuration() - 15);
+                    }, anim.getDuration());
+                    // Move this out of postDelayed for better animation
+                    removeStores(storesAsCSV);
                 }
             });
 
@@ -188,16 +196,32 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                     return true;
                 }
             });
+
+            view.setOnTouchListener(new OnTouchListener() {
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN)
+                    {
+                        v.setBackgroundColor(Color.parseColor("#8833B5E5"));
+                    }
+                    else
+                    {
+                        v.setBackgroundColor(Color.TRANSPARENT);
+                    }
+                    return false;
+                }
+            });
         }
     }
 
     private void showOptionsDialog(final ContentValues values)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getSherlockActivity());
         builder.setItems(R.array.grocery_dialog_options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(getActivity(), GroceryEditItemActivity.class);
+                Intent intent = new Intent(getSherlockActivity(), GroceryEditItemActivity.class);
                 intent.putExtra(GroceryItem.CONTENT_VALUES, values);
                 startActivity(intent);
             }
@@ -213,7 +237,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         if (mCurFilter != null && !mCurFilter.equals(ALL_STORES))
         {
             // Apply filter
-            cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI,
+            cursorLoader = new CursorLoader(getSherlockActivity(), GroceryItems.CONTENT_URI,
                     mGroceryItemProjection, GroceryItems.STORE + " LIKE ?", new String[] {
                             "%" + mCurFilter + "%"
                     },
@@ -222,7 +246,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         else
         {
             // No filter
-            cursorLoader = new CursorLoader(getActivity(), GroceryItems.CONTENT_URI,
+            cursorLoader = new CursorLoader(getSherlockActivity(), GroceryItems.CONTENT_URI,
                     mGroceryItemProjection, null, null,
                     null);
         }
@@ -245,7 +269,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.grocery_list_menu, menu);
         mRefreshItem = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
-        if (PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(
+        if (PreferenceManager.getDefaultSharedPreferences(getSherlockActivity()).getBoolean(
                 "GOOGLE_DOCS_SYNC", true))
         {
             mRefreshItem.setOnMenuItemClickListener(new OnMenuItemClickListener()
@@ -256,11 +280,12 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                      * Attach a rotating ImageView to the refresh item as an
                      * ActionView
                      */
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(
-                            Context.LAYOUT_INFLATER_SERVICE);
+                    LayoutInflater inflater = (LayoutInflater) getSherlockActivity()
+                            .getSystemService(
+                                    Context.LAYOUT_INFLATER_SERVICE);
                     ImageView iv = (ImageView) inflater.inflate(layout.refresh_action_view, null);
 
-                    Animation rotation = AnimationUtils.loadAnimation(getActivity(),
+                    Animation rotation = AnimationUtils.loadAnimation(getSherlockActivity(),
                             anim.clockwise_refresh);
                     rotation.setRepeatCount(Animation.INFINITE);
                     iv.startAnimation(rotation);
@@ -270,7 +295,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                     {
                         public void run()
                         {
-                            ((KitchenSyncApplication) getActivity().getApplication())
+                            ((KitchenSyncApplication) getSherlockActivity().getApplication())
                                     .getGoogleDocsProviderWrapper().syncWithGoogleDocs();
                             fillStoreSelectionSpinner();
                         }
@@ -289,12 +314,12 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         actionBar.setDisplayShowTitleEnabled(false);
         // Get last filter from sharedprefs
-        mCurFilter = getActivity().getPreferences(0).getString(PREFS_FILTER, ALL_STORES);
+        mCurFilter = getSherlockActivity().getPreferences(0).getString(PREFS_FILTER, ALL_STORES);
         Log.i("GroceryListFragment", "Loaded from sharedprefs, curfilter is: " + mCurFilter);
 
         // Filter ArrayAdapter
         final LoaderCallbacks<Cursor> lc = this;
-        mFilterAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),
+        mFilterAdapter = new ArrayAdapter<String>(getSherlockActivity().getApplicationContext(),
                 R.layout.filter_spinner);
         OnNavigationListener navListener = new OnNavigationListener() {
 
@@ -305,7 +330,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                         "Filter item selected, setting current filter to: "
                                 + mCurFilter);
                 // Save spinner state to sharedprefs
-                SharedPreferences.Editor editor = getActivity().getPreferences(0).edit();
+                SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
                 editor.putString(PREFS_FILTER, mCurFilter);
                 editor.commit();
                 getLoaderManager().restartLoader(0, null, lc);
@@ -327,7 +352,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
             mFilterAdapter.clear();
             mFilterAdapter.add(ALL_STORES);
             // Set spinner items
-            Cursor c = ((KitchenSyncApplication) getActivity().getApplication())
+            Cursor c = ((KitchenSyncApplication) getSherlockActivity().getApplication())
                     .getGoogleDocsProviderWrapper().query(GroceryItems.CONTENT_URI, new String[] {
                             GroceryItems.ITEM_ID, GroceryItems.STORE
                     }, null, null, null);

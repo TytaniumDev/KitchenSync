@@ -53,9 +53,9 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
                 values.put(GroceryItems.STORE, mStore.getText().toString());
                 values.put(GroceryItems.CATEGORY, mCategory.getText().toString());
                 values.put(GroceryItems.ROWINDEX, "");
-                ((KitchenSyncApplication) getActivity().getApplication())
+                ((KitchenSyncApplication) getSherlockActivity().getApplication())
                 .getGoogleDocsProviderWrapper().insert(GroceryItems.CONTENT_URI, values);
-                getActivity().getContentResolver().notifyChange(
+                getSherlockActivity().getContentResolver().notifyChange(
                         RecentItems.CONTENT_URI, null);
                 // Reset text fields
                 mItemName.setText("");
