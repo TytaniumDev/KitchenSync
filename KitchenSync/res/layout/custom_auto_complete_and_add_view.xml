@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+    <com.hollanddev.kitchensync.view.CustomAutoCompleteTextView
+                android:id="@+id/grocery_add_item_store_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusDown="@+id/grocery_add_item_category_field"
+                android:padding="4dip" />
+    <ImageButton 
+        android:id="@+id/grocery_add_item_store_field_button"
+        />
+</LinearLayout>
