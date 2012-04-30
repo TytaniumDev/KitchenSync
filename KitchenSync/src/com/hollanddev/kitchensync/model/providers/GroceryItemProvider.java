@@ -12,11 +12,11 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
+import com.hollanddev.kitchensync.model.GroceryItem.Categories;
+import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
+import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
+import com.hollanddev.kitchensync.model.GroceryItem.Stores;
 import com.hollanddev.kitchensync.model.adapter.SQLiteAdapter;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.Categories;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.GroceryItems;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.RecentItems;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.Stores;
 
 import java.util.HashMap;
 

@@ -2,24 +2,23 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
-    <com.hollanddev.kitchensync.view.CustomAutoCompleteTextView
-        android:id="@+id/grocery_add_item_store_field"
+    <AutoCompleteTextView
+        android:id="@+id/grocery_add_item_category_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/grocery_add_item_store_field_button"
-        android:imeOptions="actionNext"
+        android:layout_toLeftOf="@+id/grocery_add_item_category_field_button"
+        android:imeOptions="actionDone"
         android:inputType="text"
         android:nextFocusDown="@+id/grocery_add_item_category_field"
-        android:padding="4dip" />
+        />
     <ImageButton
-        android:id="@+id/grocery_add_item_store_field_button"
+        android:id="@+id/grocery_add_item_category_field_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:background="@android:color/transparent"
         android:layout_centerVertical="true"
-        android:paddingLeft="8dp"
-        android:contentDescription="@string/store_field_add"
-        android:src="@drawable/ic_action_add" />
+        android:contentDescription="@string/category_field_set"
+        android:src="@drawable/custom_edit_dropdown" />
 </RelativeLayout>

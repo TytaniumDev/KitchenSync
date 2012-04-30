@@ -5,9 +5,9 @@ import android.content.Intent;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 import com.hollanddev.kitchensync.R;
 
-import other.com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockFragmentActivity;
 
 public class KitchenSyncFragmentActivity extends RoboSherlockFragmentActivity{
     @Override

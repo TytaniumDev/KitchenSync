@@ -6,10 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.Categories;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.GroceryItems;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.RecentItems;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.Stores;
+import com.hollanddev.kitchensync.model.GroceryItem.Categories;
+import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
+import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
+import com.hollanddev.kitchensync.model.GroceryItem.Stores;
 
 public class SQLiteAdapter extends SQLiteOpenHelper
 {

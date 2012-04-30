@@ -6,8 +6,8 @@ import android.os.AsyncTask;
 import android.os.Looper;
 import android.util.Log;
 
-import com.hollanddev.kitchensync.model.grocery.GroceryItem;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.GroceryItems;
+import com.hollanddev.kitchensync.model.GroceryItem;
+import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
 import com.hollanddev.kitchensync.util.AndroidAuthenticator;
 import com.pras.SpreadSheet;

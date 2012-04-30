@@ -16,6 +16,7 @@
     <string name="dropdown_button_description">More Options</string>
     <string name="recent_items_add_image">Add This Item To Grocery List</string>
     <string name="store_field_add">Add a Store</string>
+    <string name="category_field_set">Choose a Category</string>
     <!-- Text in Layouts -->
     <string name="grocery_add_item">New Item</string>
     <string name="grocery_quickadd_item">Recent Items</string>

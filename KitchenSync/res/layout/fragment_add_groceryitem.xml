@@ -60,8 +60,23 @@
                 android:layout_gravity="right"
                 android:padding="4dip"
                 android:text="@string/grocery_store" />
-            <include layout="@layout/custom_store_field"
-                android:layout_weight="1" />
+            <com.hollanddev.kitchensync.view.CustomAutoCompleteTextView
+                android:id="@+id/grocery_add_item_store_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusDown="@+id/grocery_add_item_category_field"
+                android:padding="4dip" />
+            <ImageButton
+                android:id="@+id/grocery_add_item_store_field_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/store_field_add"
+                android:paddingLeft="8dp"
+                android:src="@drawable/ic_action_add" />
         </TableRow>
         <TableRow android:layout_marginBottom="8dp" >
             <TextView
@@ -70,14 +85,21 @@
                 android:layout_gravity="right"
                 android:padding="4dip"
                 android:text="@string/grocery_category" />
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/grocery_add_item_category_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:imeOptions="actionDone"
                 android:inputType="text"
-                android:padding="4dip" />
+                android:nextFocusDown="@+id/grocery_add_item_category_field" />
+            <ImageButton
+                android:id="@+id/grocery_add_item_category_field_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/category_field_set"
+                android:src="@drawable/custom_edit_dropdown" />
         </TableRow>
     </TableLayout>
     <Button

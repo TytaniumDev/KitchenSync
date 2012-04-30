@@ -6,12 +6,12 @@
     android:addStatesFromChildren="true" >
     <fragment
         android:id="@+id/add_item_normal_add"
-        android:name="com.hollanddev.kitchensync.view.grocery.GroceryAddItemFragment"
+        android:name="com.hollanddev.kitchensync.view.GroceryAddItemFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     <fragment
         android:id="@+id/add_item_quick_add"
-        android:name="com.hollanddev.kitchensync.view.grocery.GroceryQuickAddItemFragment"
+        android:name="com.hollanddev.kitchensync.view.GroceryQuickAddItemFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </ViewFlipper>

@@ -12,12 +12,12 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.hollanddev.kitchensync.model.GroceryItem;
+import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
+import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
 import com.hollanddev.kitchensync.model.adapter.GoogleDocsAdapter;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.GroceryItems;
-import com.hollanddev.kitchensync.model.grocery.GroceryItem.RecentItems;
 import com.hollanddev.kitchensync.util.AndroidAuthenticator;
-import com.hollanddev.kitchensync.util.grocery.GroceryItemUtil;
+import com.hollanddev.kitchensync.util.GroceryItemUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
