@@ -1,25 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/add_groceryitem_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <TextView
-        android:id="@+id/grocery_add_item_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:text="@string/grocery_add_item"
-        android:textSize="28dip" />
     <TableLayout
         android:id="@+id/grocery_add_item_input_table"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/grocery_add_item_title"
-        android:layout_centerHorizontal="true"
-        android:paddingBottom="15dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp" >
+        android:layout_gravity="top|center_horizontal"
+        android:gravity="top|center_horizontal"
+        android:padding="8dp" >
         <TableRow android:layout_marginBottom="8dp" >
             <TextView
                 android:layout_width="wrap_content"
@@ -40,23 +30,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:padding="4dip"
-                android:text="@string/grocery_amount" />
-            <EditText
-                android:id="@+id/grocery_add_item_amount_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:imeOptions="actionNext"
-                android:inputType="text"
-                android:nextFocusDown="@+id/grocery_add_item_store_field"
-                android:padding="4dip" />
-        </TableRow>
-        <TableRow android:layout_marginBottom="8dp" >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:padding="4dip"
                 android:text="@string/grocery_store" />
             <com.hollanddev.kitchensync.view.CustomAutoCompleteTextView
                 android:id="@+id/grocery_add_item_store_field"
@@ -67,27 +40,59 @@
                 android:inputType="text"
                 android:nextFocusDown="@+id/grocery_add_item_category_field"
                 android:padding="4dip" />
+            <ImageButton
+                android:id="@+id/grocery_add_item_store_field_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/store_field_add"
+                android:paddingLeft="8dp"
+                android:src="@drawable/ic_action_add" />
+        </TableRow>
+        <TableRow android:layout_marginBottom="8dp" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:padding="4dip"
+                android:text="@string/grocery_amount" />
+            <EditText
+                android:id="@+id/grocery_add_item_amount_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusDown="@+id/grocery_add_item_store_field"
+                android:padding="4dip" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:padding="4dip"
                 android:text="@string/grocery_category" />
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/grocery_add_item_category_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:imeOptions="actionDone"
                 android:inputType="text"
-                android:padding="4dip" />
+                android:nextFocusDown="@+id/grocery_add_item_category_field" />
+            <ImageButton
+                android:id="@+id/grocery_add_item_category_field_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/category_field_set"
+                android:src="@drawable/custom_edit_dropdown" />
         </TableRow>
     </TableLayout>
     <Button
         android:id="@+id/grocery_add_item_add_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/grocery_add_item_input_table"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal|bottom"
+        android:gravity="center_horizontal|bottom"
         android:text="@string/grocery_add_to_list" />
-</RelativeLayout>
+</LinearLayout>

@@ -13,23 +13,22 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
-import com.hollanddev.kitchensync.model.GroceryItem;
-import com.hollanddev.kitchensync.model.KitchenSyncApplication;
-import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.R;
+import com.hollanddev.kitchensync.model.GroceryItem;
+import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
+import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
+import com.hollanddev.kitchensync.model.KitchenSyncApplication;
 
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
 @ContentView(R.layout.activity_edit_item)
 public class GroceryEditItemActivity extends RoboSherlockActivity {
-    @InjectView(R.id.grocery_add_item_title)
-    TextView mTitle;
     @InjectView(R.id.grocery_add_item_add_button)
     Button mButton;
     @InjectView(R.id.grocery_add_item_itemname_field)
@@ -46,7 +45,6 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTitle.setText(R.string.grocery_edit_item);
         mButton.setText(R.string.save);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -94,6 +92,10 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
                         GroceryItems.ITEM_ID + "=?", new String[] {
                             mNewValues.getAsString(GroceryItems.ITEM_ID)
                         });
+        // Update recent items so it doesn't show newly added item
+        getContentResolver().notifyChange(
+                RecentItems.CONTENT_URI, null);
+        // Insert/increment values in stores and categories
         finish();
     }
 

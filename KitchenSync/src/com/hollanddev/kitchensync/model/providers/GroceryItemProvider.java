@@ -56,6 +56,14 @@ public class GroceryItemProvider extends ContentProvider
                 Log.i(TAG, "Deleting a recent item");
                 count = db.delete(RECENTITEMS_TABLE_NAME, where, whereArgs);
                 break;
+            case STORES:
+                Log.i(TAG, "Deleting a store");
+                count = db.delete(STORES_TABLE_NAME, where, whereArgs);
+                break;
+            case CATEGORIES:
+                Log.i(TAG, "Deleting a category");
+                count = db.delete(CATEGORIES_TABLE_NAME, where, whereArgs);
+                break;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -76,6 +84,12 @@ public class GroceryItemProvider extends ContentProvider
             case RECENTITEMS:
                 Log.i(TAG, "Getting type of recent item");
                 return RecentItems.CONTENT_TYPE;
+            case STORES:
+                Log.i(TAG, "Getting type of store");
+                return Stores.CONTENT_TYPE;
+            case CATEGORIES:
+                Log.i(TAG, "Getting type of category");
+                return Categories.CONTENT_TYPE;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -116,6 +130,8 @@ public class GroceryItemProvider extends ContentProvider
                         Uri groceryitemsUri = ContentUris.withAppendedId(GroceryItems.CONTENT_URI,
                                 rowId);
                         getContext().getContentResolver().notifyChange(groceryitemsUri, null);
+                        // Add store and category
+                        updateStoresAndCategories(initialValues);
                         return groceryitemsUri;
                     }
                     throw new SQLException("Failed to insert row into " + uri);
@@ -124,7 +140,8 @@ public class GroceryItemProvider extends ContentProvider
 
                     Log.i(TAG, "Inserting a recent item");
                     String itemName = values.getAsString(RecentItems.ITEMNAME);
-                    if (doesGroceryItemExist(RECENTITEMS_TABLE_NAME, values, db))
+                    if (doesThisExist(RECENTITEMS_TABLE_NAME, GroceryItems.ITEMNAME,
+                            itemName, db))
                     {
                         // Increment frequency and update timestamp
                         rowId = db.update(RECENTITEMS_TABLE_NAME, values, RecentItems.ITEMNAME
@@ -198,6 +215,8 @@ public class GroceryItemProvider extends ContentProvider
     {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         Cursor cursor;
+        SQLiteDatabase db;
+        String query;
         switch (sUriMatcher.match(uri))
         {
             case GROCERYITEMS:
@@ -211,8 +230,8 @@ public class GroceryItemProvider extends ContentProvider
 
             case RECENTITEMS:
                 // Log.i(TAG, "Querying a recent item");
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
-                String query = "SELECT * FROM " + RECENTITEMS_TABLE_NAME
+                db = dbHelper.getReadableDatabase();
+                query = "SELECT * FROM " + RECENTITEMS_TABLE_NAME
                         + " WHERE NOT EXISTS (SELECT * FROM "
                         + GROCERYITEMS_TABLE_NAME + " WHERE " + RECENTITEMS_TABLE_NAME + "."
                         + RecentItems.ITEMNAME + " = "
@@ -220,6 +239,20 @@ public class GroceryItemProvider extends ContentProvider
                         + RecentItems.FREQUENCY
                         + " DESC ";
                 cursor = db.rawQuery(query, null);
+                break;
+
+            case STORES:
+                qb.setTables(STORES_TABLE_NAME);
+                cursor = qb.query(dbHelper.getReadableDatabase(), projection, selection,
+                        selectionArgs, null, null,
+                        sortOrder);
+                break;
+
+            case CATEGORIES:
+                qb.setTables(CATEGORIES_TABLE_NAME);
+                cursor = qb.query(dbHelper.getReadableDatabase(), projection, selection,
+                        selectionArgs, null, null,
+                        sortOrder);
                 break;
 
             default:
@@ -244,6 +277,16 @@ public class GroceryItemProvider extends ContentProvider
             case RECENTITEMS:
                 Log.i(TAG, "Updating a recent item");
                 count = db.updateWithOnConflict(RECENTITEMS_TABLE_NAME, values, where, whereArgs,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+                break;
+            case STORES:
+                Log.i(TAG, "Updating a stores");
+                count = db.updateWithOnConflict(STORES_TABLE_NAME, values, where, whereArgs,
+                        SQLiteDatabase.CONFLICT_REPLACE);
+                break;
+            case CATEGORIES:
+                Log.i(TAG, "Updating a categories");
+                count = db.updateWithOnConflict(CATEGORIES_TABLE_NAME, values, where, whereArgs,
                         SQLiteDatabase.CONFLICT_REPLACE);
                 break;
 
@@ -272,27 +315,43 @@ public class GroceryItemProvider extends ContentProvider
     }
 
     // Helper methods
-    private boolean doesGroceryItemExist(String tableName, ContentValues values, SQLiteDatabase db)
+    private boolean doesThisExist(String tableName, String column, String value, SQLiteDatabase db)
     {
-        String itemname = GroceryItems.ITEMNAME;
-        return (db.query(tableName, new String[]
-        {
-                itemname
-        }, itemname + "=?", new String[]
-        {
-                (String) values.get(itemname)
+        return (db.query(tableName, new String[] {
+                column
+        }, column + "=?", new String[] {
+                value
         }, null, null, null)).getCount() > 0;
-
     }
 
     private void executeIncrementSQL(SQLiteDatabase db, String tableName, String columnToIncrement,
             String uniqueKey, String uniqueKeyValue)
     {
         db.execSQL("INSERT OR REPLACE INTO "
-                + tableName
+                + tableName + " (" + uniqueKey + "," + columnToIncrement + ") "
                 + " VALUES (?, COALESCE((SELECT " + columnToIncrement + " FROM " + tableName
-                + "WHERE " + uniqueKey + "=? ), 0) + 1);", new String[] {
+                + " WHERE " + uniqueKey + "=? ), 0) + 1);", new String[] {
                 uniqueKeyValue, uniqueKeyValue
         });
+    }
+
+    private void updateStoresAndCategories(ContentValues fullItem)
+    {
+        // Get values
+        String storeValue = fullItem.getAsString(Stores.STORE);
+        String categoryValue = fullItem.getAsString(Categories.CATEGORY);
+        // If they aren't empty, add to database
+        if (storeValue.length() > 0)
+        {
+            ContentValues storeCV = new ContentValues();
+            storeCV.put(Stores.STORE, storeValue);
+            insert(Stores.CONTENT_URI, storeCV);
+        }
+        if (categoryValue.length() > 0)
+        {
+            ContentValues categoryCV = new ContentValues();
+            categoryCV.put(Categories.CATEGORY, categoryValue);
+            insert(Categories.CONTENT_URI, categoryCV);
+        }
     }
 }

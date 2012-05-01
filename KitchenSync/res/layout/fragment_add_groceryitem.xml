@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/add_groceryitem_frame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    <TextView
-        android:id="@+id/grocery_add_item_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:text="@string/grocery_add_item"
-        android:textSize="28dip" />
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
     <TableLayout
         android:id="@+id/grocery_add_item_input_table"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/grocery_add_item_title"
-        android:layout_centerHorizontal="true"
-        android:paddingBottom="15dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp" >
+        android:gravity="top|center_horizontal"
+        android:layout_gravity="top|center_horizontal"
+        android:padding="8dp"
+        android:weightSum="1" >
         <TableRow android:layout_marginBottom="8dp" >
             <TextView
                 android:layout_width="wrap_content"
@@ -51,7 +43,7 @@
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:nextFocusDown="@+id/grocery_add_item_store_field"
-                android:padding="5dip" />
+                android:padding="4dip" />
         </TableRow>
         <TableRow android:layout_marginBottom="8dp" >
             <TextView
@@ -106,7 +98,7 @@
         android:id="@+id/grocery_add_item_add_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/grocery_add_item_input_table"
-        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal|bottom"
+        android:layout_gravity="center_horizontal|bottom"
         android:text="@string/grocery_add_to_list" />
-</RelativeLayout>
+</LinearLayout>

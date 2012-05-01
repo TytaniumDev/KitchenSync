@@ -3,7 +3,12 @@ package com.hollanddev.kitchensync.view;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,18 +16,21 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FilterQueryProvider;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.hollanddev.kitchensync.R;
-import com.hollanddev.kitchensync.model.KitchenSyncApplication;
+import com.hollanddev.kitchensync.model.GroceryItem.Categories;
 import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
+import com.hollanddev.kitchensync.model.GroceryItem.Stores;
+import com.hollanddev.kitchensync.model.KitchenSyncApplication;
+import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
 
 import roboguice.inject.InjectView;
 
@@ -39,10 +47,14 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
     @InjectView(R.id.grocery_add_item_category_field)
     AutoCompleteTextView mCategory;
 
+    private GoogleDocsProviderWrapper mContentResolver;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View root = inflater.inflate(R.layout.fragment_add_groceryitem, container, false);
+        mContentResolver = ((KitchenSyncApplication) getSherlockActivity().getApplication())
+                .getGoogleDocsProviderWrapper();
         return root;
     }
 
@@ -74,27 +86,64 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
             }
         });
     }
-    
+
     private void setupCustomEditViews()
     {
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getSherlockActivity(), R.layout.filter_spinner);
-        adapter.add("Ralph's");
-        adapter.add("Costco");
-        adapter.add("Vons");
-        adapter.add("Trader Joe's");
-        mStore.setAdapter(adapter);
+        mStore.setAdapter(getAutoCompleteViewAdapter(Stores.STORE, Stores.CONTENT_URI,
+                Stores.ITEM_ID, Stores.FREQUENCY));
+        mCategory.setAdapter(getAutoCompleteViewAdapter(Categories.CATEGORY,
+                Categories.CONTENT_URI, Categories.ITEM_ID, Categories.FREQUENCY));
+        mCategory.setThreshold(0);
     }
-    
+
+    private SimpleCursorAdapter getAutoCompleteViewAdapter(final String columnName,
+            final Uri contentURI, final String itemID, final String orderBy)
+    {
+        String[] uiBindFrom =
+        {
+                columnName
+        };
+        int[] uiBindTo =
+        {
+                android.R.id.text1
+        };
+
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getSherlockActivity()
+                .getApplicationContext(),
+                R.layout.filter_spinner, null,
+                uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+        // Set the CursorToStringConverter, to provide the labels for the
+        // choices to be displayed in the AutoCompleteTextView.
+        adapter.setCursorToStringConverter(new CursorToStringConverter() {
+            public String convertToString(android.database.Cursor cursor) {
+                return cursor.getString(cursor.getColumnIndexOrThrow(columnName));
+            }
+        });
+
+        // Set the FilterQueryProvider, to run queries for choices
+        // that match the specified input.
+        adapter.setFilterQueryProvider(new FilterQueryProvider() {
+            public Cursor runQuery(CharSequence constraint) {
+                Cursor cursor = mContentResolver.query(contentURI, new String[] {
+                        itemID, columnName
+                }, columnName + " LIKE ?", new String[] {
+                        constraint + "%"
+                }, orderBy + " DESC");
+                return cursor;
+            }
+        });
+
+        return adapter;
+    }
+
     private void addCurrentItem()
     {
-        ContentValues values = new ContentValues();
-        values.put(GroceryItems.ITEMNAME, mItemName.getText().toString());
-        values.put(GroceryItems.AMOUNT, mAmount.getText().toString());
-        values.put(GroceryItems.STORE, mStore.getText().toString());
-        values.put(GroceryItems.CATEGORY, mCategory.getText().toString());
-        values.put(GroceryItems.ROWINDEX, "");
-        ((KitchenSyncApplication) getSherlockActivity().getApplication())
-        .getGoogleDocsProviderWrapper().insert(GroceryItems.CONTENT_URI, values);
+        // Make values
+        ContentValues values = makeContentValuesFromViews();
+        // Insert new grocery item
+        mContentResolver.insert(GroceryItems.CONTENT_URI, values);
+        // Update recent items so it doesn't show newly added item
         getSherlockActivity().getContentResolver().notifyChange(
                 RecentItems.CONTENT_URI, null);
         // Reset text fields
@@ -102,5 +151,16 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         mAmount.setText("");
         mStore.setText("");
         mCategory.setText("");
+    }
+
+    private ContentValues makeContentValuesFromViews()
+    {
+        ContentValues values = new ContentValues();
+        values.put(GroceryItems.ITEMNAME, mItemName.getText().toString());
+        values.put(GroceryItems.AMOUNT, mAmount.getText().toString());
+        values.put(GroceryItems.STORE, mStore.getText().toString());
+        values.put(GroceryItems.CATEGORY, mCategory.getText().toString());
+        values.put(GroceryItems.ROWINDEX, "");
+        return values;
     }
 }

@@ -2,8 +2,6 @@
 <resources>
     <string name="app_name">Kitchen Sync</string>
     <string name="grocery_list">Grocery List</string>
-    <string name="grocery_edit_item">Edit Item</string>
-    <string name="recipe_book">Recipe Book</string>
     <string name="refresh">Refresh</string>
     <!-- Tab names -->
     <string name="grocery_list_view_list_tab_name">Grocery List</string>
@@ -18,7 +16,7 @@
     <string name="store_field_add">Add a Store</string>
     <string name="category_field_set">Choose a Category</string>
     <!-- Text in Layouts -->
-    <string name="grocery_add_item">New Item</string>
+    <string name="grocery_edit_item">Edit Item</string>
     <string name="grocery_quickadd_item">Recent Items</string>
     <string name="grocery_item_name">Item Name</string>
     <string name="grocery_amount">Amount</string>
