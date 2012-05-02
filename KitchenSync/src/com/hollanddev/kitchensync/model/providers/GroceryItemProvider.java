@@ -176,7 +176,7 @@ public class GroceryItemProvider extends ContentProvider
                     throw new SQLException("Failed to insert row into " + uri);
 
                 case STORES:
-                    Log.i(TAG, "Inserting a store");
+                    Log.i(TAG, "Inserting a store: " + values.getAsString(Stores.STORE));
                     executeIncrementSQL(db, STORES_TABLE_NAME, Stores.FREQUENCY, Stores.STORE,
                             values.getAsString(Stores.STORE));
                     Uri storesUri = Stores.CONTENT_URI;
@@ -184,7 +184,7 @@ public class GroceryItemProvider extends ContentProvider
                     return storesUri;
 
                 case CATEGORIES:
-                    Log.i(TAG, "Inserting a category");
+                    Log.i(TAG, "Inserting a category: " + values.getAsString(Categories.CATEGORY));
                     executeIncrementSQL(db, CATEGORIES_TABLE_NAME, Categories.FREQUENCY,
                             Categories.CATEGORY, values.getAsString(Categories.CATEGORY));
                     Uri categoriesUri = Categories.CONTENT_URI;
@@ -338,14 +338,18 @@ public class GroceryItemProvider extends ContentProvider
     private void updateStoresAndCategories(ContentValues fullItem)
     {
         // Get values
-        String storeValue = fullItem.getAsString(Stores.STORE);
-        String categoryValue = fullItem.getAsString(Categories.CATEGORY);
+        String storeValuesAsCSV = fullItem.getAsString(Stores.STORE);
+        String categoryValue = fullItem.getAsString(Categories.CATEGORY).trim();
         // If they aren't empty, add to database
-        if (storeValue.length() > 0)
+        if (storeValuesAsCSV.length() > 0)
         {
-            ContentValues storeCV = new ContentValues();
-            storeCV.put(Stores.STORE, storeValue);
-            insert(Stores.CONTENT_URI, storeCV);
+            for(String store: storeValuesAsCSV.split(","))
+            {
+                store = store.trim();
+                ContentValues storeCV = new ContentValues();
+                storeCV.put(Stores.STORE, store);
+                insert(Stores.CONTENT_URI, storeCV);
+            }
         }
         if (categoryValue.length() > 0)
         {

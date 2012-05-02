@@ -3,15 +3,22 @@ package com.hollanddev.kitchensync.view;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FilterQueryProvider;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -20,9 +27,12 @@ import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.activity.RoboSherlockActivity;
 import com.hollanddev.kitchensync.R;
 import com.hollanddev.kitchensync.model.GroceryItem;
+import com.hollanddev.kitchensync.model.GroceryItem.Categories;
 import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
+import com.hollanddev.kitchensync.model.GroceryItem.Stores;
 import com.hollanddev.kitchensync.model.KitchenSyncApplication;
+import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
 
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
@@ -38,13 +48,20 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
     @InjectView(R.id.grocery_add_item_store_field)
     CustomAutoCompleteTextView mStore;
     @InjectView(R.id.grocery_add_item_category_field)
-    EditText mCategory;
+    AutoCompleteTextView mCategory;
+    @InjectView(R.id.grocery_add_item_store_field_button)
+    ImageButton mStoreButton;
+    @InjectView(R.id.grocery_add_item_category_field_button)
+    ImageButton mCategoryButton;
     private ContentValues mOldValues;
     private ContentValues mNewValues;
+    private GoogleDocsProviderWrapper mContentResolver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContentResolver = ((KitchenSyncApplication) getApplication())
+                .getGoogleDocsProviderWrapper();
         mButton.setText(R.string.save);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -87,11 +104,10 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
     private void saveCurrentItem()
     {
         getNewValues();
-        ((KitchenSyncApplication) getApplication())
-                .getGoogleDocsProviderWrapper().update(GroceryItems.CONTENT_URI, mNewValues,
-                        GroceryItems.ITEM_ID + "=?", new String[] {
-                            mNewValues.getAsString(GroceryItems.ITEM_ID)
-                        });
+        mContentResolver.update(GroceryItems.CONTENT_URI, mNewValues,
+                GroceryItems.ITEM_ID + "=?", new String[] {
+                    mNewValues.getAsString(GroceryItems.ITEM_ID)
+                });
         // Update recent items so it doesn't show newly added item
         getContentResolver().notifyChange(
                 RecentItems.CONTENT_URI, null);
@@ -119,12 +135,51 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
 
     private void setupCustomEditViews()
     {
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.filter_spinner);
-        adapter.add("Ralph's");
-        adapter.add("Costco");
-        adapter.add("Vons");
-        adapter.add("Trader Joe's");
-        mStore.setAdapter(adapter);
+        mStore.setAdapter(getAutoCompleteViewAdapter(Stores.STORE, Stores.CONTENT_URI,
+                Stores.ITEM_ID, Stores.FREQUENCY));
+        mCategory.setAdapter(getAutoCompleteViewAdapter(Categories.CATEGORY,
+                Categories.CONTENT_URI, Categories.ITEM_ID, Categories.FREQUENCY));
+        mCategory.setThreshold(0);
+    }
+
+    private SimpleCursorAdapter getAutoCompleteViewAdapter(final String columnName,
+            final Uri contentURI, final String itemID, final String orderBy)
+    {
+        String[] uiBindFrom =
+        {
+                columnName
+        };
+        int[] uiBindTo =
+        {
+                android.R.id.text1
+        };
+
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getApplicationContext(),
+                R.layout.filter_spinner, null,
+                uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+        // Set the CursorToStringConverter, to provide the labels for the
+        // choices to be displayed in the AutoCompleteTextView.
+        adapter.setCursorToStringConverter(new CursorToStringConverter() {
+            public String convertToString(android.database.Cursor cursor) {
+                return cursor.getString(cursor.getColumnIndexOrThrow(columnName));
+            }
+        });
+
+        // Set the FilterQueryProvider, to run queries for choices
+        // that match the specified input.
+        adapter.setFilterQueryProvider(new FilterQueryProvider() {
+            public Cursor runQuery(CharSequence constraint) {
+                Cursor cursor = mContentResolver.query(contentURI, new String[] {
+                        itemID, columnName
+                }, columnName + " LIKE ?", new String[] {
+                        constraint + "%"
+                }, orderBy + " DESC");
+                return cursor;
+            }
+        });
+
+        return adapter;
     }
 
     @Override
