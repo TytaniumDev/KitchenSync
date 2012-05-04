@@ -2,7 +2,12 @@
 <resources>
     <string name="app_name">Kitchen Sync</string>
     <string name="grocery_list">Grocery List</string>
-    <string name="refresh">Refresh</string>
+    <!-- Settings Keys -->
+    <string name="key_google_docs_sync">GOOGLE_DOCS_SYNC</string>
+    <string name="key_text_size">TEXT_SIZE</string>
+    <string name="key_theme">THEME</string>
+    <string name="key_edit_stores">EDIT_STORES</string>
+    <string name="key_edit_categories">EDIT_CATEGORIES</string>
     <!-- Tab names -->
     <string name="grocery_list_view_list_tab_name">Grocery List</string>
     <string name="grocery_list_view_add_item_tab_name">Add Item</string>
@@ -16,6 +21,8 @@
     <string name="store_field_add">Add a Store</string>
     <string name="category_field_set">Choose a Category</string>
     <!-- Text in Layouts -->
+    <string name="edit_stores_add_store">Add Store</string>
+    <string name="edit_categories_add_category">Add Category</string>
     <string name="grocery_edit_item">Edit Item</string>
     <string name="grocery_quickadd_item">Recent Items</string>
     <string name="grocery_item_name">Item Name</string>
@@ -36,19 +43,27 @@
     <string name="small">Small</string>
     <string name="medium">Medium</string>
     <string name="large">Large</string>
+    <string name="delete">Delete</string>
+    <string name="add">Add</string>
+    <string name="refresh">Refresh</string>
     <!-- Settings Menu -->
     <string name="settings_google_doc_sync_title">Google Docs Sync</string>
     <string name="settings_google_doc_sync_on">Syncing On</string>
     <string name="settings_google_doc_sync_off">Syncing Off</string>
     <string name="settings_text_size_title">Text Size</string>
-    <string name="settings_theme_title">Theme</string>
     <string-array name="settings_text_size_list">
         <item>@string/small</item>
         <item>@string/medium</item>
         <item>@string/large</item>
     </string-array>
+    <string name="settings_theme_title">Theme</string>
     <string-array name="settings_theme_list">
         <item>@string/light</item>
         <item>@string/dark</item>
     </string-array>
+    <string name="settings_edit_category_title">Value Editing</string>
+    <string name="settings_edit_stores_title">Edit Stores</string>
+    <string name="settings_edit_stores_summary">Add/Remove Stores from Autocomplete</string>
+    <string name="settings_edit_categories_title">Edit Categories</string>
+    <string name="settings_edit_categories_summary">Add/Remove Categories from Autocomplete</string>
 </resources>

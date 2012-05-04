@@ -55,8 +55,8 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
     @InjectView(R.id.grocery_add_item_category_field_button)
     ImageButton mCategoryButton;
     private GoogleDocsProviderWrapper mContentResolver;
-    private static SimpleCursorAdapter mStoreAdapter;
-    private static SimpleCursorAdapter mCategoryAdapter;
+    private SimpleCursorAdapter mStoreAdapter;
+    private SimpleCursorAdapter mCategoryAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -116,10 +116,7 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         final AlertDialog.Builder storeBuilder = new AlertDialog.Builder(getSherlockActivity());
         storeBuilder.setTitle(R.string.grocery_store_selector);
         mStoreAdapter = new SimpleCursorAdapter(getSherlockActivity(),
-                R.layout.filter_spinner, mContentResolver.query(Stores.CONTENT_URI,
-                        new String[] {
-                                Stores.ITEM_ID, Stores.STORE
-                        }, null, null, Stores.FREQUENCY + " DESC"), new String[] {
+                R.layout.filter_spinner, getStoreCursor(), new String[] {
                         Stores.STORE
                 }, new int[] {
                         android.R.id.text1
@@ -146,9 +143,18 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         mStoreButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                mStoreAdapter.changeCursor(getStoreCursor());
                 storeAlert.show();
             }
         });
+    }
+
+    private Cursor getStoreCursor()
+    {
+        return mContentResolver.query(Stores.CONTENT_URI,
+                new String[] {
+                        Stores.ITEM_ID, Stores.STORE
+                }, null, null, Stores.FREQUENCY + " DESC");
     }
 
     private void setupCategoryButton()
@@ -157,10 +163,7 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         final AlertDialog.Builder categoryBuilder = new AlertDialog.Builder(getSherlockActivity());
         categoryBuilder.setTitle(R.string.grocery_category_selector);
         mCategoryAdapter = new SimpleCursorAdapter(getSherlockActivity(),
-                R.layout.filter_spinner, mContentResolver.query(Categories.CONTENT_URI,
-                        new String[] {
-                                Categories.ITEM_ID, Categories.CATEGORY
-                        }, null, null, Categories.FREQUENCY + " DESC"), new String[] {
+                R.layout.filter_spinner, getCategoryCursor(), new String[] {
                         Categories.CATEGORY
                 }, new int[] {
                         android.R.id.text1
@@ -180,9 +183,18 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         mCategoryButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                mCategoryAdapter.changeCursor(getCategoryCursor());
                 categoryAlert.show();
             }
         });
+    }
+
+    private Cursor getCategoryCursor()
+    {
+        return mContentResolver.query(Categories.CONTENT_URI,
+                new String[] {
+                        Categories.ITEM_ID, Categories.CATEGORY
+                }, null, null, Categories.FREQUENCY + " DESC");
     }
 
     private SimpleCursorAdapter getAutoCompleteViewAdapter(final String columnName,
@@ -250,17 +262,5 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         values.put(GroceryItems.CATEGORY, mCategory.getText().toString());
         values.put(GroceryItems.ROWINDEX, "");
         return values;
-    }
-
-    public static void notifyAdapterDataSetChanged()
-    {
-        if (mStoreAdapter != null)
-        {
-            mStoreAdapter.notifyDataSetChanged();
-        }
-        if (mCategoryAdapter != null)
-        {
-            mCategoryAdapter.notifyDataSetChanged();
-        }
     }
 }

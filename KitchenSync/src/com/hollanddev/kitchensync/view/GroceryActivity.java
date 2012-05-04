@@ -25,6 +25,7 @@ public class GroceryActivity extends KitchenSyncFragmentActivity
         super.onCreate(savedInstanceState);
         ((KitchenSyncApplication) getApplication()).promptForAuth(this);
         getSupportActionBar().setHomeButtonEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setIcon(R.drawable.app_icon);
         GroceryViewPagerAdapter adapter = new GroceryViewPagerAdapter(getSupportFragmentManager(),
                 getApplicationContext());

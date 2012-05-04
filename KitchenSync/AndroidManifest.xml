@@ -44,6 +44,16 @@
             android:windowSoftInputMode="adjustNothing" >
         </activity>
         <activity
+            android:name=".view.EditStoresActivity"
+            android:screenOrientation="fullSensor"
+            android:windowSoftInputMode="adjustNothing" >
+        </activity>
+        <activity
+            android:name=".view.EditCategoriesActivity"
+            android:screenOrientation="fullSensor"
+            android:windowSoftInputMode="adjustNothing" >
+        </activity>
+        <activity
             android:name="com.google.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
         <provider

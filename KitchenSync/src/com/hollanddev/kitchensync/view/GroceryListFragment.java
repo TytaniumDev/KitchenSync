@@ -16,7 +16,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,9 +46,9 @@ import com.hollanddev.kitchensync.R;
 import com.hollanddev.kitchensync.R.anim;
 import com.hollanddev.kitchensync.R.layout;
 import com.hollanddev.kitchensync.model.GroceryItem;
-import com.hollanddev.kitchensync.model.KitchenSyncApplication;
 import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
+import com.hollanddev.kitchensync.model.KitchenSyncApplication;
 import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
 import com.hollanddev.kitchensync.util.GroceryItemUtil;
 
@@ -59,17 +58,17 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     private static final int GROCERY_LIST_LOADER = 0x01;
     private static final String ALL_STORES = "All Stores";
     private static final String PREFS_FILTER = "curfilter";
+    private static final String[] GROCERY_ITEMS_PROJECTION =
+        {
+        GroceryItems.ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
+        GroceryItems.STORE,
+        GroceryItems.CATEGORY, GroceryItems.ROWINDEX
+        };
 
     private SimpleCursorAdapter mAdapter;
     private ListView mListView;
     private String mCurFilter;
     private MenuItem mRefreshItem;
-    private final String[] mGroceryItemProjection =
-    {
-            GroceryItems.ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
-            GroceryItems.STORE,
-            GroceryItems.CATEGORY, GroceryItems.ROWINDEX
-    };
     private ArrayAdapter<String> mFilterAdapter;
     private Multiset<String> mStoreBag;
 
@@ -99,7 +98,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         getSherlockActivity().getSupportLoaderManager().initLoader(GROCERY_LIST_LOADER, null, this);
         mAdapter = new GroceryListAdapter(getSherlockActivity().getApplicationContext(),
                 R.layout.grocery_list_row, null,
-                uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+                uiBindFrom, uiBindTo, 0);
         mListView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
 
@@ -238,7 +237,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         {
             // Apply filter
             cursorLoader = new CursorLoader(getSherlockActivity(), GroceryItems.CONTENT_URI,
-                    mGroceryItemProjection, GroceryItems.STORE + " LIKE ?", new String[] {
+                    GROCERY_ITEMS_PROJECTION, GroceryItems.STORE + " LIKE ?", new String[] {
                             "%" + mCurFilter + "%"
                     },
                     null);
@@ -247,7 +246,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         {
             // No filter
             cursorLoader = new CursorLoader(getSherlockActivity(), GroceryItems.CONTENT_URI,
-                    mGroceryItemProjection, null, null,
+                    GROCERY_ITEMS_PROJECTION, null, null,
                     null);
         }
         return cursorLoader;
@@ -322,7 +321,6 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         mFilterAdapter = new ArrayAdapter<String>(getSherlockActivity().getApplicationContext(),
                 R.layout.filter_spinner);
         OnNavigationListener navListener = new OnNavigationListener() {
-
             @Override
             public boolean onNavigationItemSelected(int itemPosition, long itemId) {
                 mCurFilter = mFilterAdapter.getItem(itemPosition);

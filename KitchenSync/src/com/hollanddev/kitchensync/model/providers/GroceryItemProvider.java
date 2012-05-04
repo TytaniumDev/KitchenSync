@@ -272,6 +272,7 @@ public class GroceryItemProvider extends ContentProvider
             case GROCERYITEMS:
                 Log.i(TAG, "Updating a grocery item");
                 count = db.update(GROCERYITEMS_TABLE_NAME, values, where, whereArgs);
+                updateStoresAndCategories(values);
                 break;
 
             case RECENTITEMS:

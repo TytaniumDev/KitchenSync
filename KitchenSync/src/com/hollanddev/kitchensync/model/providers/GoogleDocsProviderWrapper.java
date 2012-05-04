@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.hollanddev.kitchensync.R;
 import com.hollanddev.kitchensync.model.GroceryItem;
 import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
@@ -36,6 +37,10 @@ public class GoogleDocsProviderWrapper {
     }
 
     // Wrapper methods for ContentProvider
+    public int delete(Uri uri, String where, String[] whereArgs)
+    {
+        return delete(uri, where, whereArgs, null);
+    }
     public int delete(Uri uri, String where, String[] whereArgs, String rowIndex)
     {
         int count = mContentResolver.delete(uri, where, whereArgs);
@@ -132,17 +137,25 @@ public class GoogleDocsProviderWrapper {
                                 String itemName = item.getItemName();
                                 if (googleDocsData.containsKey(itemName))
                                 {
-                                    Log.i("GroceryItemProvider", "GoogleDocsSync: updating "
-                                            + itemName
-                                            + " in sql");
-                                    mContentResolver.update(
-                                            GroceryItems.CONTENT_URI,
-                                            GroceryItemUtil
-                                                    .makeContentValuesFromGroceryItem(googleDocsData
-                                                            .get(itemName)), GroceryItems.ITEMNAME
-                                                    + "=?", new String[] {
-                                                itemName
-                                            });
+                                    //See if the two items are exactly the same, only update if they aren't
+                                    if(!item.fullEquals(googleDocsData.get(itemName)))
+                                    {
+                                        Log.i("GroceryItemProvider", "GoogleDocsSync: updating "
+                                                + itemName
+                                                + " in sql");
+                                        mContentResolver.update(
+                                                GroceryItems.CONTENT_URI,
+                                                GroceryItemUtil
+                                                .makeContentValuesFromGroceryItem(googleDocsData
+                                                        .get(itemName)), GroceryItems.ITEMNAME
+                                                        + "=?", new String[] {
+                                                    itemName
+                                                });
+                                    }
+                                    else
+                                    {
+                                        Log.i("GroceryItemProvider", "GoogleDocsSync: items exactly the same, not updating");
+                                    }
                                 }
                                 else
                                 {
@@ -225,7 +238,7 @@ public class GoogleDocsProviderWrapper {
     private boolean isGoogleDocsEnabled()
     {
         if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
-                "GOOGLE_DOCS_SYNC", true))
+                mContext.getString(R.string.key_google_docs_sync), true))
         {
             if (gDocsHelper != null)
             {
