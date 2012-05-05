@@ -220,7 +220,6 @@ public class GroceryItemProvider extends ContentProvider
         switch (sUriMatcher.match(uri))
         {
             case GROCERYITEMS:
-                // Log.i(TAG, "Querying a grocery item");
                 qb.setTables(GROCERYITEMS_TABLE_NAME);
                 qb.setProjectionMap(groceryItemProjectionMap);
                 cursor = qb.query(dbHelper.getReadableDatabase(), projection, selection,
@@ -229,16 +228,33 @@ public class GroceryItemProvider extends ContentProvider
                 break;
 
             case RECENTITEMS:
-                // Log.i(TAG, "Querying a recent item");
                 db = dbHelper.getReadableDatabase();
-                query = "SELECT * FROM " + RECENTITEMS_TABLE_NAME
-                        + " WHERE NOT EXISTS (SELECT * FROM "
-                        + GROCERYITEMS_TABLE_NAME + " WHERE " + RECENTITEMS_TABLE_NAME + "."
-                        + RecentItems.ITEMNAME + " = "
-                        + GROCERYITEMS_TABLE_NAME + "." + GroceryItems.ITEMNAME + ") ORDER BY "
-                        + RecentItems.FREQUENCY
-                        + " DESC ";
-                cursor = db.rawQuery(query, null);
+                // Check if filtering is needed
+                if (selection != null && selection.contains("LIKE"))
+                {
+                    // Need to do filtering
+                    query = "SELECT * FROM " + RECENTITEMS_TABLE_NAME
+                            + " WHERE " + RecentItems.ITEMNAME
+                            + " LIKE ? AND NOT EXISTS (SELECT * FROM "
+                            + GROCERYITEMS_TABLE_NAME + " WHERE " + RECENTITEMS_TABLE_NAME + "."
+                            + RecentItems.ITEMNAME + " = "
+                            + GROCERYITEMS_TABLE_NAME + "." + GroceryItems.ITEMNAME + ") ORDER BY "
+                            + RecentItems.FREQUENCY
+                            + " DESC ";
+                    cursor = db.rawQuery(query, selectionArgs);
+                }
+                else
+                {
+                    // No filtering
+                    query = "SELECT * FROM " + RECENTITEMS_TABLE_NAME
+                            + " WHERE NOT EXISTS (SELECT * FROM "
+                            + GROCERYITEMS_TABLE_NAME + " WHERE " + RECENTITEMS_TABLE_NAME + "."
+                            + RecentItems.ITEMNAME + " = "
+                            + GROCERYITEMS_TABLE_NAME + "." + GroceryItems.ITEMNAME + ") ORDER BY "
+                            + RecentItems.FREQUENCY
+                            + " DESC ";
+                    cursor = db.rawQuery(query, null);
+                }
                 break;
 
             case STORES:
@@ -344,7 +360,7 @@ public class GroceryItemProvider extends ContentProvider
         // If they aren't empty, add to database
         if (storeValuesAsCSV.length() > 0)
         {
-            for(String store: storeValuesAsCSV.split(","))
+            for (String store : storeValuesAsCSV.split(","))
             {
                 store = store.trim();
                 ContentValues storeCV = new ContentValues();

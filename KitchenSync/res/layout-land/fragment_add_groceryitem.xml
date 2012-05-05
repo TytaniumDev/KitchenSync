@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/add_groceryitem_frame"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+     android:orientation="vertical">
     <TableLayout
         android:id="@+id/grocery_add_item_input_table"
         android:layout_width="match_parent"
@@ -16,15 +17,15 @@
                 android:layout_height="wrap_content"
                 android:padding="4dip"
                 android:text="@string/grocery_item_name" />
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/grocery_add_item_itemname_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:imeOptions="actionNext"
+                android:textColor="@android:color/black"
                 android:inputType="text"
-                android:nextFocusDown="@+id/grocery_add_item_amount_field"
-                android:padding="4dip" />
+                android:nextFocusDown="@+id/grocery_add_item_amount_field" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -38,16 +39,16 @@
                 android:layout_weight="1"
                 android:imeOptions="actionNext"
                 android:inputType="text"
-                android:nextFocusDown="@+id/grocery_add_item_category_field"
-                android:padding="4dip" />
+                android:textColor="@android:color/black"
+                android:nextFocusDown="@+id/grocery_add_item_category_field" />
             <ImageButton
                 android:id="@+id/grocery_add_item_store_field_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/store_field_add"
-                android:paddingLeft="8dp"
-                android:src="@drawable/ic_action_add" />
+                android:src="@android:drawable/ic_menu_add" />
         </TableRow>
         <TableRow android:layout_marginBottom="8dp" >
             <TextView
@@ -59,12 +60,12 @@
             <EditText
                 android:id="@+id/grocery_add_item_amount_field"
                 android:layout_width="match_parent"
+                android:textColor="@android:color/black"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:imeOptions="actionNext"
                 android:inputType="text"
-                android:nextFocusDown="@+id/grocery_add_item_store_field"
-                android:padding="4dip" />
+                android:nextFocusDown="@+id/grocery_add_item_store_field" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -75,6 +76,7 @@
                 android:id="@+id/grocery_add_item_category_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
                 android:layout_weight="1"
                 android:imeOptions="actionDone"
                 android:inputType="text"
@@ -83,9 +85,10 @@
                 android:id="@+id/grocery_add_item_category_field_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/category_field_set"
-                android:src="@drawable/custom_edit_dropdown" />
+                android:src="@android:drawable/ic_menu_set_as" />
         </TableRow>
     </TableLayout>
     <Button

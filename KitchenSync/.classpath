@@ -9,8 +9,8 @@
 	<classpathentry kind="lib" path="libs/guice-3.0-no_aop.jar"/>
 	<classpathentry kind="lib" path="libs/roboguice-2.0-RC1.jar"/>
 	<classpathentry kind="lib" path="libs/javax.inject.jar"/>
-	<classpathentry kind="lib" path="libs/guava-11.0.2.jar"/>
 	<classpathentry kind="lib" path="libs/AdWhirlSDK_Android_3.1.1.jar"/>
 	<classpathentry kind="lib" path="libs/GoogleAdMobAdsSdk-6.0.0.jar"/>
+	<classpathentry kind="lib" path="libs/guava-12.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -57,6 +58,9 @@ public class GoogleDocsProviderWrapper {
         return count;
     }
 
+    public void notifyChange(Uri contentUri, ContentObserver object) {
+        mContentResolver.notifyChange(contentUri, object);
+    }
     public String getType(Uri uri)
     {
         return mContentResolver.getType(uri);
@@ -265,4 +269,5 @@ public class GoogleDocsProviderWrapper {
         sUriMatcher.addURI(GroceryItemProvider.AUTHORITY,
                 GroceryItemProvider.RECENTITEMS_TABLE_NAME, GroceryItemProvider.RECENTITEMS);
     }
+
 }

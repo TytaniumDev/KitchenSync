@@ -52,18 +52,17 @@ import com.hollanddev.kitchensync.model.KitchenSyncApplication;
 import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
 import com.hollanddev.kitchensync.util.GroceryItemUtil;
 
-
 public class GroceryListFragment extends RoboSherlockFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final int GROCERY_LIST_LOADER = 0x01;
     private static final String ALL_STORES = "All Stores";
     private static final String PREFS_FILTER = "curfilter";
     private static final String[] GROCERY_ITEMS_PROJECTION =
-        {
-        GroceryItems.ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
-        GroceryItems.STORE,
-        GroceryItems.CATEGORY, GroceryItems.ROWINDEX
-        };
+    {
+            GroceryItems.ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
+            GroceryItems.STORE,
+            GroceryItems.CATEGORY, GroceryItems.ROWINDEX
+    };
 
     private SimpleCursorAdapter mAdapter;
     private ListView mListView;
@@ -71,12 +70,15 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     private MenuItem mRefreshItem;
     private ArrayAdapter<String> mFilterAdapter;
     private Multiset<String> mStoreBag;
+    private GoogleDocsProviderWrapper mContentResolver;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View root = inflater.inflate(R.layout.fragment_grocerylist, container, false);
         mListView = (ListView) root.findViewById(R.id.grocerylist_listview);
+        mContentResolver = ((KitchenSyncApplication) getSherlockActivity().getApplication())
+                .getGoogleDocsProviderWrapper();
         return root;
     }
 
@@ -142,8 +144,6 @@ public class GroceryListFragment extends RoboSherlockFragment implements
             final String rowIndex = fullItemValues.getAsString(GroceryItems.ROWINDEX);
             final String itemName = itemValues.getAsString(GroceryItems.ITEMNAME);
             final String storesAsCSV = itemValues.getAsString(GroceryItems.STORE);
-            final GoogleDocsProviderWrapper gdocProviderWrapper = ((KitchenSyncApplication) getSherlockActivity()
-                    .getApplication()).getGoogleDocsProviderWrapper();
             final Animation anim = AnimationUtils.loadAnimation(getSherlockActivity()
                     .getApplicationContext(),
                     R.anim.shrink_fade_out_from_bottom);
@@ -157,16 +157,16 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                     {
                         public void run()
                         {
-                            gdocProviderWrapper.delete(
+                            mContentResolver.delete(
                                     GroceryItems.CONTENT_URI,
                                     GroceryItems.ITEMNAME + "=?", new String[]
                                     {
                                         itemName
                                     }, rowIndex);
-                            gdocProviderWrapper.insert(RecentItems.CONTENT_URI, itemValues);
-                            getSherlockActivity().getContentResolver().notifyChange(
+                            mContentResolver.insert(RecentItems.CONTENT_URI, itemValues);
+                            mContentResolver.notifyChange(
                                     GroceryItems.CONTENT_URI, null);
-                            getSherlockActivity().getContentResolver().notifyChange(
+                            mContentResolver.notifyChange(
                                     RecentItems.CONTENT_URI, null);
                             view.invalidate();
                         }
@@ -294,8 +294,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                     {
                         public void run()
                         {
-                            ((KitchenSyncApplication) getSherlockActivity().getApplication())
-                                    .getGoogleDocsProviderWrapper().syncWithGoogleDocs();
+                            mContentResolver.syncWithGoogleDocs();
                             fillStoreSelectionSpinner();
                         }
                     }, 150);

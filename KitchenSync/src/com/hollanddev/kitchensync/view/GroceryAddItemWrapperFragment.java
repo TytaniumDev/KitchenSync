@@ -41,6 +41,7 @@ public class GroceryAddItemWrapperFragment extends RoboSherlockFragment
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.grocery_additem_menu, menu);
         final MenuItem switchViews = (MenuItem) menu.findItem(R.id.grocery_additem_menu_switch);
+        final MenuItem clearFields = (MenuItem) menu.findItem(R.id.grocery_additem_menu_clear);
 
         switchViews.setOnMenuItemClickListener(new OnMenuItemClickListener()
         {
@@ -55,13 +56,14 @@ public class GroceryAddItemWrapperFragment extends RoboSherlockFragment
                 {
                     // On Normal Add screen, switches to Quick Add
                     switchViews.setTitle(R.string.switch_to_quick_add);
+                    clearFields.setVisible(true);
                 }
                 else
                 {
                     // On Quick Add screen, switches to Normal Add
                     switchViews.setTitle(R.string.switch_to_add);
+                    clearFields.setVisible(false);
                 }
-                // viewFlipper.showNext();
                 return true;
             }
         });

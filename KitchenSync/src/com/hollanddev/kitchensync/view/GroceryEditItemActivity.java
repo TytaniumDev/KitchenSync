@@ -42,7 +42,7 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
     @InjectView(R.id.grocery_add_item_add_button)
     Button mButton;
     @InjectView(R.id.grocery_add_item_itemname_field)
-    EditText mItemName;
+    AutoCompleteTextView mItemName;
     @InjectView(R.id.grocery_add_item_amount_field)
     EditText mAmount;
     @InjectView(R.id.grocery_add_item_store_field)
@@ -140,6 +140,9 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
         mCategory.setAdapter(getAutoCompleteViewAdapter(Categories.CATEGORY,
                 Categories.CONTENT_URI, Categories.ITEM_ID, Categories.FREQUENCY));
         mCategory.setThreshold(0);
+        mItemName.setAdapter(getAutoCompleteViewAdapter(RecentItems.ITEMNAME,
+                RecentItems.CONTENT_URI, RecentItems.ITEM_ID, RecentItems.FREQUENCY));
+        mItemName.setThreshold(0);
     }
 
     private SimpleCursorAdapter getAutoCompleteViewAdapter(final String columnName,

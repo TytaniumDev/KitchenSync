@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.hollanddev.kitchensync.R;
 import com.hollanddev.kitchensync.model.GroceryItem.Categories;
@@ -43,7 +44,7 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
     @InjectView(R.id.grocery_add_item_add_button)
     Button mAddToListButton;
     @InjectView(R.id.grocery_add_item_itemname_field)
-    EditText mItemName;
+    AutoCompleteTextView mItemName;
     @InjectView(R.id.grocery_add_item_amount_field)
     EditText mAmount;
     @InjectView(R.id.grocery_add_item_store_field)
@@ -64,6 +65,7 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         View root = inflater.inflate(R.layout.fragment_add_groceryitem, container, false);
         mContentResolver = ((KitchenSyncApplication) getSherlockActivity().getApplication())
                 .getGoogleDocsProviderWrapper();
+        setHasOptionsMenu(true);
         return root;
     }
 
@@ -94,10 +96,9 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
             public void onClick(View v)
             {
                 addCurrentItem();
-                // Invalidate adapters to refresh data
-
             }
         });
+
     }
 
     private void setupCustomEditViews()
@@ -108,6 +109,9 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         mCategory.setAdapter(getAutoCompleteViewAdapter(Categories.CATEGORY,
                 Categories.CONTENT_URI, Categories.ITEM_ID, Categories.FREQUENCY));
         mCategory.setThreshold(0);
+        mItemName.setAdapter(getAutoCompleteViewAdapter(RecentItems.ITEMNAME,
+                RecentItems.CONTENT_URI, RecentItems.ITEM_ID, RecentItems.FREQUENCY));
+        mItemName.setThreshold(0);
     }
 
     private void setupStoreButton()
@@ -246,11 +250,7 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         // Update recent items so it doesn't show newly added item
         getSherlockActivity().getContentResolver().notifyChange(
                 RecentItems.CONTENT_URI, null);
-        // Reset text fields
-        mItemName.setText("");
-        mAmount.setText("");
-        mStore.setText("");
-        mCategory.setText("");
+        clearAllFields();
     }
 
     private ContentValues makeContentValuesFromViews()
@@ -262,5 +262,24 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         values.put(GroceryItems.CATEGORY, mCategory.getText().toString());
         values.put(GroceryItems.ROWINDEX, "");
         return values;
+    }
+
+    private void clearAllFields()
+    {
+        // Reset text fields
+        mItemName.setText("");
+        mAmount.setText("");
+        mStore.setText("");
+        mCategory.setText("");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean result = super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.grocery_additem_menu_clear)
+        {
+            clearAllFields();
+        }
+        return result;
     }
 }
