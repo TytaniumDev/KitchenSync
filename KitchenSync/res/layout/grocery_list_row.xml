@@ -37,8 +37,21 @@
         android:layout_toRightOf="@+id/grocery_row_item_name"
         android:ellipsize="end"
         android:gravity="right"
-        android:padding="8dp"
+        android:paddingTop="4dp"
         android:singleLine="true"
+        android:textColor="#000000" />
+    <TextView
+        android:id="@+id/grocery_row_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/grocery_row_syncing_icon"
+        android:layout_toRightOf="@+id/grocery_row_amount"
+        android:layout_alignParentBottom="true"
+        android:ellipsize="end"
+        android:gravity="right"
+        android:paddingBottom="4dp"
+        android:singleLine="true"
+        android:textStyle="italic"
         android:textColor="#000000" />
     <ImageView
         android:id="@+id/grocery_row_syncing_icon"
@@ -48,13 +61,28 @@
         android:layout_toLeftOf="@+id/grocery_row_dropdown"
         android:background="@android:color/transparent"
         android:contentDescription="@string/currently_syncing_description"
-        android:padding="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
         android:src="@drawable/ic_dialog_alert_holo_light" />
+<!--     <ImageView -->
+<!--         android:id="@+id/grocery_row_category_icon" -->
+<!--         android:layout_width="wrap_content" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_centerVertical="true" -->
+<!--         android:layout_toLeftOf="@+id/grocery_row_dropdown" -->
+<!--         android:background="@android:color/holo_red_light" -->
+<!--         android:layout_marginLeft="8dp" -->
+<!--         android:layout_marginTop="8dp" -->
+<!--         android:layout_marginBottom="8dp" -->
+<!--         android:src="@drawable/ic_action_refresh" /> -->
     <ImageButton 
         android:id="@+id/grocery_row_dropdown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/dropdown_button_description"
         android:layout_alignParentRight="true"

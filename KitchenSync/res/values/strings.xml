@@ -16,7 +16,7 @@
     <string name="switch_to_add">Switch to Add Recent Item View</string>
     <string name="switch_to_quick_add">Switch to Add Recent Item View</string>
     <string name="clear_all_fields">Clear Fields</string>
-    <string name="currently_syncing_description">Currently Syncing</string>
+    <string name="currently_syncing_description">Out of Sync</string>
     <string name="dropdown_button_description">More Options</string>
     <string name="recent_items_add_image">Add This Item To Grocery List</string>
     <string name="store_field_add">Add a Store</string>
@@ -36,6 +36,11 @@
     <string-array name="grocery_dialog_options">
         <item>Edit</item>
     </string-array>
+    <!-- Text in Menus -->
+    <string name="grocery_menu_sort_alphabetical_asc">Sort Alphabetically A-Z</string>
+    <string name="grocery_menu_sort_alphabetical_desc">Sort Alphabetically Z-A</string>
+    <string name="grocery_menu_sort_category_asc">Sort by Category A-Z</string>
+    <string name="grocery_menu_sort_category_desc">Sort by Category Z-A</string>
     <!-- Generics -->
     <string name="save">Save</string>
     <string name="settings">Settings</string>

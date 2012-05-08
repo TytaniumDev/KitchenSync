@@ -57,6 +57,10 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     private static final int GROCERY_LIST_LOADER = 0x01;
     private static final String ALL_STORES = "All Stores";
     private static final String PREFS_FILTER = "curfilter";
+    private static final String SORT_MODE_ALPHABETICAL = "sortmode_alphabetical";
+    private static final String SORT_MODE_CATEGORY = "sortmode_category";
+    private static final String SORT_MODE_ASC = "ASC";
+    private static final String SORT_MODE_DESC = "DESC";
     private static final String[] GROCERY_ITEMS_PROJECTION =
     {
             GroceryItems.ITEM_ID, GroceryItems.ITEMNAME, GroceryItems.AMOUNT,
@@ -68,6 +72,8 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     private ListView mListView;
     private String mCurFilter;
     private MenuItem mRefreshItem;
+    private MenuItem mSortAlphabetical;
+    private MenuItem mSortCategory;
     private ArrayAdapter<String> mFilterAdapter;
     private Multiset<String> mStoreBag;
     private GoogleDocsProviderWrapper mContentResolver;
@@ -90,11 +96,13 @@ public class GroceryListFragment extends RoboSherlockFragment implements
 
         String[] uiBindFrom =
         {
-                GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE
+                GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE,
+                GroceryItems.CATEGORY
         };
         int[] uiBindTo =
         {
-                R.id.grocery_row_item_name, R.id.grocery_row_amount, R.id.grocery_row_store
+                R.id.grocery_row_item_name, R.id.grocery_row_amount, R.id.grocery_row_store,
+                R.id.grocery_row_category
         };
 
         getSherlockActivity().getSupportLoaderManager().initLoader(GROCERY_LIST_LOADER, null, this);
@@ -128,8 +136,10 @@ public class GroceryListFragment extends RoboSherlockFragment implements
             super.bindView(view, context, cursor);
             // Syncing icon
             ImageView syncingView = (ImageView) view.findViewById(R.id.grocery_row_syncing_icon);
-            if (cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ROWINDEX))
-                    .length() > 0) {
+            if (PreferenceManager.getDefaultSharedPreferences(getSherlockActivity()).getBoolean(
+                    "GOOGLE_DOCS_SYNC", true)
+                    && cursor.getString(cursor.getColumnIndexOrThrow(GroceryItems.ROWINDEX))
+                            .length() > 0) {
                 syncingView.setVisibility(View.GONE);
             }
             // Delete Button
@@ -183,7 +193,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
             dropDownButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showOptionsDialog(fullItemValues);
+                    showOptionsDialog(fullItemValues, v);
                 }
             });
 
@@ -191,7 +201,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
             view.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    showOptionsDialog(fullItemValues);
+                    showOptionsDialog(fullItemValues, v);
                     return true;
                 }
             });
@@ -214,15 +224,19 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         }
     }
 
-    private void showOptionsDialog(final ContentValues values)
+    private void showOptionsDialog(final ContentValues values, final View view)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(getSherlockActivity());
         builder.setItems(R.array.grocery_dialog_options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(getSherlockActivity(), GroceryEditItemActivity.class);
-                intent.putExtra(GroceryItem.CONTENT_VALUES, values);
-                startActivity(intent);
+                if (which == 0)
+                {
+                    // Edit
+                    Intent intent = new Intent(getSherlockActivity(), GroceryEditItemActivity.class);
+                    intent.putExtra(GroceryItem.CONTENT_VALUES, values);
+                    startActivity(intent);
+                }
             }
         });
         AlertDialog alert = builder.create();
@@ -233,6 +247,8 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         CursorLoader cursorLoader;
+        String orderBy = getOrderBySQL();
+        Log.i("Loader", "SQL orderby is " + orderBy);
         if (mCurFilter != null && !mCurFilter.equals(ALL_STORES))
         {
             // Apply filter
@@ -240,16 +256,26 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                     GROCERY_ITEMS_PROJECTION, GroceryItems.STORE + " LIKE ?", new String[] {
                             "%" + mCurFilter + "%"
                     },
-                    null);
+                    orderBy);
         }
         else
         {
             // No filter
             cursorLoader = new CursorLoader(getSherlockActivity(), GroceryItems.CONTENT_URI,
                     GROCERY_ITEMS_PROJECTION, null, null,
-                    null);
+                    orderBy);
         }
         return cursorLoader;
+    }
+
+    private String getOrderBySQL()
+    {
+        String alphaSort = getSherlockActivity().getPreferences(0).getString(
+                SORT_MODE_ALPHABETICAL, SORT_MODE_ASC);
+        String categorySort = getSherlockActivity().getPreferences(0).getString(SORT_MODE_CATEGORY,
+                SORT_MODE_ASC);
+        return GroceryItems.CATEGORY + " " + categorySort + ", " + GroceryItems.ITEMNAME
+                + " COLLATE NOCASE " + alphaSort;
     }
 
     @Override
@@ -266,8 +292,11 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
         super.onCreateOptionsMenu(menu, inflater);
+        final LoaderCallbacks<Cursor> lc = this;
         inflater.inflate(R.menu.grocery_list_menu, menu);
         mRefreshItem = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
+        mSortAlphabetical = (MenuItem) menu.findItem(R.id.grocery_list_menu_sort_alphabetical);
+        mSortCategory = (MenuItem) menu.findItem(R.id.grocery_list_menu_sort_category);
         if (PreferenceManager.getDefaultSharedPreferences(getSherlockActivity()).getBoolean(
                 "GOOGLE_DOCS_SYNC", true))
         {
@@ -307,6 +336,49 @@ public class GroceryListFragment extends RoboSherlockFragment implements
             // Google docs syncing turned off, hide syncing icon
             mRefreshItem.setVisible(false);
         }
+        // Sorting selections
+        mSortAlphabetical.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
+                // If it's already on alphabetical, switch asc/desc
+                if (getSherlockActivity().getPreferences(0).getString(SORT_MODE_ALPHABETICAL,
+                        SORT_MODE_ASC).equals(SORT_MODE_ASC))
+                {
+                    editor.putString(SORT_MODE_ALPHABETICAL, SORT_MODE_DESC);
+                    item.setTitle(R.string.grocery_menu_sort_alphabetical_asc);
+                }
+                else
+                {
+                    editor.putString(SORT_MODE_ALPHABETICAL, SORT_MODE_ASC);
+                    item.setTitle(R.string.grocery_menu_sort_alphabetical_desc);
+                }
+                editor.commit();
+                getLoaderManager().restartLoader(0, null, lc);
+                return true;
+            }
+        });
+        mSortCategory.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
+                // If it's already on alphabetical, switch asc/desc
+                if (getSherlockActivity().getPreferences(0).getString(SORT_MODE_CATEGORY,
+                        SORT_MODE_ASC).equals(SORT_MODE_ASC))
+                {
+                    editor.putString(SORT_MODE_CATEGORY, SORT_MODE_DESC);
+                    item.setTitle(R.string.grocery_menu_sort_category_asc);
+                }
+                else
+                {
+                    editor.putString(SORT_MODE_CATEGORY, SORT_MODE_ASC);
+                    item.setTitle(R.string.grocery_menu_sort_category_desc);
+                }
+                editor.commit();
+                getLoaderManager().restartLoader(0, null, lc);
+                return true;
+            }
+        });
         // Grocery store spinner filter stuff
         ActionBar actionBar = getSherlockActivity().getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
@@ -316,7 +388,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         Log.i("GroceryListFragment", "Loaded from sharedprefs, curfilter is: " + mCurFilter);
 
         // Filter ArrayAdapter
-        final LoaderCallbacks<Cursor> lc = this;
+
         mFilterAdapter = new ArrayAdapter<String>(getSherlockActivity().getApplicationContext(),
                 R.layout.filter_spinner);
         OnNavigationListener navListener = new OnNavigationListener() {

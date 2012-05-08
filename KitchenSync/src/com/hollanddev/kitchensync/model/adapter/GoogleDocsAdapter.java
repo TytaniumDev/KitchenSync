@@ -71,47 +71,50 @@ public class GoogleDocsAdapter
                     ssList = ssf.getSpreadSheet(GROCERY_LIST_DOC_NAME, true);
                     newDocument = true;
                 }
-                SpreadSheet ss = ssList.get(0);
-                Log.i(tag, "Got ss");
-                ArrayList<WorkSheet> wsList = ss.getAllWorkSheets();
-                Log.i(tag, "Got wslist");
-                worksheet = wsList.get(0);
-                Log.i(tag, "Number of rows: " + worksheet.getRowCount());
-                Log.i(tag, "Got worksheet: " + worksheet.getTitle());
-                if (!worksheet.getTitle().equals(GROCERY_LIST_DOC_NAME))
+                if (ssList != null && ssList.size() > 0)
                 {
-                    newDocument = true;
-                }
-                if (newDocument)
-                {
-                    Log.i(tag, "Adding new worksheet");
-                    // Create worksheet
-                    ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
-                    // Remove old default worksheet
-                    ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
-                    // Log.i(tag, "Columns: " +
-                    // ss.getAllWorkSheets().get(0).getColumns());
-                    wsList = ss.getAllWorkSheets();
+                    SpreadSheet ss = ssList.get(0);
+                    Log.i(tag, "Got ss");
+                    ArrayList<WorkSheet> wsList = ss.getAllWorkSheets();
                     Log.i(tag, "Got wslist");
                     worksheet = wsList.get(0);
+                    Log.i(tag, "Number of rows: " + worksheet.getRowCount());
                     Log.i(tag, "Got worksheet: " + worksheet.getTitle());
-                }
-                //Add warning column
-                if(worksheet.getColCount() < columns.length)
-                {
-                    Log.i(tag, "Adding skip rows warning to gdoc");
-                    ArrayList<WorkSheetRow> olddata = worksheet.getData(false);
-                    ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
-                    ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
-                    worksheet = ss.getAllWorkSheets().get(0);
-                    for(WorkSheetRow row : olddata)
+                    if (!worksheet.getTitle().equals(GROCERY_LIST_DOC_NAME))
                     {
-                        worksheet.addListRow(convertWorkSheetRowToRecord(row));
+                        newDocument = true;
                     }
+                    if (newDocument)
+                    {
+                        Log.i(tag, "Adding new worksheet");
+                        // Create worksheet
+                        ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
+                        // Remove old default worksheet
+                        ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
+                        // Log.i(tag, "Columns: " +
+                        // ss.getAllWorkSheets().get(0).getColumns());
+                        wsList = ss.getAllWorkSheets();
+                        Log.i(tag, "Got wslist");
+                        worksheet = wsList.get(0);
+                        Log.i(tag, "Got worksheet: " + worksheet.getTitle());
+                    }
+                    // Add warning column
+                    if (worksheet.getColCount() < columns.length)
+                    {
+                        Log.i(tag, "Adding skip rows warning to gdoc");
+                        ArrayList<WorkSheetRow> olddata = worksheet.getData(false);
+                        ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
+                        ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
+                        worksheet = ss.getAllWorkSheets().get(0);
+                        for (WorkSheetRow row : olddata)
+                        {
+                            worksheet.addListRow(convertWorkSheetRowToRecord(row));
+                        }
+                    }
+                    spreadsheetKey = ss.getKey();
+                    Log.i(tag, "Got ss key");
+                    connected = true;
                 }
-                spreadsheetKey = ss.getKey();
-                Log.i(tag, "Got ss key");
-                connected = true;
             }
             return null;
         }
@@ -149,21 +152,21 @@ public class GoogleDocsAdapter
         }
 
     }
-    
+
     public HashMap<String, GroceryItem> getGroceryListMap()
     {
         HashMap<String, GroceryItem> map = null;
         if (connected)
         {
             map = new HashMap<String, GroceryItem>();
-            if(worksheet == null)
+            if (worksheet == null)
             {
                 Log.e(tag, "WARNING: Worksheet is null in getGroceryListMap");
             }
             else
             {
                 ArrayList<WorkSheetRow> rows = worksheet.getData(false);
-                if(rows != null)
+                if (rows != null)
                 {
                     for (WorkSheetRow row : rows)
                     {

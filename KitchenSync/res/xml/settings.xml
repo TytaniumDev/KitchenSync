@@ -7,12 +7,6 @@
         android:summaryOff="@string/settings_google_doc_sync_off"
         android:summaryOn="@string/settings_google_doc_sync_on" />
     <ListPreference
-        android:entries="@array/settings_text_size_list"
-        android:entryValues="@array/settings_text_size_list"
-        android:defaultValue="@string/medium"
-        android:key="@string/key_text_size"
-        android:title="@string/settings_text_size_title" />
-    <ListPreference
         android:entries="@array/settings_theme_list"
         android:entryValues="@array/settings_theme_list"
         android:defaultValue="@string/light"
