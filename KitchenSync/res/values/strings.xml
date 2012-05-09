@@ -37,6 +37,8 @@
         <item>Edit</item>
     </string-array>
     <!-- Text in Menus -->
+    <string name="grocery_menu_sort_alphabetical">Sort Alphabetically First</string>
+    <string name="grocery_menu_sort_category">Sort by Category First</string>
     <string name="grocery_menu_sort_alphabetical_asc">Sort Alphabetically A-Z</string>
     <string name="grocery_menu_sort_alphabetical_desc">Sort Alphabetically Z-A</string>
     <string name="grocery_menu_sort_category_asc">Sort by Category A-Z</string>

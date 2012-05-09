@@ -1,8 +1,10 @@
 
 package com.hollanddev.kitchensync.view;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -56,6 +59,8 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
     private ContentValues mOldValues;
     private ContentValues mNewValues;
     private GoogleDocsProviderWrapper mContentResolver;
+    private SimpleCursorAdapter mStoreAdapter;
+    private SimpleCursorAdapter mCategoryAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +72,8 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setIcon(R.drawable.grocery_list_icon);
         setupCustomEditViews();
+        setupStoreButton();
+        setupCategoryButton();
         Bundle extras = getIntent().getExtras();
         if (extras != null)
         {
@@ -143,6 +150,93 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
         mItemName.setAdapter(getAutoCompleteViewAdapter(RecentItems.ITEMNAME,
                 RecentItems.CONTENT_URI, RecentItems.ITEM_ID, RecentItems.FREQUENCY));
         mItemName.setThreshold(0);
+    }
+    
+    private void setupStoreButton()
+    {
+        // Build alert dialog for stores
+        final AlertDialog.Builder storeBuilder = new AlertDialog.Builder(this);
+        storeBuilder.setTitle(R.string.grocery_store_selector);
+        mStoreAdapter = new SimpleCursorAdapter(this,
+                R.layout.filter_spinner, getStoreCursor(), new String[] {
+                        Stores.STORE
+                }, new int[] {
+                        android.R.id.text1
+                }, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        mStoreAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        storeBuilder.setAdapter(mStoreAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Cursor cursor = (Cursor) mStoreAdapter.getItem(which);
+                String storeName = cursor.getString(cursor.getColumnIndexOrThrow(Stores.STORE));
+                String currentText = mStore.getText().toString();
+                if (currentText.length() > 0)
+                {
+                    mStore.setText(currentText + ", " + storeName);
+                }
+                else
+                {
+                    mStore.setText(storeName);
+                }
+            }
+        });
+        final AlertDialog storeAlert = storeBuilder.create();
+        storeAlert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        mStoreButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mStoreAdapter.changeCursor(getStoreCursor());
+                storeAlert.show();
+            }
+        });
+    }
+
+    private Cursor getStoreCursor()
+    {
+        return mContentResolver.query(Stores.CONTENT_URI,
+                new String[] {
+                        Stores.ITEM_ID, Stores.STORE
+                }, null, null, Stores.FREQUENCY + " DESC");
+    }
+
+    private void setupCategoryButton()
+    {
+        // Build alert dialog for categories
+        final AlertDialog.Builder categoryBuilder = new AlertDialog.Builder(this);
+        categoryBuilder.setTitle(R.string.grocery_category_selector);
+        mCategoryAdapter = new SimpleCursorAdapter(this,
+                R.layout.filter_spinner, getCategoryCursor(), new String[] {
+                        Categories.CATEGORY
+                }, new int[] {
+                        android.R.id.text1
+                }, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        mCategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categoryBuilder.setAdapter(mCategoryAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Cursor cursor = (Cursor) mCategoryAdapter.getItem(which);
+                String category = cursor.getString(cursor
+                        .getColumnIndexOrThrow(Categories.CATEGORY));
+                mCategory.setText(category);
+            }
+        });
+        final AlertDialog categoryAlert = categoryBuilder.create();
+        categoryAlert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        mCategoryButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCategoryAdapter.changeCursor(getCategoryCursor());
+                categoryAlert.show();
+            }
+        });
+    }
+
+    private Cursor getCategoryCursor()
+    {
+        return mContentResolver.query(Categories.CONTENT_URI,
+                new String[] {
+                        Categories.ITEM_ID, Categories.CATEGORY
+                }, null, null, Categories.FREQUENCY + " DESC");
     }
 
     private SimpleCursorAdapter getAutoCompleteViewAdapter(final String columnName,

@@ -228,7 +228,7 @@ public class GoogleDocsProviderWrapper {
 
     public void setAndroidAuth(AndroidAuthenticator auth)
     {
-        if (auth.getAuthToken("wise") != null)
+        if (isGoogleDocsEnabled() && auth.getAuthToken("wise") != null)
         {
             gDocsHelper = new GoogleDocsAdapter(auth, this);
             Log.i("GroceryItemProvider", "Got an auth token, gdocshelper enabled");

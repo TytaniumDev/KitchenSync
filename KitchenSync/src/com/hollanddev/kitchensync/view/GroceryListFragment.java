@@ -57,6 +57,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     private static final int GROCERY_LIST_LOADER = 0x01;
     private static final String ALL_STORES = "All Stores";
     private static final String PREFS_FILTER = "curfilter";
+    private static final String SORT_MODE_CURRENT = "sortmode_current";
     private static final String SORT_MODE_ALPHABETICAL = "sortmode_alphabetical";
     private static final String SORT_MODE_CATEGORY = "sortmode_category";
     private static final String SORT_MODE_ASC = "ASC";
@@ -74,6 +75,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     private MenuItem mRefreshItem;
     private MenuItem mSortAlphabetical;
     private MenuItem mSortCategory;
+    private MenuItem mSortOrder;
     private ArrayAdapter<String> mFilterAdapter;
     private Multiset<String> mStoreBag;
     private GoogleDocsProviderWrapper mContentResolver;
@@ -274,8 +276,19 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                 SORT_MODE_ALPHABETICAL, SORT_MODE_ASC);
         String categorySort = getSherlockActivity().getPreferences(0).getString(SORT_MODE_CATEGORY,
                 SORT_MODE_ASC);
-        return GroceryItems.CATEGORY + " " + categorySort + ", " + GroceryItems.ITEMNAME
-                + " COLLATE NOCASE " + alphaSort;
+        if (getSherlockActivity().getPreferences(0)
+                .getString(SORT_MODE_CURRENT, SORT_MODE_CATEGORY).equals(SORT_MODE_CATEGORY))
+        {
+            // Sort by category first
+            return GroceryItems.CATEGORY + " " + categorySort + ", " + GroceryItems.ITEMNAME
+                    + " COLLATE NOCASE " + alphaSort;
+        }
+        else
+        {
+            // Sort by alphabetical first
+            return GroceryItems.ITEMNAME + " COLLATE NOCASE " + alphaSort + ", "
+                    + GroceryItems.CATEGORY + " " + categorySort;
+        }
     }
 
     @Override
@@ -296,7 +309,9 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         inflater.inflate(R.menu.grocery_list_menu, menu);
         mRefreshItem = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
         mSortAlphabetical = (MenuItem) menu.findItem(R.id.grocery_list_menu_sort_alphabetical);
+        mSortOrder = (MenuItem) menu.findItem(R.id.grocery_list_menu_sort_order);
         mSortCategory = (MenuItem) menu.findItem(R.id.grocery_list_menu_sort_category);
+        setupSortingMenuItems(lc);
         if (PreferenceManager.getDefaultSharedPreferences(getSherlockActivity()).getBoolean(
                 "GOOGLE_DOCS_SYNC", true))
         {
@@ -336,49 +351,6 @@ public class GroceryListFragment extends RoboSherlockFragment implements
             // Google docs syncing turned off, hide syncing icon
             mRefreshItem.setVisible(false);
         }
-        // Sorting selections
-        mSortAlphabetical.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
-                // If it's already on alphabetical, switch asc/desc
-                if (getSherlockActivity().getPreferences(0).getString(SORT_MODE_ALPHABETICAL,
-                        SORT_MODE_ASC).equals(SORT_MODE_ASC))
-                {
-                    editor.putString(SORT_MODE_ALPHABETICAL, SORT_MODE_DESC);
-                    item.setTitle(R.string.grocery_menu_sort_alphabetical_asc);
-                }
-                else
-                {
-                    editor.putString(SORT_MODE_ALPHABETICAL, SORT_MODE_ASC);
-                    item.setTitle(R.string.grocery_menu_sort_alphabetical_desc);
-                }
-                editor.commit();
-                getLoaderManager().restartLoader(0, null, lc);
-                return true;
-            }
-        });
-        mSortCategory.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
-                // If it's already on alphabetical, switch asc/desc
-                if (getSherlockActivity().getPreferences(0).getString(SORT_MODE_CATEGORY,
-                        SORT_MODE_ASC).equals(SORT_MODE_ASC))
-                {
-                    editor.putString(SORT_MODE_CATEGORY, SORT_MODE_DESC);
-                    item.setTitle(R.string.grocery_menu_sort_category_asc);
-                }
-                else
-                {
-                    editor.putString(SORT_MODE_CATEGORY, SORT_MODE_ASC);
-                    item.setTitle(R.string.grocery_menu_sort_category_desc);
-                }
-                editor.commit();
-                getLoaderManager().restartLoader(0, null, lc);
-                return true;
-            }
-        });
         // Grocery store spinner filter stuff
         ActionBar actionBar = getSherlockActivity().getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
@@ -408,7 +380,103 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         };
         actionBar.setListNavigationCallbacks(mFilterAdapter, navListener);
         fillStoreSelectionSpinner();
+    }
 
+    private void setupSortingMenuItems(final LoaderCallbacks<Cursor> lc)
+    {
+        // Restore values
+        if (getSherlockActivity().getPreferences(0)
+                .getString(SORT_MODE_ALPHABETICAL, SORT_MODE_ASC).equals(SORT_MODE_ASC))
+        {
+            mSortAlphabetical.setTitle(R.string.grocery_menu_sort_alphabetical_desc);
+        }
+        else
+        {
+            mSortAlphabetical.setTitle(R.string.grocery_menu_sort_alphabetical_asc);
+        }
+        if (getSherlockActivity().getPreferences(0).getString(SORT_MODE_CATEGORY, SORT_MODE_ASC)
+                .equals(SORT_MODE_ASC))
+        {
+            mSortCategory.setTitle(R.string.grocery_menu_sort_category_desc);
+        }
+        else
+        {
+            mSortCategory.setTitle(R.string.grocery_menu_sort_category_asc);
+        }
+        if (getSherlockActivity().getPreferences(0)
+                .getString(SORT_MODE_CURRENT, SORT_MODE_CATEGORY).equals(SORT_MODE_CATEGORY))
+        {
+            mSortOrder.setTitle(R.string.grocery_menu_sort_alphabetical);
+        }
+        else
+        {
+            mSortOrder.setTitle(R.string.grocery_menu_sort_category);
+        }
+        // Set listeners
+        mSortAlphabetical.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
+                // If it's already on alphabetical, switch asc/desc
+                if (item.getTitle().equals(
+                        getResources().getString(R.string.grocery_menu_sort_alphabetical_asc)))
+                {
+                    editor.putString(SORT_MODE_ALPHABETICAL, SORT_MODE_ASC);
+                    item.setTitle(R.string.grocery_menu_sort_alphabetical_desc);
+                }
+                else
+                {
+                    editor.putString(SORT_MODE_ALPHABETICAL, SORT_MODE_DESC);
+                    item.setTitle(R.string.grocery_menu_sort_alphabetical_asc);
+                }
+                editor.commit();
+                getLoaderManager().restartLoader(0, null, lc);
+                return true;
+            }
+        });
+        mSortCategory.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
+                // If it's already on alphabetical, switch asc/desc
+                if (item.getTitle().equals(
+                        getResources().getString(R.string.grocery_menu_sort_category_asc)))
+                {
+                    editor.putString(SORT_MODE_CATEGORY, SORT_MODE_ASC);
+                    item.setTitle(R.string.grocery_menu_sort_category_desc);
+                }
+                else
+                {
+                    editor.putString(SORT_MODE_CATEGORY, SORT_MODE_DESC);
+                    item.setTitle(R.string.grocery_menu_sort_category_asc);
+                }
+                editor.commit();
+                getLoaderManager().restartLoader(0, null, lc);
+                return true;
+            }
+        });
+        mSortOrder.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
+                // If it's already on alphabetical, switch to category, and vice
+                // versa
+                if (item.getTitle().equals(
+                        getResources().getString(R.string.grocery_menu_sort_alphabetical)))
+                {
+                    editor.putString(SORT_MODE_CURRENT, SORT_MODE_ALPHABETICAL);
+                    item.setTitle(R.string.grocery_menu_sort_category);
+                }
+                else
+                {
+                    editor.putString(SORT_MODE_CURRENT, SORT_MODE_CATEGORY);
+                    item.setTitle(R.string.grocery_menu_sort_alphabetical);
+                }
+                editor.commit();
+                getLoaderManager().restartLoader(0, null, lc);
+                return true;
+            }
+        });
     }
 
     private void fillStoreSelectionSpinner()
