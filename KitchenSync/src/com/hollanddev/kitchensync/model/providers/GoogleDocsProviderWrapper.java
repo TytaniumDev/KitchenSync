@@ -42,6 +42,7 @@ public class GoogleDocsProviderWrapper {
     {
         return delete(uri, where, whereArgs, null);
     }
+
     public int delete(Uri uri, String where, String[] whereArgs, String rowIndex)
     {
         int count = mContentResolver.delete(uri, where, whereArgs);
@@ -61,6 +62,7 @@ public class GoogleDocsProviderWrapper {
     public void notifyChange(Uri contentUri, ContentObserver object) {
         mContentResolver.notifyChange(contentUri, object);
     }
+
     public String getType(Uri uri)
     {
         return mContentResolver.getType(uri);
@@ -141,8 +143,9 @@ public class GoogleDocsProviderWrapper {
                                 String itemName = item.getItemName();
                                 if (googleDocsData.containsKey(itemName))
                                 {
-                                    //See if the two items are exactly the same, only update if they aren't
-                                    if(!item.fullEquals(googleDocsData.get(itemName)))
+                                    // See if the two items are exactly the
+                                    // same, only update if they aren't
+                                    if (!item.fullEquals(googleDocsData.get(itemName)))
                                     {
                                         Log.i("GroceryItemProvider", "GoogleDocsSync: updating "
                                                 + itemName
@@ -150,15 +153,17 @@ public class GoogleDocsProviderWrapper {
                                         mContentResolver.update(
                                                 GroceryItems.CONTENT_URI,
                                                 GroceryItemUtil
-                                                .makeContentValuesFromGroceryItem(googleDocsData
-                                                        .get(itemName)), GroceryItems.ITEMNAME
+                                                        .makeContentValuesFromGroceryItem(googleDocsData
+                                                                .get(itemName)),
+                                                GroceryItems.ITEMNAME
                                                         + "=?", new String[] {
                                                     itemName
                                                 });
                                     }
                                     else
                                     {
-                                        Log.i("GroceryItemProvider", "GoogleDocsSync: items exactly the same, not updating");
+                                        Log.i("GroceryItemProvider",
+                                                "GoogleDocsSync: items exactly the same, not updating");
                                     }
                                 }
                                 else
@@ -228,21 +233,21 @@ public class GoogleDocsProviderWrapper {
 
     public void setAndroidAuth(AndroidAuthenticator auth)
     {
-        if (isGoogleDocsEnabled() && auth.getAuthToken("wise") != null)
+        if (isGoogleDocsSyncPrefEnabled() && isNetworkAvailable()
+                && auth.getAuthToken("wise") != null)
         {
             gDocsHelper = new GoogleDocsAdapter(auth, this);
             Log.i("GroceryItemProvider", "Got an auth token, gdocshelper enabled");
         }
         else
         {
-            Log.i("GroceryItemProvider", "Didn't get an auth token, gdocshelper should be null");
+            Log.i("GroceryItemProvider", "Not ready for gdocs, gdocshelper should be null");
         }
     }
 
     private boolean isGoogleDocsEnabled()
     {
-        if (PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
-                mContext.getString(R.string.key_google_docs_sync), true))
+        if (isGoogleDocsSyncPrefEnabled())
         {
             if (gDocsHelper != null)
             {
@@ -253,6 +258,12 @@ public class GoogleDocsProviderWrapper {
             }
         }
         return false;
+    }
+
+    private boolean isGoogleDocsSyncPrefEnabled()
+    {
+        return PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(
+                mContext.getString(R.string.key_google_docs_sync), true);
     }
 
     private boolean isNetworkAvailable() {
