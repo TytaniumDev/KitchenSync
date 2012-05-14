@@ -74,4 +74,7 @@
     <string name="settings_edit_stores_summary">Add/Remove Stores from Autocomplete</string>
     <string name="settings_edit_categories_title">Edit Categories</string>
     <string name="settings_edit_categories_summary">Add/Remove Categories from Autocomplete</string>
+    <!-- Error Messages -->
+    <string name="error_item_already_exists">Item already exists. Please edit the item instead.</string>
+    
 </resources>

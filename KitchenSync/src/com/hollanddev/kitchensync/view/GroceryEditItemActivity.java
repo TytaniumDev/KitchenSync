@@ -13,8 +13,8 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
@@ -110,16 +110,55 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
 
     private void saveCurrentItem()
     {
-        getNewValues();
-        mContentResolver.update(GroceryItems.CONTENT_URI, mNewValues,
-                GroceryItems.ITEM_ID + "=?", new String[] {
-                    mNewValues.getAsString(GroceryItems.ITEM_ID)
-                });
-        // Update recent items so it doesn't show newly added item
-        getContentResolver().notifyChange(
-                RecentItems.CONTENT_URI, null);
-        // Insert/increment values in stores and categories
-        finish();
+        String itemName = mItemName.getText().toString();
+        if (itemName.length() > 0)
+        {
+            // Check to make sure it isn't already in the database. This is so
+            // items aren't entered multiple times in google docs.
+            if (!hasItemNameChanged(itemName) || !doesItemNameExist(itemName))
+            {
+                getNewValues();
+                mContentResolver.update(GroceryItems.CONTENT_URI, mNewValues,
+                        GroceryItems.ITEM_ID + "=?", new String[] {
+                            mNewValues.getAsString(GroceryItems.ITEM_ID)
+                        });
+                // Update recent items so it doesn't show newly added item
+                getContentResolver().notifyChange(
+                        RecentItems.CONTENT_URI, null);
+                // Insert/increment values in stores and categories
+                finish();
+            }
+            else
+            {
+                // Show user an error message
+                Toast.makeText(this, R.string.error_item_already_exists, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private boolean hasItemNameChanged(String itemName)
+    {
+        return !(mOldValues.getAsString(GroceryItems.ITEMNAME).equals(itemName));
+    }
+
+    private boolean doesItemNameExist(String itemName)
+    {
+        Cursor cursor = mContentResolver.query(GroceryItems.CONTENT_URI, new String[] {
+                GroceryItems.ITEMNAME
+        }, GroceryItems.ITEMNAME + "=?", new String[] {
+                itemName
+        }, null);
+        if (cursor.getCount() > 0)
+        {
+            // Has rows with that itemname, already exists
+            cursor.close();
+            return true;
+        }
+        else
+        {
+            cursor.close();
+            return false;
+        }
     }
 
     private void setFields()
@@ -151,7 +190,7 @@ public class GroceryEditItemActivity extends RoboSherlockActivity {
                 RecentItems.CONTENT_URI, RecentItems.ITEM_ID, RecentItems.FREQUENCY));
         mItemName.setThreshold(0);
     }
-    
+
     private void setupStoreButton()
     {
         // Build alert dialog for stores

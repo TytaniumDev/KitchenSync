@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.actionbarsherlock.view.MenuItem;
@@ -243,14 +244,49 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
 
     private void addCurrentItem()
     {
-        // Make values
-        ContentValues values = makeContentValuesFromViews();
-        // Insert new grocery item
-        mContentResolver.insert(GroceryItems.CONTENT_URI, values);
-        // Update recent items so it doesn't show newly added item
-        getSherlockActivity().getContentResolver().notifyChange(
-                RecentItems.CONTENT_URI, null);
-        clearAllFields();
+        String itemName = mItemName.getText().toString();
+        if (itemName.length() > 0)
+        {
+            // Check to make sure it isn't already in the database. This is so
+            // items aren't entered multiple times in google docs.
+            if (!doesItemNameExist(itemName))
+            {
+
+                // Make values
+                ContentValues values = makeContentValuesFromViews();
+                // Insert new grocery item
+                mContentResolver.insert(GroceryItems.CONTENT_URI, values);
+                // Update recent items so it doesn't show newly added item
+                getSherlockActivity().getContentResolver().notifyChange(
+                        RecentItems.CONTENT_URI, null);
+                clearAllFields();
+            }
+            else
+            {
+                //Show user an error message
+                Toast.makeText(getSherlockActivity(), R.string.error_item_already_exists, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private boolean doesItemNameExist(String itemName)
+    {
+        Cursor cursor = mContentResolver.query(GroceryItems.CONTENT_URI, new String[] {
+                GroceryItems.ITEMNAME
+        }, GroceryItems.ITEMNAME + "=?", new String[] {
+                itemName
+        }, null);
+        if (cursor.getCount() > 0)
+        {
+            // Has rows with that itemname, already exists
+            cursor.close();
+            return true;
+        }
+        else
+        {
+            cursor.close();
+            return false;
+        }
     }
 
     private ContentValues makeContentValuesFromViews()

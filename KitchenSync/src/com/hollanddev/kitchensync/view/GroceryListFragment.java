@@ -52,6 +52,8 @@ import com.hollanddev.kitchensync.model.KitchenSyncApplication;
 import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
 import com.hollanddev.kitchensync.util.GroceryItemUtil;
 
+import java.util.Comparator;
+
 public class GroceryListFragment extends RoboSherlockFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final int GROCERY_LIST_LOADER = 0x01;
@@ -79,6 +81,8 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     private ArrayAdapter<String> mFilterAdapter;
     private Multiset<String> mStoreBag;
     private GoogleDocsProviderWrapper mContentResolver;
+    private LoaderCallbacks<Cursor> mLoaderCallbacks;
+    private LoaderManager mLoaderManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -94,6 +98,8 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        mLoaderManager = getSherlockActivity().getSupportLoaderManager();
+        mLoaderCallbacks = this;
         setHasOptionsMenu(true);
 
         String[] uiBindFrom =
@@ -107,12 +113,11 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                 R.id.grocery_row_category
         };
 
-        getSherlockActivity().getSupportLoaderManager().initLoader(GROCERY_LIST_LOADER, null, this);
         mAdapter = new GroceryListAdapter(getSherlockActivity().getApplicationContext(),
                 R.layout.grocery_list_row, null,
                 uiBindFrom, uiBindTo, 0);
         mListView.setAdapter(mAdapter);
-        getLoaderManager().initLoader(0, null, this);
+        mLoaderManager.initLoader(GROCERY_LIST_LOADER, null, this);
 
     }
 
@@ -126,7 +131,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         @Override
         public void notifyDataSetChanged() {
             super.notifyDataSetChanged();
-            fillStoreSelectionSpinner();
+//            fillStoreSelectionSpinner();
             if (mRefreshItem != null && mRefreshItem.getActionView() != null) {
                 mRefreshItem.getActionView().clearAnimation();
                 mRefreshItem.setActionView(null);
@@ -251,6 +256,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         CursorLoader cursorLoader;
         String orderBy = getOrderBySQL();
         Log.i("Loader", "SQL orderby is " + orderBy);
+        Log.i("Loader", "mCurFilter in cursor loader is  " + mCurFilter);
         if (mCurFilter != null && !mCurFilter.equals(ALL_STORES))
         {
             // Apply filter
@@ -293,11 +299,13 @@ public class GroceryListFragment extends RoboSherlockFragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.i("Loader", "in loadfinished, loader id is: " + loader.getId() + ", cursor rows: " + cursor.getCount());
         mAdapter.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        Log.i("Loader", "in loaderreset");
         mAdapter.swapCursor(null);
     }
 
@@ -305,13 +313,13 @@ public class GroceryListFragment extends RoboSherlockFragment implements
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
         super.onCreateOptionsMenu(menu, inflater);
-        final LoaderCallbacks<Cursor> lc = this;
+
         inflater.inflate(R.menu.grocery_list_menu, menu);
         mRefreshItem = (MenuItem) menu.findItem(R.id.grocery_list_menu_refresh);
         mSortAlphabetical = (MenuItem) menu.findItem(R.id.grocery_list_menu_sort_alphabetical);
         mSortOrder = (MenuItem) menu.findItem(R.id.grocery_list_menu_sort_order);
         mSortCategory = (MenuItem) menu.findItem(R.id.grocery_list_menu_sort_category);
-        setupSortingMenuItems(lc);
+        setupSortingMenuItems(mLoaderCallbacks);
         if (PreferenceManager.getDefaultSharedPreferences(getSherlockActivity()).getBoolean(
                 "GOOGLE_DOCS_SYNC", true))
         {
@@ -360,7 +368,6 @@ public class GroceryListFragment extends RoboSherlockFragment implements
         Log.i("GroceryListFragment", "Loaded from sharedprefs, curfilter is: " + mCurFilter);
 
         // Filter ArrayAdapter
-
         mFilterAdapter = new ArrayAdapter<String>(getSherlockActivity().getApplicationContext(),
                 R.layout.filter_spinner);
         OnNavigationListener navListener = new OnNavigationListener() {
@@ -374,7 +381,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                 SharedPreferences.Editor editor = getSherlockActivity().getPreferences(0).edit();
                 editor.putString(PREFS_FILTER, mCurFilter);
                 editor.commit();
-                getLoaderManager().restartLoader(0, null, lc);
+                mLoaderManager.restartLoader(GROCERY_LIST_LOADER, null, mLoaderCallbacks);
                 return true;
             }
         };
@@ -430,7 +437,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                     item.setTitle(R.string.grocery_menu_sort_alphabetical_asc);
                 }
                 editor.commit();
-                getLoaderManager().restartLoader(0, null, lc);
+                mLoaderManager.restartLoader(GROCERY_LIST_LOADER, null, lc);
                 return true;
             }
         });
@@ -451,7 +458,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                     item.setTitle(R.string.grocery_menu_sort_category_asc);
                 }
                 editor.commit();
-                getLoaderManager().restartLoader(0, null, lc);
+                mLoaderManager.restartLoader(GROCERY_LIST_LOADER, null, lc);
                 return true;
             }
         });
@@ -473,7 +480,7 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                     item.setTitle(R.string.grocery_menu_sort_alphabetical);
                 }
                 editor.commit();
-                getLoaderManager().restartLoader(0, null, lc);
+                mLoaderManager.restartLoader(GROCERY_LIST_LOADER, null, lc);
                 return true;
             }
         });
@@ -499,6 +506,24 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                 filterAdapterAdd(c.getString(c.getColumnIndexOrThrow(GroceryItems.STORE)));
             }
             c.close();
+            mFilterAdapter.sort(new Comparator<String>() {
+                @Override
+                public int compare(String arg0, String arg1) {
+                    // Keep All Stores at the top, otherwise sort alphabetically
+                    if (arg0.equals(ALL_STORES))
+                    {
+                        return -1;
+                    }
+                    else if (arg1.equals(ALL_STORES))
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        return arg0.toUpperCase().compareTo(arg1.toUpperCase());
+                    }
+                }
+            });
             // Set to last selected store
             Log.i("GroceryListFragment", "mFilteAdapter size is: " + mFilterAdapter.getCount());
             int position = mFilterAdapter.getPosition(mCurFilter);
@@ -533,8 +558,10 @@ public class GroceryListFragment extends RoboSherlockFragment implements
 
     private void removeStores(String storesAsCSV)
     {
+        boolean moreThanOneStore = false;
         for (String store : storesAsCSV.split(","))
         {
+            moreThanOneStore = true;
             store = store.trim();
             mStoreBag.remove(store);
             if (mStoreBag.count(store) <= 0)
@@ -543,8 +570,11 @@ public class GroceryListFragment extends RoboSherlockFragment implements
                 mFilterAdapter.remove(store);
                 // Reset to All Stores
                 getSherlockActivity().getSupportActionBar().setSelectedNavigationItem(0);
-                // mSpinner.setSelection(0);
             }
+        }
+        if (moreThanOneStore)
+        {
+            mLoaderManager.restartLoader(GROCERY_LIST_LOADER, null, mLoaderCallbacks);
         }
     }
 

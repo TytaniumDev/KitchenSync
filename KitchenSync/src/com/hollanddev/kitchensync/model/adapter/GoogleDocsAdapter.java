@@ -26,7 +26,7 @@ public class GoogleDocsAdapter
     private static final String SKIP_ROWS_WARNING = "WARNING: Syncing stops at first blank row. Please do not leave blank rows between items.";
     private static final String[] columns =
     {
-            "Item Name", "Amount", "Store", "Category", SKIP_ROWS_WARNING
+            "Item Name", "Amount", "Store (Separate multiple stores with commas)", "Category", SKIP_ROWS_WARNING
     };
 
     private WorkSheet worksheet;
@@ -68,7 +68,9 @@ public class GoogleDocsAdapter
                     Log.i(tag, "SpreadSheet " + GROCERY_LIST_DOC_NAME + " does not exist");
                     // Create spreadsheet
                     ssf.createSpreadSheet(GROCERY_LIST_DOC_NAME);
+                    Log.i(tag, "created spreadsheet");
                     ssList = ssf.getSpreadSheet(GROCERY_LIST_DOC_NAME, true);
+                    Log.i(tag, "Tried to get spreadsheet again");
                     newDocument = true;
                 }
                 if (ssList != null && ssList.size() > 0)
@@ -89,6 +91,7 @@ public class GoogleDocsAdapter
                         Log.i(tag, "Adding new worksheet");
                         // Create worksheet
                         ss.addListWorkSheet(GROCERY_LIST_DOC_NAME, columns.length, columns);
+                        Log.i(tag, "Added worksheet");
                         // Remove old default worksheet
                         ss.deleteWorkSheet(ss.getAllWorkSheets().get(0));
                         // Log.i(tag, "Columns: " +
@@ -115,34 +118,12 @@ public class GoogleDocsAdapter
                     Log.i(tag, "Got ss key");
                     connected = true;
                 }
+                else
+                {
+                    Log.i(tag, "ssList still null or empty, after if");
+                }
             }
             return null;
-        }
-
-        private HashMap<String, String> convertWorkSheetRowToRecord(WorkSheetRow row) {
-            HashMap<String, String> map = new HashMap<String, String>();
-            String name;
-            for (WorkSheetCell cell : row.getCells())
-            {
-                name = cell.getName();
-                if (name.equals(GroceryItems.ITEMNAME))
-                {
-                    map.put(GroceryItems.ITEMNAME, (cell.getValue()));
-                }
-                else if (name.equals(GroceryItems.AMOUNT))
-                {
-                    map.put(GroceryItems.AMOUNT, (cell.getValue()));
-                }
-                else if (name.equals(GroceryItems.STORE))
-                {
-                    map.put(GroceryItems.STORE, (cell.getValue()));
-                }
-                else if (name.equals(GroceryItems.CATEGORY))
-                {
-                    map.put(GroceryItems.CATEGORY, (cell.getValue()));
-                }
-            }
-            return map;
         }
 
         @Override
@@ -151,6 +132,32 @@ public class GoogleDocsAdapter
             mProvider.syncWithGoogleDocs();
         }
 
+    }
+
+    private HashMap<String, String> convertWorkSheetRowToRecord(WorkSheetRow row) {
+        HashMap<String, String> map = new HashMap<String, String>();
+        String name;
+        for (WorkSheetCell cell : row.getCells())
+        {
+            name = cell.getName();
+            if (name.equals(GroceryItems.ITEMNAME))
+            {
+                map.put(GroceryItems.ITEMNAME, (cell.getValue()));
+            }
+            else if (name.equals(GroceryItems.AMOUNT))
+            {
+                map.put(GroceryItems.AMOUNT, (cell.getValue()));
+            }
+            else if (name.equals(GroceryItems.STORE))
+            {
+                map.put(GroceryItems.STORE, (cell.getValue()));
+            }
+            else if (name.equals(GroceryItems.CATEGORY))
+            {
+                map.put(GroceryItems.CATEGORY, (cell.getValue()));
+            }
+        }
+        return map;
     }
 
     public HashMap<String, GroceryItem> getGroceryListMap()

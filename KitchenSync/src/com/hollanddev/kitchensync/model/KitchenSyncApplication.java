@@ -3,6 +3,7 @@ package com.hollanddev.kitchensync.model;
 
 import android.app.Activity;
 import android.app.Application;
+import android.os.Looper;
 
 import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
 import com.hollanddev.kitchensync.util.AndroidAuthenticator;
@@ -35,6 +36,7 @@ public class KitchenSyncApplication extends Application
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Looper.prepare();
                 SpreadSheetFactory factory = SpreadSheetFactory.getInstance(mAuth);
                 factory.getAllSpreadSheets();
                 gDocsProviderWrapper.setAndroidAuth(mAuth);

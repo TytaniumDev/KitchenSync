@@ -53,6 +53,7 @@ public class GoogleDocsProviderWrapper {
                 {
                     ContentValues values = new ContentValues();
                     values.put(GroceryItems.ROWINDEX, rowIndex);
+                    Log.i("GoogleDocsProviderWrapper", "Deleting grocery item from google doc");
                     gDocsHelper.deleteGroceryItem(values);
                 }
         }
@@ -89,6 +90,7 @@ public class GoogleDocsProviderWrapper {
                 }
                 if (isGoogleDocsEnabled())
                 {
+                    Log.i("GoogleDocsProviderWrapper", "Adding grocery item to google doc");
                     gDocsHelper.addGroceryItem(values);
                 }
         }
@@ -110,6 +112,7 @@ public class GoogleDocsProviderWrapper {
             case GroceryItemProvider.GROCERYITEMS:
                 if (isGoogleDocsEnabled() && values.getAsString(GroceryItems.ROWINDEX).length() > 0)
                 {
+                    Log.i("GoogleDocsProviderWrapper", "Updating grocery item in google doc");
                     gDocsHelper.editGroceryItem(values);
                 }
         }

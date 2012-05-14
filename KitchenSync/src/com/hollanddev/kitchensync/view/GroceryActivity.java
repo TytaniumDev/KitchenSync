@@ -23,7 +23,6 @@ public class GroceryActivity extends KitchenSyncFragmentActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        ((KitchenSyncApplication) getApplication()).promptForAuth(this);
         getSupportActionBar().setHomeButtonEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setIcon(R.drawable.app_icon);
@@ -32,5 +31,11 @@ public class GroceryActivity extends KitchenSyncFragmentActivity
         pager.setAdapter(adapter);
         indicator.setViewPager(pager);
         pager.setCurrentItem(1);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ((KitchenSyncApplication) getApplication()).promptForAuth(this);
+        
     }
 }
