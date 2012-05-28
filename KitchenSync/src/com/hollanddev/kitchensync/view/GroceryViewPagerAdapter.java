@@ -32,8 +32,10 @@ public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements Tit
         super(fm);
         this.titles = new String[]
         {
+                context.getResources().getString(R.string.grocery_list_view_list_tab_name),
                 context.getResources().getString(R.string.grocery_list_view_add_item_tab_name),
-                context.getResources().getString(R.string.grocery_list_view_list_tab_name)
+                context.getResources().getString(R.string.grocery_list_view_add_recent_items_tab_name)
+                
         };
     }
 
@@ -55,9 +57,11 @@ public class GroceryViewPagerAdapter extends FragmentPagerAdapter implements Tit
         switch (position)
         {
             case 0:
-                return new GroceryAddItemWrapperFragment();
-            case 1:
                 return new GroceryListFragment();
+            case 1:
+                return new GroceryAddItemFragment();
+            case 2:
+                return new GroceryRecentItemsFragment();
             default:
                 return new NYIFragment();
         }

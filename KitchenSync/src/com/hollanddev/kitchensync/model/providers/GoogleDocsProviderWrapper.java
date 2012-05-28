@@ -239,7 +239,7 @@ public class GoogleDocsProviderWrapper {
         if (isGoogleDocsSyncPrefEnabled() && isNetworkAvailable()
                 && auth.getAuthToken("wise") != null)
         {
-            gDocsHelper = new GoogleDocsAdapter(auth, this);
+            gDocsHelper = new GoogleDocsAdapter(auth, this, mContext);
             Log.i("GroceryItemProvider", "Got an auth token, gdocshelper enabled");
         }
         else

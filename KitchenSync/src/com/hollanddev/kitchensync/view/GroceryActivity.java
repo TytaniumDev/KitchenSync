@@ -24,13 +24,13 @@ public class GroceryActivity extends KitchenSyncFragmentActivity
     {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setHomeButtonEnabled(false);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setIcon(R.drawable.app_icon);
         GroceryViewPagerAdapter adapter = new GroceryViewPagerAdapter(getSupportFragmentManager(),
                 getApplicationContext());
         pager.setAdapter(adapter);
         indicator.setViewPager(pager);
-        pager.setCurrentItem(1);
+        pager.setCurrentItem(0);
     }
     @Override
     protected void onResume() {

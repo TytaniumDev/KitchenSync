@@ -11,10 +11,9 @@
     <!-- Tab names -->
     <string name="grocery_list_view_list_tab_name">Grocery List</string>
     <string name="grocery_list_view_add_item_tab_name">Add Item</string>
+    <string name="grocery_list_view_add_recent_items_tab_name">Recent Items</string>
     <!-- Descriptions -->
     <string name="crossed_off_button_description">Delete grocery item</string>
-    <string name="switch_to_add">Switch to Add Recent Item View</string>
-    <string name="switch_to_quick_add">Switch to Add Recent Item View</string>
     <string name="clear_all_fields">Clear Fields</string>
     <string name="currently_syncing_description">Out of Sync</string>
     <string name="dropdown_button_description">More Options</string>
@@ -25,17 +24,18 @@
     <string name="edit_stores_add_store">Add Store</string>
     <string name="edit_categories_add_category">Add Category</string>
     <string name="grocery_edit_item">Edit Item</string>
-    <string name="grocery_quickadd_item">Recent Items</string>
     <string name="grocery_item_name">Item Name</string>
     <string name="grocery_amount">Amount</string>
     <string name="grocery_store">Store</string>
     <string name="grocery_category">Category</string>
+    <string name="grocery_clear">Clear</string>
     <string name="grocery_add_to_list">Add To List</string>
     <string name="grocery_store_selector">Add a Store</string>
     <string name="grocery_category_selector">Select a Category</string>
     <string-array name="grocery_dialog_options">
         <item>Edit</item>
     </string-array>
+    <string name="grocery_clear_fields_warning">Are you sure you want to clear all fields?</string>
     <!-- Text in Menus -->
     <string name="grocery_menu_sort_alphabetical">Sort Alphabetically First</string>
     <string name="grocery_menu_sort_category">Sort by Category First</string>
@@ -54,6 +54,8 @@
     <string name="delete">Delete</string>
     <string name="add">Add</string>
     <string name="refresh">Refresh</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <!-- Settings Menu -->
     <string name="settings_google_doc_sync_title">Google Docs Sync</string>
     <string name="settings_google_doc_sync_on">Syncing On</string>
@@ -76,5 +78,6 @@
     <string name="settings_edit_categories_summary">Add/Remove Categories from Autocomplete</string>
     <!-- Error Messages -->
     <string name="error_item_already_exists">Item already exists. Please edit the item instead.</string>
+    <string name="error_google_docs_sync">Error syncing with Google Drive. Please try again. (If this message persists, try deleting the Kitchen Sync Grocery List spreadsheet on Google Drive)</string>
     
 </resources>

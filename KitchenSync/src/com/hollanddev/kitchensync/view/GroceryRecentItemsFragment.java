@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,24 +23,37 @@ import android.widget.ListView;
 
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.hollanddev.kitchensync.R;
-import com.hollanddev.kitchensync.model.KitchenSyncApplication;
 import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.model.GroceryItem.RecentItems;
+import com.hollanddev.kitchensync.model.KitchenSyncApplication;
+import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
 import com.hollanddev.kitchensync.util.GroceryItemUtil;
 
-
-public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
+public class GroceryRecentItemsFragment extends RoboSherlockFragment implements
         LoaderManager.LoaderCallbacks<Cursor>
 {
-    private SimpleCursorAdapter adapter;
+    private SimpleCursorAdapter mAdapter;
     private static final int RECENT_LIST_LOADER = 0x02;
+    private ListView mListView;
+    private GoogleDocsProviderWrapper mContentResolver;
+    private LoaderManager mLoaderManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View root = inflater.inflate(R.layout.fragment_quickadd_groceryitem, container, false);
 
-        ListView listView = (ListView) root.findViewById(R.id.grocery_quickadd_listview);
+        mListView = (ListView) root.findViewById(R.id.grocery_quickadd_listview);
+        mContentResolver = ((KitchenSyncApplication) getSherlockActivity().getApplication())
+                .getGoogleDocsProviderWrapper();
+
+        return root;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mLoaderManager = getSherlockActivity().getSupportLoaderManager();
         String[] uiBindFrom =
         {
                 GroceryItems.ITEMNAME, GroceryItems.AMOUNT, GroceryItems.STORE
@@ -52,13 +64,13 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
                 R.id.grocery_quickadd_row_store
         };
 
-        getActivity().getSupportLoaderManager().initLoader(RECENT_LIST_LOADER, null, this);
 
-        adapter = new RecentItemsAdapter(getSherlockActivity().getApplicationContext(),
+        mAdapter = new RecentItemsAdapter(getSherlockActivity().getApplicationContext(),
                 R.layout.recent_items_row, null,
-                uiBindFrom, uiBindTo, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        listView.setAdapter(adapter);
-        return root;
+                uiBindFrom, uiBindTo, 0);
+        mListView.setAdapter(mAdapter);
+        mLoaderManager.initLoader(RECENT_LIST_LOADER, null, this);
+        getActivity().getSupportLoaderManager().initLoader(RECENT_LIST_LOADER, null, this);
     }
 
     private class RecentItemsAdapter extends SimpleCursorAdapter
@@ -88,14 +100,13 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
                     {
                         public void run()
                         {
-                            ((KitchenSyncApplication) getSherlockActivity().getApplication())
-                                    .getGoogleDocsProviderWrapper().insert(
-                                            GroceryItems.CONTENT_URI, values);
-                            getSherlockActivity().getContentResolver().notifyChange(
+                            mContentResolver.insert(
+                                    GroceryItems.CONTENT_URI, values);
+                            mContentResolver.notifyChange(
                                     RecentItems.CONTENT_URI, null);
                             view.invalidate();
                         }
-                    }, 150);
+                    }, anim.getDuration());
                 }
             });
             view.setOnTouchListener(new OnTouchListener() {
@@ -126,7 +137,8 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
                 RecentItems.STORE, RecentItems.CATEGORY
         };
 
-        CursorLoader cursorLoader = new CursorLoader(getSherlockActivity(), RecentItems.CONTENT_URI,
+        CursorLoader cursorLoader = new CursorLoader(getSherlockActivity(),
+                RecentItems.CONTENT_URI,
                 projection, null, null, null);
         return cursorLoader;
     }
@@ -134,12 +146,12 @@ public class GroceryQuickAddItemFragment extends RoboSherlockFragment implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
     {
-        adapter.swapCursor(cursor);
+        mAdapter.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader)
     {
-        adapter.swapCursor(null);
+        mAdapter.swapCursor(null);
     }
 }

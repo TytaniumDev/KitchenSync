@@ -2,10 +2,12 @@
 package com.hollanddev.kitchensync.model.adapter;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.hollanddev.kitchensync.R;
 import com.hollanddev.kitchensync.model.GroceryItem;
 import com.hollanddev.kitchensync.model.GroceryItem.GroceryItems;
 import com.hollanddev.kitchensync.model.providers.GoogleDocsProviderWrapper;
@@ -34,19 +36,20 @@ public class GoogleDocsAdapter
     private boolean newDocument = false;
     private final GoogleDocsProviderWrapper mProvider;
     private final AndroidAuthenticator mAndroidAuth;
+    private final Context mContext;
     private boolean connected = false;
 
     public GoogleDocsAdapter(AndroidAuthenticator auth,
-            GoogleDocsProviderWrapper googleDocsProviderWrapper)
+            GoogleDocsProviderWrapper googleDocsProviderWrapper, Context context)
     {
         mProvider = googleDocsProviderWrapper;
         mAndroidAuth = auth;
+        mContext = context;
         initGoogleDocs();
     }
 
     private void initGoogleDocs()
     {
-        Looper.prepare();
         new InitGoogleDocsTask().execute();
     }
 
@@ -121,6 +124,7 @@ public class GoogleDocsAdapter
                 else
                 {
                     Log.i(tag, "ssList still null or empty, after if");
+                    Toast.makeText(mContext, R.string.error_google_docs_sync, Toast.LENGTH_LONG);
                 }
             }
             return null;

@@ -25,10 +25,9 @@ import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
-import com.actionbarsherlock.view.MenuItem;
 import com.github.rtyley.android.sherlock.roboguice.fragment.RoboSherlockFragment;
 import com.hollanddev.kitchensync.R;
 import com.hollanddev.kitchensync.model.GroceryItem.Categories;
@@ -44,6 +43,8 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
 {
     @InjectView(R.id.grocery_add_item_add_button)
     Button mAddToListButton;
+    @InjectView(R.id.grocery_add_item_clear_button)
+    Button mClearButton;
     @InjectView(R.id.grocery_add_item_itemname_field)
     AutoCompleteTextView mItemName;
     @InjectView(R.id.grocery_add_item_amount_field)
@@ -97,6 +98,29 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
             public void onClick(View v)
             {
                 addCurrentItem();
+            }
+        });
+        //Builder for clearbutton alert dialog
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getSherlockActivity());
+        builder.setMessage(R.string.grocery_clear_fields_warning)
+               .setCancelable(false)
+               .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int id) {
+                        clearAllFields();
+                   }
+               })
+               .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                   }
+               });
+        mClearButton.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                AlertDialog alert = builder.create();
+                alert.show();
             }
         });
 
@@ -307,15 +331,5 @@ public class GroceryAddItemFragment extends RoboSherlockFragment
         mAmount.setText("");
         mStore.setText("");
         mCategory.setText("");
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean result = super.onOptionsItemSelected(item);
-        if (item.getItemId() == R.id.grocery_additem_menu_clear)
-        {
-            clearAllFields();
-        }
-        return result;
     }
 }

@@ -8,8 +8,8 @@
         android:id="@+id/grocery_add_item_input_table"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="top|center_horizontal"
         android:layout_gravity="top|center_horizontal"
+        android:gravity="top|center_horizontal"
         android:padding="8dp"
         android:weightSum="1" >
         <TableRow android:layout_marginBottom="8dp" >
@@ -22,12 +22,12 @@
                 android:id="@+id/grocery_add_item_itemname_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="4dip"
                 android:layout_weight="1"
                 android:imeOptions="actionNext"
-                android:textColor="@android:color/black"
                 android:inputType="text"
                 android:nextFocusDown="@+id/grocery_add_item_amount_field"
-                android:layout_marginRight="4dip" />
+                android:textColor="@android:color/black" />
         </TableRow>
         <TableRow android:layout_marginBottom="8dp" >
             <TextView
@@ -40,12 +40,12 @@
                 android:id="@+id/grocery_add_item_amount_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="4dip"
                 android:layout_weight="1"
-                android:textColor="@android:color/black"
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:nextFocusDown="@+id/grocery_add_item_store_field"
-                android:layout_marginRight="4dip" />
+                android:textColor="@android:color/black" />
         </TableRow>
         <TableRow android:layout_marginBottom="8dp" >
             <TextView
@@ -58,20 +58,19 @@
                 android:id="@+id/grocery_add_item_store_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
                 android:layout_weight="1"
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:nextFocusDown="@+id/grocery_add_item_category_field"
-                />
+                android:textColor="@android:color/black" />
             <ImageButton
                 android:id="@+id/grocery_add_item_store_field_button"
                 android:layout_width="wrap_content"
-                android:layout_marginLeft="8dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/store_field_add"
-                android:src="@android:drawable/ic_menu_add" />
+                android:src="@drawable/ic_action_add_large" />
         </TableRow>
         <TableRow android:layout_marginBottom="8dp" >
             <TextView
@@ -84,25 +83,38 @@
                 android:id="@+id/grocery_add_item_category_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
                 android:layout_weight="1"
                 android:imeOptions="actionDone"
                 android:inputType="text"
-                android:nextFocusDown="@+id/grocery_add_item_category_field" />
+                android:nextFocusDown="@+id/grocery_add_item_category_field"
+                android:textColor="@android:color/black" />
             <ImageButton
                 android:id="@+id/grocery_add_item_category_field_button"
-                android:layout_marginLeft="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/category_field_set"
                 android:src="@android:drawable/ic_menu_set_as" />
         </TableRow>
     </TableLayout>
-    <Button
-        android:id="@+id/grocery_add_item_add_button"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
-        android:text="@string/grocery_add_to_list" />
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/grocery_add_item_clear_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/grocery_clear"
+            android:layout_gravity="center_horizontal"
+            />
+        <Button
+            android:id="@+id/grocery_add_item_add_button"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/grocery_add_to_list" />
+    </LinearLayout>
 </LinearLayout>

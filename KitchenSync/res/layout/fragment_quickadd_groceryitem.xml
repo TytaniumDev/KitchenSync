@@ -9,13 +9,6 @@
         android:layout_above="@+id/adview_frame"
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
-        <TextView
-            android:id="@+id/grocery_quickadd_item_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/grocery_quickadd_item"
-            android:gravity="center_horizontal"
-            android:textSize="28dip" />
         <ListView
             android:id="@+id/grocery_quickadd_listview"
             android:layout_width="match_parent"
