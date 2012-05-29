@@ -6,12 +6,6 @@
         android:key="@string/key_google_docs_sync"
         android:summaryOff="@string/settings_google_doc_sync_off"
         android:summaryOn="@string/settings_google_doc_sync_on" />
-    <ListPreference
-        android:entries="@array/settings_theme_list"
-        android:entryValues="@array/settings_theme_list"
-        android:defaultValue="@string/light"
-        android:key="@string/key_theme"
-        android:title="@string/settings_theme_title" />
     
     
     <PreferenceCategory android:title="@string/settings_edit_category_title"><Preference android:key="@string/key_edit_stores" android:title="@string/settings_edit_stores_title" android:summary="@string/settings_edit_stores_summary" /><Preference android:key="@string/key_edit_categories" android:title="@string/settings_edit_categories_title" android:summary="@string/settings_edit_categories_summary" /></PreferenceCategory>

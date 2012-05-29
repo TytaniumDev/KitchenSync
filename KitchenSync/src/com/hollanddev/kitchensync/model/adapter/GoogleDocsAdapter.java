@@ -177,15 +177,30 @@ public class GoogleDocsAdapter
             else
             {
                 ArrayList<WorkSheetRow> rows = worksheet.getData(false);
+                ArrayList<WorkSheetRow> rowsToDelete = new ArrayList<WorkSheetRow>();
                 if (rows != null)
                 {
+                    //Remove duplicates or add to map if unique
                     for (WorkSheetRow row : rows)
                     {
                         ArrayList<WorkSheetCell> cells = row.getCells();
                         Log.i(tag, "got cells");
                         GroceryItem temp = makeGroceryItemFromCells(cells);
                         temp.setRowIndex(row.getRowIndex());
-                        map.put(temp.getItemName(), temp);
+                        if(map.containsKey(temp.getItemName()))
+                        {
+                            //Already contains, delete from spreadsheet
+                            rowsToDelete.add(row);
+                        }
+                        else
+                        {
+                            //Doesn't exist, add to map
+                            map.put(temp.getItemName(), temp);
+                        }
+                    }
+                    for(WorkSheetRow rowToDelete : rowsToDelete)
+                    {
+                        worksheet.deleteListRow(spreadsheetKey, rowToDelete);
                     }
                 }
                 else
