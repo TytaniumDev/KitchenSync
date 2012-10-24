@@ -20,7 +20,6 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
