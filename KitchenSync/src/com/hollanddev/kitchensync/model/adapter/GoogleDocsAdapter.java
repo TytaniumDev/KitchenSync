@@ -4,6 +4,7 @@ package com.hollanddev.kitchensync.model.adapter;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -123,8 +124,9 @@ public class GoogleDocsAdapter
                 }
                 else
                 {
+                	Looper.prepare();
                     Log.i(tag, "ssList still null or empty, after if");
-                    Toast.makeText(mContext, R.string.error_google_docs_sync, Toast.LENGTH_LONG);
+                    Toast.makeText(mContext, R.string.error_google_docs_sync, Toast.LENGTH_LONG).show();
                 }
             }
             return null;

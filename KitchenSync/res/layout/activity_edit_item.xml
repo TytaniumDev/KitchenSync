@@ -16,11 +16,4 @@
         android:layout_below="@+id/grocery_edit_item_title" >
         <include layout="@layout/fragment_add_groceryitem" />
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:gravity="bottom" >
-        <include layout="@layout/adview" />
-    </LinearLayout>
 </RelativeLayout>
