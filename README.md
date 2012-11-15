@@ -11,7 +11,9 @@ When you first launch the app, it should ask you for permission to use your Goog
 Please let me know of any problems you encounter, or features you would like to see. I'll try to implement them when I can!
 
 ![Grocery List View][3] 
+
 ![Add Item View][4] 
+
 ![Recent Items View][5]
 
 
